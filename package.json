@@ -7,7 +7,11 @@
     "dev": "turbo dev",
     "lint": "turbo lint",
     "format": "turbo format",
-    "typecheck": "turbo typecheck"
+    "typecheck": "turbo typecheck",
+    "db:up": "docker compose up -d --build",
+    "db:down": "docker compose down",
+    "db:status": "docker compose ps",
+    "db:logs": "docker compose logs -f database"
   },
   "devDependencies": {
     "@workspace/eslint-config": "workspace:*",

@@ -1,0 +1,27 @@
+services:
+  database:
+    build:
+      context: ./infrastructure/db
+      dockerfile: Dockerfile
+    container_name: forginity-database
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root@123
+      FORGINITY_ADMIN_PASSWORD: ${FORGINITY_ADMIN_PASSWORD:?FORGINITY_ADMIN_PASSWORD is required}
+      AUTH_ADMIN_PASSWORD: ${AUTH_ADMIN_PASSWORD:?AUTH_ADMIN_PASSWORD is required}
+      PIKYRIDER_ADMIN_PASSWORD: ${PIKYRIDER_ADMIN_PASSWORD:?PIKYRIDER_ADMIN_PASSWORD is required}
+    ports:
+      - "5432:5432"
+    volumes:
+      - database_data:/var/lib/postgresql
+      - ./infrastructure/db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  database_data:
+    name: forginity_database_data
