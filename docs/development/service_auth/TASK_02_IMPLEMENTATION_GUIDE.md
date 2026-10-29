@@ -1,7 +1,7 @@
 # TASK IMPLEMENTATION GUIDE: TASK-02 - Build Database Schemas and Migrations
 
 - **Service:** `services/auth`
-- **Status:** `IN_PROGRESS`
+- **Status:** `COMPLETED`
 - **Task List:** [`./TASK_LIST.md`](./TASK_LIST.md)
 - **Record:** [`./IMPLEMENTATIONS_RECORD.md`](./IMPLEMENTATIONS_RECORD.md)
 

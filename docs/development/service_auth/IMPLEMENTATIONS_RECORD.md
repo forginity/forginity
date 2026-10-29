@@ -7,11 +7,11 @@
 
 ## 1. LAST UPDATE
 
-- **Timestamp:** `2026-10-29 21:50`
-- **Task:** `TASK-01: Scaffold services/auth package and configs`
+- **Timestamp:** `2026-10-29 22:36`
+- **Task:** `TASK-02: Build database schemas and migrations`
 - **Summary:**
-  Scaffolded `services/auth` package structure, Express bootstrap, drizzle config, and health endpoints.
-  Verified with automated unit and route integration tests, passing full typecheck and lint suites.
+  Implemented Drizzle ORM schemas, relations, Zod validators, and generated SQL migrations for auth_db.
+  Verified with 23 unit and schema tests, passing full typecheck, lint, and test suites.
 
 ---
 
@@ -20,3 +20,4 @@
 | Task ID | Task Title | Guide File | Completed Date | Verified By |
 | :--- | :--- | :--- | :--- | :--- |
 | `TASK-01` | Scaffold `services/auth` package and configs | [`TASK_01_IMPLEMENTATION_GUIDE.md`](./TASK_01_IMPLEMENTATION_GUIDE.md) | 2026-10-29 | Vitest + TypeScript |
+| `TASK-02` | Build database schemas and migrations | [`TASK_02_IMPLEMENTATION_GUIDE.md`](./TASK_02_IMPLEMENTATION_GUIDE.md) | 2026-10-29 | Vitest + Drizzle Kit |
