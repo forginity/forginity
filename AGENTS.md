@@ -12,6 +12,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## 1. Absolute Rules and Safety Guardrails
 
+- **Type-First Architecture.** Always apply a strict Type-First approach. Define data contracts, domain types, Zod schemas, and entity shapes before writing business logic, repositories, or routes. Derive TypeScript types directly from authoritative Zod schemas and Drizzle definitions using `z.infer` and `$inferSelect`. Treat external inputs as untyped until validated at the network boundary. Make invalid domain states unrepresentable.
 - **Environment File Protection.** Never touch any `.env` file under any circumstance. Do not read, inspect, create, modify, edit, or commit `.env`, `.env.local`, `.env.production`, `.env.development`, or `.env.staging`. Read secrets exclusively from `process.env`. Store sample variable keys in `.env.example` with dummy values.
 - **Git Mutation Guard.** Read-only git commands such as `git status`, `git diff`, and `git log` are permitted. State-changing git commands such as `git pull`, `git rebase`, `git commit`, `git push`, `git checkout`, `git merge`, and `git reset` require explicit user confirmation.
 - **Documentation Grounding.** Follow the architectural blueprints in [`docs/org/TDD.md`](file:///home/vikas/Documents/forginity/docs/org/TDD.md), [`docs/org/PRD.md`](file:///home/vikas/Documents/forginity/docs/org/PRD.md), and [`docs/org/SMA-PVR.md`](file:///home/vikas/Documents/forginity/docs/org/SMA-PVR.md).
@@ -83,15 +84,15 @@ Requests route through Cloudflare Edge into an Nginx reverse proxy gateway. Ngin
 
 Backend services in `services/*` must follow strict role-based file naming:
 
-| Layer | Path | Suffix Pattern | Responsibility |
-| :--- | :--- | :--- | :--- |
-| Database Schema | `src/db/` | `*.schema.ts` | Drizzle ORM table definitions, columns, and relations. |
-| Validation | `src/db/` | `*.validator.ts` | Zod runtime schemas and inferred TypeScript types. |
-| Repository Layer | `src/repositories/` | `*.repository.ts` | Database queries and Drizzle ORM operations. |
-| Service Layer | `src/services/` | `*.service.ts` | Business logic, domain rules, and orchestration. |
-| Routes and Controllers | `src/routes/` | `*.route.ts` | Express HTTP route handlers and validation binding. |
-| Middleware | `src/middleware/` | `*.middleware.ts` | Auth guards, rate limiting, and error handling. |
-| Bootstrap | `src/` | `app.ts`, `index.ts` | Express application setup and public exports. |
+| Layer                  | Path                | Suffix Pattern       | Responsibility                                         |
+| :--------------------- | :------------------ | :------------------- | :----------------------------------------------------- |
+| Database Schema        | `src/db/`           | `*.schema.ts`        | Drizzle ORM table definitions, columns, and relations. |
+| Validation             | `src/db/`           | `*.validator.ts`     | Zod runtime schemas and inferred TypeScript types.     |
+| Repository Layer       | `src/repositories/` | `*.repository.ts`    | Database queries and Drizzle ORM operations.           |
+| Service Layer          | `src/services/`     | `*.service.ts`       | Business logic, domain rules, and orchestration.       |
+| Routes and Controllers | `src/routes/`       | `*.route.ts`         | Express HTTP route handlers and validation binding.    |
+| Middleware             | `src/middleware/`   | `*.middleware.ts`    | Auth guards, rate limiting, and error handling.        |
+| Bootstrap              | `src/`              | `app.ts`, `index.ts` | Express application setup and public exports.          |
 
 ### Database-per-Service Isolation
 
@@ -125,45 +126,70 @@ Engineering teams and AI agents must follow Test-Driven Development principles.
 
 ## 7. AI Development Workflow
 
-When an AI agent develops a service or feature, it must adhere to the structured lifecycle below.
+The AI development workflow operates on a clean, four-stage lifecycle:
+`Service Details -> Progressive Task List -> Task Implementation Guide -> Implementation Record`
+
+### Universal Task Statuses
+
+Keep task status definitions here in `AGENTS.md`. Do not repeat this legend inside individual task lists.
+
+| Status | Meaning |
+| :--- | :--- |
+| `PENDING` | Task is planned. Guide is not yet started. |
+| `IN_PROGRESS` | Implementation guide is active. Code or tests are underway. |
+| `COMPLETED` | Code written, verified with tests, and logged in `IMPLEMENTATIONS_RECORD.md`. |
+| `BLOCKED` | Dependent on external API, contract, or operator decision. |
 
 ### Universal Task Execution Lifecycle
 
 #### Step 1: Discover Task List or Create One
+
 The AI agent checks for an existing task list at:
+
 ```text
 docs/development/<service_name>/TASK_LIST.md
 ```
-If the file does not exist, the AI agent creates it from [`docs/template/TASK_LIST_TEMPLATE.md`](file:///home/vikas/Documents/forginity/docs/template/TASK_LIST_TEMPLATE.md). It also initializes the implementation tracking log at `docs/development/<service_name>/IMPLEMENTATIONS_RECORD.md` using [`docs/template/IMPLEMENTATIONS_RECORD_TEMPLATE.md`](file:///home/vikas/Documents/forginity/docs/template/IMPLEMENTATIONS_RECORD_TEMPLATE.md).
+
+If the file does not exist, the AI agent creates it from [`docs/template/TASK_LIST_TEMPLATE.md`](file:///home/vikas/Documents/forginity/docs/template/TASK_LIST_TEMPLATE.md) with full service details. It also initializes the implementation tracking log at `docs/development/<service_name>/IMPLEMENTATIONS_RECORD.md` using [`docs/template/IMPLEMENTATIONS_RECORD_TEMPLATE.md`](file:///home/vikas/Documents/forginity/docs/template/IMPLEMENTATIONS_RECORD_TEMPLATE.md).
 
 #### Step 2: Review Task
-The AI agent reviews `docs/development/<service_name>/TASK_LIST.md`. It selects the next sequential pending task from the master task matrix.
+
+The AI agent reviews the service details and selects the next sequential pending task from `docs/development/<service_name>/TASK_LIST.md`.
 
 #### Step 3: Create Task Implementation Guide
+
 Before writing or modifying any code, the AI agent creates an implementation guide for the selected task:
+
 ```text
 docs/development/<service_name>/TASK_<NO>_IMPLEMENTATION_GUIDE.md
 ```
+
 The AI agent creates this file from the template at [`docs/template/TASK_IMPLEMENTATION_GUIDE_TEMPLATE.md`](file:///home/vikas/Documents/forginity/docs/template/TASK_IMPLEMENTATION_GUIDE_TEMPLATE.md).
 
 #### Step 4: Execute Implementation
-The AI agent implements code and tests strictly according to the guide. The agent follows Test-Driven Development principles. The agent does not skip test or security scenarios.
+
+The AI agent implements code and tests strictly according to the guide. The agent applies a Type-First approach, defining Zod schemas and TypeScript types before writing logic. The agent follows Test-Driven Development principles. The agent does not skip test or security scenarios.
 
 #### Step 5: Post-Implementation Verification
+
 The AI agent executes the full verification suite against the affected package:
+
 - `pnpm --filter [package] typecheck`
 - `pnpm --filter [package] lint`
 - `pnpm --filter [package] test`
 
 #### Step 6: Update Implementation Records
+
 Once verification succeeds, the AI agent updates service records:
-1. Update the **Last Update Record** table in `docs/development/<service_name>/IMPLEMENTATIONS_RECORD.md`.
-2. Append a new completion log entry into the **Historical Completion Log** in `docs/development/<service_name>/IMPLEMENTATIONS_RECORD.md`.
+
+1. Update the **Last Update Record** (date, completed task, two-line change summary) in `docs/development/<service_name>/IMPLEMENTATIONS_RECORD.md`.
+2. Append a row to the **Completed Tasks** table in `docs/development/<service_name>/IMPLEMENTATIONS_RECORD.md`.
 3. Mark the task as `COMPLETED` in `docs/development/<service_name>/TASK_LIST.md`.
 
 ### Required Sections in Each Implementation Guide
 
 Every `TASK_<NO>_IMPLEMENTATION_GUIDE.md` must contain:
+
 1. **Task Summary.** Goal and business rationale.
 2. **Task Scope.** List of files to create and edit, and explicit out-of-scope boundaries.
 3. **Implementation Guide.** Step-by-step instructions for schemas, repositories, services, and routes.
@@ -175,6 +201,7 @@ Every `TASK_<NO>_IMPLEMENTATION_GUIDE.md` must contain:
 ### Templates Reference Directory
 
 The authoritative templates for this workflow live in [`docs/template/`](file:///home/vikas/Documents/forginity/docs/template/):
+
 - Task List Template: [`docs/template/TASK_LIST_TEMPLATE.md`](file:///home/vikas/Documents/forginity/docs/template/TASK_LIST_TEMPLATE.md)
 - Task Implementation Guide Template: [`docs/template/TASK_IMPLEMENTATION_GUIDE_TEMPLATE.md`](file:///home/vikas/Documents/forginity/docs/template/TASK_IMPLEMENTATION_GUIDE_TEMPLATE.md)
 - Implementation Record Template: [`docs/template/IMPLEMENTATIONS_RECORD_TEMPLATE.md`](file:///home/vikas/Documents/forginity/docs/template/IMPLEMENTATIONS_RECORD_TEMPLATE.md)
