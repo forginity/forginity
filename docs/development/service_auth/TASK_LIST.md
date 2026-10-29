@@ -14,6 +14,7 @@
   - Hybrid Sessions: 15-minute scoped JWT access tokens with 30-day refresh sessions stored in `auth_db.sessions` and Redis.
 - **Tech Stack:** Express, TypeScript, PostgreSQL 18, Drizzle ORM, Zod, Redis 7, `argon2id`, Vitest, Supertest.
 - **Reference Service:** [`services/products`](file:///home/vikas/Documents/forginity/services/products)
+- **Service Specification:** [`./README.md`](./README.md)
 - **Implementation Record:** [`./IMPLEMENTATIONS_RECORD.md`](file:///home/vikas/Documents/forginity/docs/development/service_auth/IMPLEMENTATIONS_RECORD.md)
 
 ---
