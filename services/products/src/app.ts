@@ -20,8 +20,18 @@ app.get("/", (_req, res) => {
   })
 })
 
-app.listen(port, () => {
-  console.log(`[products] service listening on port ${port} (API prefix: /api)`)
+// Centralized error handling
+app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  console.error("[products] unhandled error:", err)
+  res.status(err.status || 500).json({
+    error: err.message || "Internal Server Error",
+  })
 })
+
+if (process.env.NODE_ENV !== "test") {
+  app.listen(port, () => {
+    console.log(`[products] service listening on port ${port} (API prefix: /api)`)
+  })
+}
 
 export default app

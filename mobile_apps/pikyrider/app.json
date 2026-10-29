@@ -1,0 +1,51 @@
+{
+  "expo": {
+    "name": "pikyrider",
+    "slug": "pikyrider",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/logo/common/logo.png",
+    "scheme": "pikyrider",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "icon": {
+        "light": "./assets/logo/ios/ios-icon-default.png",
+        "dark": "./assets/logo/ios/ios-icon-dark.png",
+        "tinted": "./assets/logo/ios/ios-icon-tinted.png"
+      },
+      "bundleIdentifier": "com.vikass78951.pikyrider"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#FFFFFF",
+        "foregroundImage": "./assets/logo/android/android-icon-foreground.png",
+        // "backgroundImage": "./assets/logo/android/android-icon-background.png",
+        "monochromeImage": "./assets/logo/android/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "package": "com.vikass78951.pikyrider"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/logo/common/logo.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#FFFFFF",
+          "image": "./assets/logo/common/splash.png",
+          "resizeMode": "contain",
+          "imageWidth": 150
+        }
+      ],
+      "expo-asset"
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}
