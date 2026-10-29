@@ -24,7 +24,7 @@
 | Task ID | Task Title | Key Deliverable | Guide File | Status |
 | :--- | :--- | :--- | :--- | :--- |
 | `TASK-01` | Scaffold `services/auth` package and configs | Base Express app, tsconfig, drizzle config | [`TASK_01_IMPLEMENTATION_GUIDE.md`](./TASK_01_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
-| `TASK-02` | Build database schemas and migrations | `src/db/auth.schema.ts` and migrations | [`TASK_02_IMPLEMENTATION_GUIDE.md`](./TASK_02_IMPLEMENTATION_GUIDE.md) | `PENDING` |
+| `TASK-02` | Build database schemas and migrations | `src/db/auth.schema.ts` and migrations | [`TASK_02_IMPLEMENTATION_GUIDE.md`](./TASK_02_IMPLEMENTATION_GUIDE.md) | `IN_PROGRESS` |
 | `TASK-03` | Create Sign-up API (Email OTP, Phone OTP, Google) | Sign-up routes, OTP dispatch, unit & route tests | [`TASK_03_IMPLEMENTATION_GUIDE.md`](./TASK_03_IMPLEMENTATION_GUIDE.md) | `PENDING` |
 | `TASK-04` | Create Sign-in API (Email OTP, Phone OTP, Google) | Sign-in routes, OTP verification, session tokens, tests | [`TASK_04_IMPLEMENTATION_GUIDE.md`](./TASK_04_IMPLEMENTATION_GUIDE.md) | `PENDING` |
 | `TASK-05` | Basic Onboarding API | Onboarding validation, name/gender/country update, tests | [`TASK_05_IMPLEMENTATION_GUIDE.md`](./TASK_05_IMPLEMENTATION_GUIDE.md) | `PENDING` |
