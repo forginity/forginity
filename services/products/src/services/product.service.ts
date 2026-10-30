@@ -111,6 +111,16 @@ export class ProductService {
 
   // Product Maintenance Service Methods
 
+  static async getMaintenanceById(
+    maintenanceId: string
+  ): Promise<ProductMaintenance | null> {
+    return ProductRepository.findMaintenanceById(maintenanceId)
+  }
+
+  static async listActiveMaintenance(): Promise<ProductMaintenance[]> {
+    return ProductRepository.findActiveMaintenance()
+  }
+
   static async listMaintenance(
     productId: string
   ): Promise<ProductMaintenance[]> {
@@ -147,6 +157,12 @@ export class ProductService {
   }
 
   // Product Versions Service Methods
+
+  static async getVersionById(
+    versionId: string
+  ): Promise<ProductVersion | null> {
+    return ProductRepository.findVersionById(versionId)
+  }
 
   static async listVersions(productId: string): Promise<ProductVersion[]> {
     return ProductRepository.findVersionsByProductId(productId)

@@ -132,6 +132,25 @@ export class ProductRepository {
 
   // Product Maintenance Repository Methods
 
+  static async findMaintenanceById(
+    maintenanceId: string
+  ): Promise<ProductMaintenance | null> {
+    const result = await db
+      .select()
+      .from(productMaintenance)
+      .where(eq(productMaintenance.id, maintenanceId))
+      .limit(1)
+    return result[0] || null
+  }
+
+  static async findActiveMaintenance(): Promise<ProductMaintenance[]> {
+    return db
+      .select()
+      .from(productMaintenance)
+      .where(eq(productMaintenance.status, "active"))
+      .orderBy(productMaintenance.startsAt)
+  }
+
   static async findMaintenanceByProductId(
     productId: string
   ): Promise<ProductMaintenance[]> {
@@ -170,6 +189,17 @@ export class ProductRepository {
   }
 
   // Product Versions Repository Methods
+
+  static async findVersionById(
+    versionId: string
+  ): Promise<ProductVersion | null> {
+    const result = await db
+      .select()
+      .from(productVersions)
+      .where(eq(productVersions.id, versionId))
+      .limit(1)
+    return result[0] || null
+  }
 
   static async findVersionsByProductId(productId: string): Promise<ProductVersion[]> {
     return db

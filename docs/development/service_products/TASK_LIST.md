@@ -27,7 +27,7 @@
 | `TASK-02` | Build database schemas, relations, and migrations | `src/db/products.schema.ts` and migrations | [`TASK_02_IMPLEMENTATION_GUIDE.md`](./TASK_02_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
 | `TASK-03` | Implement Product, Feature, Maintenance, and Version CRUD APIs & Service Layer | Repositories, services, routes, and unit tests | [`TASK_03_IMPLEMENTATION_GUIDE.md`](./TASK_03_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
 | `TASK-04` | Database Seeding, DB-Backed Health Checks, and Live Database CRUD Tests | `src/db/seed.ts`, `/api/health` connectivity check, live CRUD integration suite | [`TASK_04_IMPLEMENTATION_GUIDE.md`](./TASK_04_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
-| `TASK-05` | Add Swagger / OpenAPI Documentation with Zod | OpenAPI registry, Zod schema extensions, `/api/docs` UI, `/api/docs.json` endpoint | [`TASK_05_IMPLEMENTATION_GUIDE.md`](./TASK_05_IMPLEMENTATION_GUIDE.md) | `PENDING` |
+| `TASK-05` | Add Swagger / OpenAPI Documentation with Zod | OpenAPI registry, Zod schema extensions, `/api/docs` UI, `/api/docs.json` endpoint | [`TASK_05_IMPLEMENTATION_GUIDE.md`](./TASK_05_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
 | `TASK-06` | Add Redis caching layer for product metadata and maintenance | Redis cache middleware, TTL invalidation hooks, unit & integration tests | [`TASK_06_IMPLEMENTATION_GUIDE.md`](./TASK_06_IMPLEMENTATION_GUIDE.md) | `PENDING` |
 | `TASK-07` | Implement Admin RBAC guards on mutating endpoints | JWT verification middleware, role validation guards, route test suites | [`TASK_07_IMPLEMENTATION_GUIDE.md`](./TASK_07_IMPLEMENTATION_GUIDE.md) | `PENDING` |
 

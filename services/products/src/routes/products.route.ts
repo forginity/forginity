@@ -91,31 +91,27 @@ productsRouter.delete(
 // ==========================================
 
 /**
- * GET /api/products/:id/maintenance
- * List maintenance schedules for a product
+ * GET /api/products/maintenance/active
+ * List all active maintenance schedules across the platform
  */
 productsRouter.get(
-  "/:id/maintenance",
-  validateRequest({ params: IdParamSchema }),
-  ProductMaintenanceController.list
+  "/maintenance/active",
+  ProductMaintenanceController.listActive
 )
 
 /**
- * POST /api/products/:id/maintenance
- * Create a maintenance window for a product
+ * GET /api/products/maintenance/:id
+ * Get a single maintenance window by its maintenance UUID
  */
-productsRouter.post(
-  "/:id/maintenance",
-  validateRequest({
-    params: IdParamSchema,
-    body: CreateProductMaintenanceSchema,
-  }),
-  ProductMaintenanceController.create
+productsRouter.get(
+  "/maintenance/:id",
+  validateRequest({ params: IdParamSchema }),
+  ProductMaintenanceController.getById
 )
 
 /**
  * PATCH /api/products/maintenance/:id
- * Update maintenance window by ID
+ * Update maintenance window by maintenance UUID
  */
 productsRouter.patch(
   "/maintenance/:id",
@@ -128,7 +124,7 @@ productsRouter.patch(
 
 /**
  * DELETE /api/products/maintenance/:id
- * Delete maintenance window by ID
+ * Delete maintenance window by maintenance UUID
  */
 productsRouter.delete(
   "/maintenance/:id",
@@ -136,36 +132,46 @@ productsRouter.delete(
   ProductMaintenanceController.delete
 )
 
+/**
+ * GET /api/products/:id/maintenance
+ * List maintenance schedules for a specific product by product UUID
+ */
+productsRouter.get(
+  "/:id/maintenance",
+  validateRequest({ params: IdParamSchema }),
+  ProductMaintenanceController.list
+)
+
+/**
+ * POST /api/products/:id/maintenance
+ * Create a maintenance window for a product by product UUID
+ */
+productsRouter.post(
+  "/:id/maintenance",
+  validateRequest({
+    params: IdParamSchema,
+    body: CreateProductMaintenanceSchema,
+  }),
+  ProductMaintenanceController.create
+)
+
 // ==========================================
 // Product Versions Sub-Routes
 // ==========================================
 
 /**
- * GET /api/products/:id/versions
- * List versions for a product
+ * GET /api/products/versions/:id
+ * Get a single product version by its version UUID
  */
 productsRouter.get(
-  "/:id/versions",
+  "/versions/:id",
   validateRequest({ params: IdParamSchema }),
-  ProductVersionController.list
-)
-
-/**
- * POST /api/products/:id/versions
- * Register a new version for a product
- */
-productsRouter.post(
-  "/:id/versions",
-  validateRequest({
-    params: IdParamSchema,
-    body: CreateProductVersionSchema,
-  }),
-  ProductVersionController.create
+  ProductVersionController.getById
 )
 
 /**
  * PATCH /api/products/versions/:id
- * Update a product version by ID
+ * Update a product version by version UUID
  */
 productsRouter.patch(
   "/versions/:id",
@@ -178,10 +184,33 @@ productsRouter.patch(
 
 /**
  * DELETE /api/products/versions/:id
- * Delete a product version by ID
+ * Delete a product version by version UUID
  */
 productsRouter.delete(
   "/versions/:id",
   validateRequest({ params: IdParamSchema }),
   ProductVersionController.delete
+)
+
+/**
+ * GET /api/products/:id/versions
+ * List versions for a product by product UUID
+ */
+productsRouter.get(
+  "/:id/versions",
+  validateRequest({ params: IdParamSchema }),
+  ProductVersionController.list
+)
+
+/**
+ * POST /api/products/:id/versions
+ * Register a new version for a product by product UUID
+ */
+productsRouter.post(
+  "/:id/versions",
+  validateRequest({
+    params: IdParamSchema,
+    body: CreateProductVersionSchema,
+  }),
+  ProductVersionController.create
 )

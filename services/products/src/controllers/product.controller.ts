@@ -125,6 +125,29 @@ export class ProductMaintenanceController {
     }
   }
 
+  static async listActive(_req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const windows = await ProductService.listActiveMaintenance()
+      res.status(200).json({ items: windows })
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  static async getById(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const maintenanceId = getParam(req.params.id)
+      const maintenance = await ProductService.getMaintenanceById(maintenanceId)
+      if (!maintenance) {
+        res.status(404).json({ error: `Maintenance window with id '${maintenanceId}' not found` })
+        return
+      }
+      res.status(200).json(maintenance)
+    } catch (error) {
+      next(error)
+    }
+  }
+
   static async create(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const productId = getParam(req.params.id)
@@ -178,6 +201,20 @@ export class ProductVersionController {
       const productId = getParam(req.params.id)
       const versions = await ProductService.listVersions(productId)
       res.status(200).json({ items: versions })
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  static async getById(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const versionId = getParam(req.params.id)
+      const version = await ProductService.getVersionById(versionId)
+      if (!version) {
+        res.status(404).json({ error: `Version with id '${versionId}' not found` })
+        return
+      }
+      res.status(200).json(version)
     } catch (error) {
       next(error)
     }
