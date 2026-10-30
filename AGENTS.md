@@ -157,6 +157,8 @@ docs/development/<service_name>/TASK_LIST.md
 
 If the file does not exist, the AI agent creates it from [`docs/template/TASK_LIST_TEMPLATE.md`](file:///home/vikas/Documents/forginity/docs/template/TASK_LIST_TEMPLATE.md) with full service details. It also generates the service specification overview at `docs/development/<service_name>/README.md` from [`docs/template/README_TEMPLATE.md`](file:///home/vikas/Documents/forginity/docs/template/README_TEMPLATE.md), and initializes the implementation tracking log at `docs/development/<service_name>/IMPLEMENTATIONS_RECORD.md` using [`docs/template/IMPLEMENTATIONS_RECORD_TEMPLATE.md`](file:///home/vikas/Documents/forginity/docs/template/IMPLEMENTATIONS_RECORD_TEMPLATE.md).
 
+Additionally, the agent maintains the overall development progress tracker at `docs/development/PROGRESS.md`. If this file does not exist, the agent creates it from [`docs/template/PROGRESS_TEMPLATE.md`](file:///home/vikas/Documents/forginity/docs/template/PROGRESS_TEMPLATE.md) and registers a row tracking the service or app.
+
 #### Step 2: Review Task
 
 The AI agent reviews the service details and selects the next sequential pending task from `docs/development/<service_name>/TASK_LIST.md`.
@@ -195,6 +197,7 @@ Once verification succeeds, the AI agent updates service records:
 1. Update the **Last Update Record** (date, completed task, two-line change summary) in `docs/development/<service_name>/IMPLEMENTATIONS_RECORD.md`.
 2. Append a row to the **Completed Tasks** table in `docs/development/<service_name>/IMPLEMENTATIONS_RECORD.md`.
 3. Mark the task as `COMPLETED` in `docs/development/<service_name>/TASK_LIST.md`.
+4. Refresh the overall development progress matrix in `docs/development/PROGRESS.md` (update total tasks, completed count, pending count, 1-line disclaimer with completion date/remaining scope, and completion status percentage).
 
 ### Required Sections in Each Implementation Guide
 
@@ -212,6 +215,7 @@ Every `TASK_<NO>_IMPLEMENTATION_GUIDE.md` must contain:
 
 The authoritative templates for this workflow live in [`docs/template/`](file:///home/vikas/Documents/forginity/docs/template/):
 
+- Overall Development Progress Template: [`docs/template/PROGRESS_TEMPLATE.md`](file:///home/vikas/Documents/forginity/docs/template/PROGRESS_TEMPLATE.md)
 - Service Specification Template: [`docs/template/README_TEMPLATE.md`](file:///home/vikas/Documents/forginity/docs/template/README_TEMPLATE.md)
 - Task List Template: [`docs/template/TASK_LIST_TEMPLATE.md`](file:///home/vikas/Documents/forginity/docs/template/TASK_LIST_TEMPLATE.md)
 - Task Implementation Guide Template: [`docs/template/TASK_IMPLEMENTATION_GUIDE_TEMPLATE.md`](file:///home/vikas/Documents/forginity/docs/template/TASK_IMPLEMENTATION_GUIDE_TEMPLATE.md)
