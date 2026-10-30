@@ -4,7 +4,7 @@ import express, {
   type Response,
   type NextFunction,
 } from "express"
-import { apiRouter } from "./routes/index.js"
+import { apiRouter } from "./routes/api.router.js"
 import { healthRouter } from "./routes/health.route.js"
 
 const app: Express = express()

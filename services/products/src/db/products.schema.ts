@@ -15,33 +15,11 @@ export const products = pgTable("products", {
   id: uuid("id").primaryKey().defaultRandom(),
   slug: varchar("slug", { length: 100 }).notNull().unique(),
   name: varchar("name", { length: 255 }).notNull(),
-  status: varchar("status", { length: 50 }).notNull().default("active"), //  'active', 'active', 'deprecated'
+  status: varchar("status", { length: 50 }).notNull().default("active"), // 'alpha', 'beta', 'active', 'deprecated'
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull(),
 })
-
-/**
- * Product Features Table
- * Feature flags and capabilities per product.
- * Reference: Section 2.B of docs/org/DB.md
- */
-export const productFeatures = pgTable(
-  "product_features",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    productId: uuid("product_id")
-      .notNull()
-      .references(() => products.id, { onDelete: "cascade" }),
-    key: varchar("key", { length: 100 }).notNull(),
-    name: varchar("name", { length: 255 }).notNull(),
-    status: varchar("status", { length: 50 }).notNull().default("enabled"), // 'enabled', 'disabled', 'beta'
-  },
-  (table) => [
-    index("product_features_product_id_idx").on(table.productId),
-    index("product_features_key_idx").on(table.key),
-  ]
-)
 
 /**
  * Product Maintenance Table
@@ -90,16 +68,11 @@ export const productVersions = pgTable(
 export const schemaRelations = defineRelations(
   {
     products,
-    productFeatures,
     productMaintenance,
     productVersions,
   },
   (r) => ({
     products: {
-      features: r.many.productFeatures({
-        from: r.products.id,
-        to: r.productFeatures.productId,
-      }),
       maintenance: r.many.productMaintenance({
         from: r.products.id,
         to: r.productMaintenance.productId,
@@ -107,12 +80,6 @@ export const schemaRelations = defineRelations(
       versions: r.many.productVersions({
         from: r.products.id,
         to: r.productVersions.productId,
-      }),
-    },
-    productFeatures: {
-      product: r.one.products({
-        from: r.productFeatures.productId,
-        to: r.products.id,
       }),
     },
     productMaintenance: {
@@ -133,9 +100,6 @@ export const schemaRelations = defineRelations(
 // Inferred TypeScript Types
 export type Product = typeof products.$inferSelect
 export type NewProduct = typeof products.$inferInsert
-
-export type ProductFeature = typeof productFeatures.$inferSelect
-export type NewProductFeature = typeof productFeatures.$inferInsert
 
 export type ProductMaintenance = typeof productMaintenance.$inferSelect
 export type NewProductMaintenance = typeof productMaintenance.$inferInsert

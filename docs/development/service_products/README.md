@@ -18,7 +18,6 @@
 
 ### Core Capabilities
 - **Product Entity Lifecycle:** Register, update, query, and deprecate platform products (e.g., TrackRide, Custom Apparel, Automated Screening) with unique URL-safe slugs and operational statuses.
-- **Dynamic Feature Toggling:** Assign granular feature keys to individual products with state transitions (`enabled`, `disabled`, `beta`) for progressive rollouts.
 - **Maintenance Coordination:** Schedule, announce, and manage maintenance periods per product or globally, providing start/end timestamps and user-facing notifications.
 - **Version Compatibility Registry:** Track active releases, current release versions (`latest`), and backward-compatible version deprecations (`supported`, `deprecated`).
 
@@ -26,18 +25,15 @@
 1. **Product Provisioning Flow:**
    - Admin or automated orchestrator submits product payload (`slug`, `name`, `status`).
    - System validates unique slug format and creates product record.
-   - Downstream services can query product identity by UUID or slug.
-2. **Feature Configuration Flow:**
-   - Feature flags are provisioned under a parent product using snake_case keys (`key`, `name`, `status`).
-   - Dependent clients inspect feature flags to toggle UI/backend capabilities.
-3. **Scheduled Maintenance Flow:**
+   - Downstream services can query product identity by UUID (`:id`) or slug (`/slug/:slug`).
+2. **Scheduled Maintenance Flow:**
    - Operator posts maintenance window specifying `startsAt`, `endsAt`, and `message`.
    - APIs serve active maintenance status to client apps to display graceful degradation notices.
 
 ### Edge Cases & Failure Modes
 - **Duplicate Slug Conflict:** Creation or rename with an existing slug returns `409 Conflict`.
 - **Malformed Identifiers:** Ingress requests validate UUID or slug formats strictly via Zod; invalid patterns return `400 Bad Request`.
-- **Orphan Prevention:** Deleting a product triggers cascade deletion across its child features, maintenance schedules, and version entries.
+- **Orphan Prevention:** Deleting a product triggers cascade deletion across its maintenance schedules and version entries.
 - **Invalid Maintenance Timestamps:** Maintenance end time must strictly succeed start time (`endsAt > startsAt`).
 
 ---
@@ -46,7 +42,7 @@
 
 - **Runtime Framework:** Node.js, Express 5, TypeScript.
 - **Database Architecture:** PostgreSQL 18 with Drizzle ORM (Database-per-Service isolation).
-- **Validation Engine:** Zod runtime validation with Type-First inferred contracts.
+- **Validation Engine:** Zod runtime validation with Type-First inferred contracts and separated domain constants.
 - **Testing Framework:** Vitest with Supertest.
 - **Architectural Reference:** [`services/products`](file:///home/vikas/Documents/forginity/services/products)
 
@@ -62,13 +58,6 @@ Managed within `src/db/products.schema.ts`:
   - `name` (VARCHAR(255), Not Null)
   - `status` (VARCHAR(50), Default `"active"`, values: `alpha`, `beta`, `active`, `deprecated`)
   - `createdAt` (TIMESTAMPTZ, Default `NOW()`, Not Null)
-
-- **Product Features (`product_features`):**
-  - `id` (UUID, Primary Key, auto-generated)
-  - `productId` (UUID, Foreign Key -> `products.id` on cascade delete, indexed)
-  - `key` (VARCHAR(100), Not Null, snake_case alphanumeric, indexed)
-  - `name` (VARCHAR(255), Not Null)
-  - `status` (VARCHAR(50), Default `"enabled"`, values: `enabled`, `disabled`, `beta`)
 
 - **Product Maintenance (`product_maintenance`):**
   - `id` (UUID, Primary Key, auto-generated)
@@ -92,16 +81,13 @@ Summary of endpoints exposed under `/api`:
 
 | Method | Endpoint | Description | Auth Required |
 | :--- | :--- | :--- | :--- |
-| `GET` | `/api/health` | Health check endpoint returning uptime and status | No |
+| `GET` | `/api/health` | Health & readiness check returning service status, uptime, and database connection state (200 OK / 503 Unavailable) | No |
 | `GET` | `/api/products` | List products with pagination, search, and status filter | No |
-| `GET` | `/api/products/:identifier` | Retrieve product by UUID or slug (`?includeRelations=true`) | No |
+| `GET` | `/api/products/:id` | Retrieve product by UUID `id` (`?includeRelations=true`) | No |
+| `GET` | `/api/products/slug/:slug` | Retrieve product by unique `slug` (`?includeRelations=true`) | No |
 | `POST` | `/api/products` | Create a new product | Yes (Admin) |
-| `PATCH` | `/api/products/:identifier` | Update product by UUID or slug | Yes (Admin) |
-| `DELETE` | `/api/products/:identifier` | Delete product by UUID or slug | Yes (Admin) |
-| `GET` | `/api/products/:id/features` | List features for a product | No |
-| `POST` | `/api/products/:id/features` | Create feature under product | Yes (Admin) |
-| `PATCH` | `/api/products/features/:id` | Update feature status or details | Yes (Admin) |
-| `DELETE` | `/api/products/features/:id` | Remove a product feature | Yes (Admin) |
+| `PATCH` | `/api/products/:id` | Update product by UUID `id` | Yes (Admin) |
+| `DELETE` | `/api/products/:id` | Delete product by UUID `id` | Yes (Admin) |
 | `GET` | `/api/products/:id/maintenance` | List maintenance schedules for product | No |
 | `POST` | `/api/products/:id/maintenance` | Schedule maintenance window | Yes (Admin) |
 | `PATCH` | `/api/products/maintenance/:id` | Update maintenance window | Yes (Admin) |

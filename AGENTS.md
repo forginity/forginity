@@ -13,6 +13,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 ## 1. Absolute Rules and Safety Guardrails
 
 - **Type-First Architecture.** Always apply a strict Type-First approach. Define data contracts, domain types, Zod schemas, and entity shapes before writing business logic, repositories, or routes. Derive TypeScript types directly from authoritative Zod schemas and Drizzle definitions using `z.infer` and `$inferSelect`. Treat external inputs as untyped until validated at the network boundary. Make invalid domain states unrepresentable.
+- **No Barrel Exports.** Never use barrel exports or barrel files (e.g., `index.ts` files that aggregate and re-export modules with `export * from ...` or `export { ... } from ...`). Always import types, schemas, functions, constants, controllers, repositories, and services directly from their specific, authoritative source files (e.g., `import { ProductService } from "./services/product.service.js"`, `import { products } from "./db/products.schema.js"`). Barrel files obscure module boundaries, cause subtle circular dependency hazards, degrade tree-shaking, and slow down compilation and test runners.
+- **Mandatory Swagger/OpenAPI Integration.** Every API created and tested must be immediately registered in the service's Swagger/OpenAPI documentation. Follow the strict sequence: `Create API -> Write & Verify Tests -> Integrate Swagger/OpenAPI Documentation`. Re-use authoritative Zod schemas via `@asteasolutions/zod-to-openapi` to keep documentation and runtime validation synchronized without manual duplication. Expose the interactive UI at `/api/docs` and the raw JSON specification at `/api/docs.json`. Never leave an API endpoint undocumented.
 - **Environment File Protection.** Never touch, read, inspect, create, modify, edit, or commit any `.env` file under any circumstance (including `.env`, `.env.local`, `.env.production`, `.env.development`, `.env.staging`, etc.). Whether an `.env` file is present or absent, you are strictly prohibited from attempting to read, inspect, or interact with it. Read secrets exclusively from `process.env`. Store sample variable keys in `.env.example` with dummy values.
 - **Strict Git Ban (No Commits or Pushes).** The agent is strictly prohibited from committing code (`git commit`), pushing code (`git push`), tagging, or performing any mutating git actions anywhere. All git commits and pushes must be made manually by the user. Only read-only git commands such as `git status`, `git diff`, and `git log` are permitted.
 - **Root Directory Boundary.** The agent is strictly prohibited from creating, modifying, inspecting, or reading files outside the project root directory (`/home/vikas/Documents/forginity`). All file actions must be strictly bounded within the repository workspace.
@@ -93,7 +95,7 @@ Backend services in `services/*` must follow strict role-based file naming:
 | Service Layer          | `src/services/`     | `*.service.ts`       | Business logic, domain rules, and orchestration.       |
 | Routes and Controllers | `src/routes/`       | `*.route.ts`         | Express HTTP route handlers and validation binding.    |
 | Middleware             | `src/middleware/`   | `*.middleware.ts`    | Auth guards, rate limiting, and error handling.        |
-| Bootstrap              | `src/`              | `app.ts`, `index.ts` | Express application setup and public exports.          |
+| Bootstrap              | `src/`              | `app.ts`, `index.ts` | Express application bootstrap and DB client initialization (no barrel re-exports). |
 
 ### Database-per-Service Isolation
 
@@ -169,7 +171,11 @@ The AI agent creates this file from the template at [`docs/template/TASK_IMPLEME
 
 #### Step 4: Execute Implementation
 
-The AI agent implements code and tests strictly according to the guide. The agent applies a Type-First approach, defining Zod schemas and TypeScript types before writing logic. The agent follows Test-Driven Development principles. The agent does not skip test or security scenarios.
+The AI agent implements code and tests strictly according to the guide. The agent applies a Type-First approach and follows the mandatory API development lifecycle:
+1. **Define Contracts & Schemas:** Authoritative Zod schemas, domain constants, and Drizzle definitions.
+2. **Implement Logic:** Repositories, domain services, controllers, and Express routes.
+3. **Test-Driven Verification:** Unit tests for schemas/services and real database integration tests for CRUD lifecycles.
+4. **Swagger/OpenAPI Integration:** Immediately register request/response Zod schemas and route path contracts in the OpenAPI registry (`@asteasolutions/zod-to-openapi`) and verify interactive UI at `/api/docs` and raw spec at `/api/docs.json`. Never skip OpenAPI documentation for newly created endpoints.
 
 #### Step 5: Post-Implementation Verification
 

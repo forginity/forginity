@@ -1,24 +1,17 @@
 import { ProductRepository } from "../repositories/product.repository.js"
 import type {
   Product,
-  ProductFeature,
   ProductMaintenance,
   ProductVersion,
 } from "../db/products.schema.js"
 import type {
   CreateProductInput,
   UpdateProductInput,
-  CreateProductFeatureInput,
-  UpdateProductFeatureInput,
   CreateProductMaintenanceInput,
   UpdateProductMaintenanceInput,
   CreateProductVersionInput,
   UpdateProductVersionInput,
 } from "../db/products.validator.js"
-
-// Helper to determine if identifier is UUID
-const UUID_REGEX =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 export class ProductService {
   /**
@@ -50,23 +43,23 @@ export class ProductService {
   }
 
   /**
-   * Get single product by UUID or slug, optionally including relations
+   * Get single product by UUID id, optionally including maintenance and version relations
    */
-  static async getProductByIdOrSlug(
-    identifier: string,
-    includeRelations: boolean = false
-  ) {
-    const isUuid = UUID_REGEX.test(identifier)
-
+  static async getProductById(id: string, includeRelations: boolean = false) {
     if (includeRelations) {
-      return isUuid
-        ? ProductRepository.findByIdWithRelations(identifier)
-        : ProductRepository.findBySlugWithRelations(identifier)
+      return ProductRepository.findByIdWithRelations(id)
     }
+    return ProductRepository.findById(id)
+  }
 
-    return isUuid
-      ? ProductRepository.findById(identifier)
-      : ProductRepository.findBySlug(identifier)
+  /**
+   * Get single product by slug, optionally including maintenance and version relations
+   */
+  static async getProductBySlug(slug: string, includeRelations: boolean = false) {
+    if (includeRelations) {
+      return ProductRepository.findBySlugWithRelations(slug)
+    }
+    return ProductRepository.findBySlug(slug)
   }
 
   /**
@@ -86,16 +79,13 @@ export class ProductService {
   }
 
   /**
-   * Update product by UUID or slug with slug uniqueness check
+   * Update product by UUID id with slug uniqueness check
    */
   static async updateProduct(
-    identifier: string,
+    id: string,
     input: UpdateProductInput
   ): Promise<Product | null> {
-    const isUuid = UUID_REGEX.test(identifier)
-    const product = isUuid
-      ? await ProductRepository.findById(identifier)
-      : await ProductRepository.findBySlug(identifier)
+    const product = await ProductRepository.findById(id)
 
     if (!product) {
       return null
@@ -104,62 +94,19 @@ export class ProductService {
     // Check if new slug conflicts with another product
     if (input.slug && input.slug !== product.slug) {
       const existing = await ProductRepository.findBySlug(input.slug)
-      if (existing) {
+      if (existing && existing.id !== id) {
         throw new Error(`Product with slug '${input.slug}' already exists`)
       }
     }
 
-    return ProductRepository.update(product.id, input)
+    return ProductRepository.update(id, input)
   }
 
   /**
-   * Delete product by UUID or slug
+   * Delete product by UUID id
    */
-  static async deleteProduct(identifier: string): Promise<boolean> {
-    const isUuid = UUID_REGEX.test(identifier)
-    const product = isUuid
-      ? await ProductRepository.findById(identifier)
-      : await ProductRepository.findBySlug(identifier)
-
-    if (!product) {
-      return false
-    }
-
-    return ProductRepository.delete(product.id)
-  }
-
-  // Product Features Service Methods
-
-  static async listFeatures(productId: string): Promise<ProductFeature[]> {
-    return ProductRepository.findFeaturesByProductId(productId)
-  }
-
-  static async createFeature(
-    productId: string,
-    input: CreateProductFeatureInput
-  ): Promise<ProductFeature> {
-    const product = await ProductRepository.findById(productId)
-    if (!product) {
-      throw new Error(`Product with ID '${productId}' not found`)
-    }
-
-    return ProductRepository.createFeature({
-      productId,
-      key: input.key,
-      name: input.name,
-      status: input.status,
-    })
-  }
-
-  static async updateFeature(
-    featureId: string,
-    input: UpdateProductFeatureInput
-  ): Promise<ProductFeature | null> {
-    return ProductRepository.updateFeature(featureId, input)
-  }
-
-  static async deleteFeature(featureId: string): Promise<boolean> {
-    return ProductRepository.deleteFeature(featureId)
+  static async deleteProduct(id: string): Promise<boolean> {
+    return ProductRepository.delete(id)
   }
 
   // Product Maintenance Service Methods

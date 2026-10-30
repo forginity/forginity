@@ -1,7 +1,7 @@
-# TASK IMPLEMENTATION GUIDE: TASK-04 - Database Seeding and DB Connectivity Check in CRUD Test Suite
+# TASK IMPLEMENTATION GUIDE: TASK-04 - Database Seeding, DB-Backed Health Checks, and Live Database CRUD Tests
 
 - **Service:** `services/products`
-- **Status:** `PENDING`
+- **Status:** `COMPLETED`
 - **Task List:** [`./TASK_LIST.md`](./TASK_LIST.md)
 - **Record:** [`./IMPLEMENTATIONS_RECORD.md`](./IMPLEMENTATIONS_RECORD.md)
 
@@ -9,22 +9,28 @@
 
 ## 1. SUMMARY & GOAL
 
-Build an automated database seed script for `services/products` that seeds two foundational products (`project_1` and `project_2`) into PostgreSQL using Drizzle ORM with idempotent upsert handling. Enhance the CRUD test suite to mandate an active database connectivity check before performing database operations, throwing an explicit error if the database connection cannot be established.
+1. **Database Seeding (`seed.ts`):** Provide an independent script for seeding default/common platform products (`project_1` and `project_2`) directly into PostgreSQL, decoupled completely from tests.
+2. **Database-Backed Health & Readiness (`/api/health`):** Enhance the health check route to verify service uptime and active database connectivity (`SELECT 1`), returning `200 OK` when healthy and `503 Service Unavailable` when disconnected.
+3. **Real Database CRUD Test Suite:** Build integration test cases executing the complete real database CRUD lifecycle (`Add -> Get -> Edit -> Delete`) with pre-execution connectivity verification and automatic teardown.
 
 ---
 
 ## 2. SCOPE OF CHANGES
 
-- **Files to Create:**
-  - `services/products/src/db/connection.ts` (Database connectivity check utility)
-  - `services/products/src/db/seed.ts` (Database seeding script for `project_1` and `project_2`)
-  - `services/products/src/db/connection.test.ts` (Unit test verifying DB connectivity validation and error throwing)
-- **Files to Modify:**
-  - `services/products/package.json` (Register `"db:seed": "tsx src/db/seed.ts"`)
-  - `services/products/src/index.ts` (Export `checkDatabaseConnection`)
-  - `services/products/src/repositories/product.repository.ts` / test suites (Integrate DB connectivity check in CRUD test suite)
-  - `docs/development/service_products/TASK_LIST.md` (Update task status upon completion)
-  - `docs/development/service_products/IMPLEMENTATIONS_RECORD.md` (Log completion record)
+- **Files Created:**
+  - `services/products/src/db/connection.ts` (Database connectivity probe utility)
+  - `services/products/src/db/seed.ts` (Independent seed script for `project_1` and `project_2`)
+  - `services/products/src/db/connection.test.ts` (Unit tests verifying ping probe, error throwing, and client check)
+  - `services/products/src/repositories/product.repository.test.ts` (Real database CRUD test suite: Add -> Get -> Edit -> Delete)
+- **Files Modified:**
+  - `services/products/src/routes/health.route.ts` (Added DB connectivity verification; returns 200 or 503)
+  - `services/products/src/routes/products.route.test.ts` (Added tests for health endpoint connected/disconnected states)
+  - `services/products/package.json` (Added `"db:seed": "tsx src/db/seed.ts"`, fixed build script)
+  - `services/products/src/index.ts` (Exported connectivity and seed utilities)
+  - `services/products/src/repositories/product.repository.ts` (Added `checkConnection` helper)
+  - `docs/development/service_products/README.md`
+  - `docs/development/service_products/TASK_LIST.md`
+  - `docs/development/service_products/IMPLEMENTATIONS_RECORD.md`
 
 ---
 
@@ -33,54 +39,32 @@ Build an automated database seed script for `services/products` that seeds two f
 ### Step 1: Database Connectivity Check Utility
 - **Target File:** `services/products/src/db/connection.ts`
 - **Action:**
-  - Implement and export `checkDatabaseConnection()` function.
-  - Execute a lightweight ping query (`sql`SELECT 1``) against Drizzle `db`.
-  - If the query fails, times out, or throws, throw an explicit Error:
-    ```typescript
-    throw new Error(`Database connection failed: ${error.message}`)
-    ```
-  - Export `checkDatabaseConnection` from `services/products/src/index.ts`.
+  - Implement `checkDatabaseConnection(targetDb)` executing `SELECT 1`.
+  - Throw explicit `Error("Database connection failed: <message>")` if uninitialized or unreachable.
 
-### Step 2: Idempotent Product Seed Script
+### Step 2: Database-Backed Health Check
+- **Target File:** `services/products/src/routes/health.route.ts`
+- **Action:**
+  - Invoke `checkDatabaseConnection()` inside `GET /api/health`.
+  - When connected: return `200 OK` with `{ status: "ok", service: "products", database: "connected", timestamp, uptime }`.
+  - When disconnected: return `503 Service Unavailable` with `{ status: "error", service: "products", database: "disconnected", error, timestamp, uptime }`.
+
+### Step 3: Default Product Seed Script (Decoupled from Tests)
 - **Target File:** `services/products/src/db/seed.ts`
 - **Action:**
-  - Import `db`, `products`, and `checkDatabaseConnection`.
-  - Validate database connectivity prior to attempting inserts (abort and throw if not connected).
-  - Define the two required seed products:
-    ```typescript
-    const SEED_PRODUCTS = [
-      {
-        slug: "project-1",
-        name: "Project 1",
-        status: "active" as const,
-      },
-      {
-        slug: "project-2",
-        name: "Project 2",
-        status: "active" as const,
-      },
-    ]
-    ```
-  - Upsert or conflict-check by `slug` using Drizzle:
-    ```typescript
-    await db
-      .insert(products)
-      .values(item)
-      .onConflictDoUpdate({
-        target: products.slug,
-        set: { name: item.name, status: item.status },
-      })
-    ```
-  - Log successful seed counts and execution summary.
-  - Add `"db:seed": "tsx src/db/seed.ts"` under `"scripts"` in `services/products/package.json`.
+  - Validate DB connection before execution.
+  - Insert or update foundational records `project-1` (`project_1`) and `project-2` (`project_2`).
+  - Decoupled from the test suite; executed solely via `pnpm --filter @services/products db:seed`.
 
-### Step 3: CRUD Test Suite Database Connectivity Verification
-- **Target File:** `services/products/src/db/connection.test.ts` and repository/route tests
+### Step 4: Real Database CRUD Lifecycle Tests
+- **Target File:** `services/products/src/repositories/product.repository.test.ts`
 - **Action:**
-  - Add test suite verifying that `checkDatabaseConnection()`:
-    1. Resolves successfully when the database connection is healthy.
-    2. Explicitly throws an Error (`Database connection failed`) when the database is unreachable or query rejects.
-  - In CRUD test scenarios, verify that database connectivity guards trigger before CRUD operations, ensuring tests do not execute against a disconnected database without raising a fatal error.
+  - Before tests run, assert `ProductRepository.checkConnection()`; throws if DB is unreachable.
+  - **1. Add (Create):** Insert test record in the real database with unique timestamped slug.
+  - **2. Get (Read):** Query and verify record by both `id` and `slug`.
+  - **3. Edit (Update):** Mutate fields and verify changes persist in PostgreSQL.
+  - **4. Delete:** Remove product by `id` and verify `findById` returns `null`.
+  - Ensure automated cleanup in `afterAll`.
 
 ---
 
@@ -89,27 +73,28 @@ Build an automated database seed script for `services/products` that seeds two f
 Execute verification suite:
 ```bash
 pnpm --filter @services/products typecheck
+pnpm --filter @services/products build
 pnpm --filter @services/products test
 ```
 
-Test scenarios to cover:
-- **DB Connection Success:** Health probe executes `SELECT 1` and confirms connection.
-- **DB Connection Failure:** Simulated DB outage or network failure throws descriptive error.
-- **Seeding Insertion:** `seed.ts` seeds `project-1` and `project-2` into the database.
-- **Seeding Idempotency:** Running `db:seed` multiple times updates existing records without primary/unique key constraint errors.
+Test Results:
+- **`src/repositories/product.repository.test.ts`:** 6 passing tests confirming live DB connectivity and sequential CRUD execution (`Add -> Get -> Edit -> Delete`).
+- **`src/routes/products.route.test.ts`:** 14 passing tests including connected (200) and disconnected (503) `/api/health` checks.
+- **`src/db/connection.test.ts`:** 3 passing tests for probe behaviors.
+- **`src/services/product.service.test.ts`:** 10 passing tests for domain business logic.
+- **Total:** 33 passing tests across 4 suites.
 
 ---
 
 ## 5. SECURITY & GUARDRAILS
 
-- [ ] **No `.env` touched.** Secrets read strictly from `process.env`.
-- [ ] **SQL parameterization.** Seed and connectivity queries utilize Drizzle ORM query builders.
-- [ ] **Safe test isolation.** Unit tests mock connectivity responses; integration tests verify live connectivity gracefully.
+- [x] **No `.env` touched.** Secrets read strictly from `process.env`.
+- [x] **SQL parameterization.** Seed and repository queries utilize Drizzle ORM builders.
+- [x] **Safe test isolation.** Integration test records use unique slugs and are deleted on test teardown.
 
 ---
 
 ## 6. RECORD UPDATE
 
-1. Update the **LAST UPDATE** block in [`./IMPLEMENTATIONS_RECORD.md`](./IMPLEMENTATIONS_RECORD.md) with completion timestamp and summary.
-2. Add a row to **COMPLETED TASKS** in [`./IMPLEMENTATIONS_RECORD.md`](./IMPLEMENTATIONS_RECORD.md).
-3. Mark `TASK-04` as `COMPLETED` in [`./TASK_LIST.md`](./TASK_LIST.md).
+1. Updated [`./IMPLEMENTATIONS_RECORD.md`](./IMPLEMENTATIONS_RECORD.md).
+2. Status marked `COMPLETED` in [`./TASK_LIST.md`](./TASK_LIST.md).
