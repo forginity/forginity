@@ -28,8 +28,6 @@
 | `TASK-03` | Implement Product, Feature, Maintenance, and Version CRUD APIs & Service Layer | Repositories, services, routes, and unit tests | [`TASK_03_IMPLEMENTATION_GUIDE.md`](./TASK_03_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
 | `TASK-04` | Database Seeding, DB-Backed Health Checks, and Live Database CRUD Tests | `src/db/seed.ts`, `/api/health` connectivity check, live CRUD integration suite | [`TASK_04_IMPLEMENTATION_GUIDE.md`](./TASK_04_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
 | `TASK-05` | Add Swagger / OpenAPI Documentation with Zod | OpenAPI registry, Zod schema extensions, `/api/docs` UI, `/api/docs.json` endpoint | [`TASK_05_IMPLEMENTATION_GUIDE.md`](./TASK_05_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
-| `TASK-06` | Add Redis caching layer for product metadata and maintenance | Redis cache middleware, TTL invalidation hooks, unit & integration tests | [`TASK_06_IMPLEMENTATION_GUIDE.md`](./TASK_06_IMPLEMENTATION_GUIDE.md) | `PENDING` |
-| `TASK-07` | Implement Admin RBAC guards on mutating endpoints | JWT verification middleware, role validation guards, route test suites | [`TASK_07_IMPLEMENTATION_GUIDE.md`](./TASK_07_IMPLEMENTATION_GUIDE.md) | `PENDING` |
 
 ---
 
@@ -59,13 +57,3 @@
 - **Description:** Set up `@asteasolutions/zod-to-openapi` and `swagger-ui-express` to automatically generate OpenAPI 3.0 specifications from authoritative Zod schemas.
   Register all product catalog, maintenance window, and version endpoints, serving the interactive Swagger UI at `GET /api/docs` and raw JSON spec at `GET /api/docs.json`.
 - **Guide:** [`TASK_05_IMPLEMENTATION_GUIDE.md`](./TASK_05_IMPLEMENTATION_GUIDE.md) (Covers scope, step-by-step code, test cases, and security gates.)
-
-### `TASK-06`: Add Redis caching layer for product metadata and maintenance
-- **Description:** Integrate Redis cache for high-frequency queries like product catalog lookups, active version tags, and maintenance notices.
-  Add cache invalidation triggers on update/delete mutations and verify cache hit/miss behavior with automated tests.
-- **Guide:** [`TASK_06_IMPLEMENTATION_GUIDE.md`](./TASK_06_IMPLEMENTATION_GUIDE.md) (Covers scope, step-by-step code, test cases, and security gates.)
-
-### `TASK-07`: Implement Admin RBAC guards on mutating endpoints
-- **Description:** Protect `POST`, `PATCH`, and `DELETE` endpoints with Bearer token authentication and role-based access control.
-  Ensure read-only endpoints remain publicly accessible while administrative mutations require valid administrative credentials.
-- **Guide:** [`TASK_07_IMPLEMENTATION_GUIDE.md`](./TASK_07_IMPLEMENTATION_GUIDE.md) (Covers scope, step-by-step code, test cases, and security gates.)

@@ -4,12 +4,13 @@
 
 - **Component Name:** `apps/admin` (Product CRUD & Maintenance Suite)
 - **Domain:** Forginity Admin Console Product Lifecycle & Maintenance Management
-- **Purpose:** Administrative interface within the Forginity Admin Portal (`apps/admin`) to view, create, update, deprecate, and configure products, maintenance windows, and version tracks in `services/products`.
+- **Purpose:** Administrative interface within the Forginity Admin Portal (`apps/admin`) to view, create, update, deprecate, and configure products, maintenance windows, and version tracks in `services/products` with role-based access control.
 - **Key Features & Flows:**
   - Product catalog table with search and lifecycle filter badges.
   - Create and edit product drawer with Zod schema validation.
   - Maintenance window scheduling interface with time validation.
   - Release version registry manager.
+  - Admin RBAC guards on mutating operations (create, update, delete).
   - Interactive toast feedback on create, edit, and delete operations.
 - **Tech Stack:** Next.js 16 (App Router), React 19, Tailwind CSS v4, Shadcn UI (`@workspace/ui`), TypeScript.
 - **Reference Specification:** [`./README.md`](./README.md)
@@ -26,6 +27,7 @@
 | `TASK-03` | Product Deletion & Soft-Deprecate Workflow | Confirmation modal calling `DELETE /api/products/:id`, cascade warnings | [`TASK_03_IMPLEMENTATION_GUIDE.md`](./TASK_03_IMPLEMENTATION_GUIDE.md) | `PENDING` |
 | `TASK-04` | Maintenance Windows Scheduling Interface | List and schedule maintenance windows via `POST /api/products/:productId/maintenance` | [`TASK_04_IMPLEMENTATION_GUIDE.md`](./TASK_04_IMPLEMENTATION_GUIDE.md) | `PENDING` |
 | `TASK-05` | Version Control & Release Track Manager | Release version registry UI, `POST /api/products/:productId/versions` | [`TASK_05_IMPLEMENTATION_GUIDE.md`](./TASK_05_IMPLEMENTATION_GUIDE.md) | `PENDING` |
+| `TASK-06` | Implement Admin RBAC Guards on Mutating Endpoints | Route guards & UI permissions restricting create, edit, delete actions to Admin role | [`TASK_06_IMPLEMENTATION_GUIDE.md`](./TASK_06_IMPLEMENTATION_GUIDE.md) | `PENDING` |
 
 ---
 
@@ -55,3 +57,8 @@
 - **Description:** Build version history list displaying semantic versions and support statuses (`latest`, `supported`, `deprecated`).
   Provide modal to register new version releases tied to the selected product.
 - **Guide:** [`TASK_05_IMPLEMENTATION_GUIDE.md`](./TASK_05_IMPLEMENTATION_GUIDE.md) (Covers scope, step-by-step code, test cases, and security gates.)
+
+### `TASK-06`: Implement Admin RBAC Guards on Mutating Endpoints
+- **Description:** Enforce administrative role verification on all mutating product actions (create, edit, delete, maintenance scheduling).
+  Conditionally hide or disable mutation controls for read-only / support operators, returning clean authorization error toasts.
+- **Guide:** [`TASK_06_IMPLEMENTATION_GUIDE.md`](./TASK_06_IMPLEMENTATION_GUIDE.md) (Covers scope, step-by-step code, test cases, and security gates.)
