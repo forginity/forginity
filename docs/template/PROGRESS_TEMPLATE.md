@@ -13,8 +13,8 @@ This section represents the high-level progress across the entire Forginity mono
 
 # TASK DEVELOPMENT PROGRESS
 
-This section tracks the active progressive task lists for microservices defined in the development directory.
+This section tracks the macro development components ordered by implementation priority across the ecosystem.
 
-| Service | Task ID & Title | Key Deliverable | Completed Date / Disclaimer | Status |
-| :--- | :--- | :--- | :--- | :--- |
-| `[services/service_name]` | `[TASK-XX]`: [Task Title] | [Deliverable summary] | [Completed date or status note] | `[PENDING | IN_PROGRESS | COMPLETED]` |
+| Priority | Service / Component | Total Tasks | Completed | Pending | Disclaimer | Status | Deadline | Progress (%) |
+| :---: | :--- | :---: | :---: | :---: | :--- | :--- | :---: | :---: |
+| **[No]** | [`[subfolder_name]`](./[subfolder_name]) | [Total] | [Completed] | [Pending] | [1-line disclaimer or milestone note] | `[PENDING | IN_PROGRESS | COMPLETED | BLOCKED]` | [YYYY-MM-DD] | [Percentage]% |

@@ -157,7 +157,7 @@ docs/development/<service_name>/TASK_LIST.md
 
 If the file does not exist, the AI agent creates it from [`docs/template/TASK_LIST_TEMPLATE.md`](file:///home/vikas/Documents/forginity/docs/template/TASK_LIST_TEMPLATE.md) with full service details. It also generates the service specification overview at `docs/development/<service_name>/README.md` from [`docs/template/README_TEMPLATE.md`](file:///home/vikas/Documents/forginity/docs/template/README_TEMPLATE.md), and initializes the implementation tracking log at `docs/development/<service_name>/IMPLEMENTATIONS_RECORD.md` using [`docs/template/IMPLEMENTATIONS_RECORD_TEMPLATE.md`](file:///home/vikas/Documents/forginity/docs/template/IMPLEMENTATIONS_RECORD_TEMPLATE.md).
 
-Additionally, the agent maintains the progress tracker at `docs/development/PROGRESS.md` containing two tables: **OVERALL DEVELOPMENT PROGRESS** (a single summary row tracking total tasks, completed, pending, and progress percentage across the Forginity monorepo ecosystem) and **TASK DEVELOPMENT PROGRESS** (tracking the specific task items for active microservices and applications). If this file does not exist, the agent creates it from [`docs/template/PROGRESS_TEMPLATE.md`](file:///home/vikas/Documents/forginity/docs/template/PROGRESS_TEMPLATE.md).
+Additionally, the agent maintains the progress tracker at `docs/development/PROGRESS.md` containing two tables: **OVERALL DEVELOPMENT PROGRESS** (a single summary row tracking total tasks, completed, pending, and progress percentage across the Forginity monorepo ecosystem) and **TASK DEVELOPMENT PROGRESS** (tracking macro components ordered by priority: Service, Total Tasks, Completed, Pending, Disclaimer, Status, Deadline, and Progress). If this file does not exist, the agent creates it from [`docs/template/PROGRESS_TEMPLATE.md`](file:///home/vikas/Documents/forginity/docs/template/PROGRESS_TEMPLATE.md).
 
 #### Step 2: Review Task
 
@@ -197,7 +197,7 @@ Once verification succeeds, the AI agent updates service records:
 1. Update the **Last Update Record** (date, completed task, two-line change summary) in `docs/development/<service_name>/IMPLEMENTATIONS_RECORD.md`.
 2. Append a row to the **Completed Tasks** table in `docs/development/<service_name>/IMPLEMENTATIONS_RECORD.md`.
 3. Mark the task as `COMPLETED` in `docs/development/<service_name>/TASK_LIST.md`.
-4. Refresh `docs/development/PROGRESS.md`: update the task row in **TASK DEVELOPMENT PROGRESS** and refresh the single-row metrics (total tasks, completed, pending, and progress percentage) in **OVERALL DEVELOPMENT PROGRESS**.
+4. Refresh `docs/development/PROGRESS.md`: update the component row in **TASK DEVELOPMENT PROGRESS** (total tasks, completed, pending, disclaimer, status, progress percentage) and refresh the ecosystem summary metrics in **OVERALL DEVELOPMENT PROGRESS**.
 
 ### Required Sections in Each Implementation Guide
 
