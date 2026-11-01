@@ -3,15 +3,17 @@
 import * as React from "react"
 import { ThemeProvider as NextThemesProvider, useTheme } from "next-themes"
 
-function ThemeProvider({
+export function ThemeProvider({
   children,
+  defaultTheme = "dark",
+  enableSystem = true,
   ...props
 }: React.ComponentProps<typeof NextThemesProvider>) {
   return (
     <NextThemesProvider
       attribute="class"
-      defaultTheme="system"
-      enableSystem
+      defaultTheme={defaultTheme}
+      enableSystem={enableSystem}
       disableTransitionOnChange
       {...props}
     >
@@ -67,5 +69,3 @@ function ThemeHotkey() {
 
   return null
 }
-
-export { ThemeProvider }

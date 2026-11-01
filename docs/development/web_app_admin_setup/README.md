@@ -1,12 +1,12 @@
-# APP SPECIFICATION: WEB_APP_ADMIN
+# APP SPECIFICATION: WEB_APP_ADMIN_SETUP
 
 ## 1. EXECUTIVE SUMMARY
 
 - **Application Name:** `apps/admin` (Portal Foundation & Shell)
-- **Folder Reference:** `docs/development/web_app_admin`
+- **Folder Reference:** `docs/development/web_app_admin_setup`
 - **Domain:** Forginity Centralized Administration Portal Foundation
 - **Owner:** Forginity Core Platform Team
-- **Purpose:** `web_app_admin` defines the foundational setup of the unified web-based administration console (`apps/admin`). It configures the Shadcn UI design system, dark/light theme switching, responsive collapsible sidebar layout, top header bar, and route structure with empty placeholder pages prior to feature integrations.
+- **Purpose:** `web_app_admin_setup` defines the foundational setup of the unified web-based administration console (`apps/admin`). It configures the Shadcn UI design system, dark/light theme switching, responsive collapsible sidebar layout, top header bar, and route structure with empty placeholder pages prior to feature integrations.
 - **Consumers:** Internal platform administrators, product managers, and support engineers.
 - **Development Roadmap:** [`./TASK_LIST.md`](./TASK_LIST.md)
 - **Implementation Record:** [`./IMPLEMENTATIONS_RECORD.md`](./IMPLEMENTATIONS_RECORD.md)
