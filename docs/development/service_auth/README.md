@@ -3,6 +3,7 @@
 ## 1. EXECUTIVE SUMMARY
 
 - **Service Name:** `services/auth`
+- **Status:** ⏸️ **IN_HOLD** (Placed in hold per operator instruction; 2/8 tasks completed)
 - **Domain:** Centralized Single Sign-On (SSO), Identity, and User Accounts
 - **Architectural Reference:** [`services/products`](file:///home/vikas/Documents/forginity/services/products)
 - **Task List:** [`./TASK_LIST.md`](./TASK_LIST.md)

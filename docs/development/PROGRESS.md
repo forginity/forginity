@@ -4,7 +4,7 @@ This section represents the high-level progress across the entire Forginity mono
 
 | Total Tasks | Completed | Pending | Progress (%) |
 | :--- | :--- | :--- | :--- |
-| 55 | 12 | 43 (2 in progress) | 22% |
+| 55 | 12 | 43 (1 in hold) | 22% |
 
 ---
 
@@ -19,8 +19,8 @@ This section tracks the macro development components ordered by implementation p
 | :---: | :--- | :---: | :---: | :---: | :--- | :--- | :---: | :---: |
 | **1** | [`service_products`](./service_products) | 5 | 5 | 0 | Completed on 2026-10-30. All 5 tasks verified (Scaffold, Schemas, CRUD APIs, DB tests, Swagger). | `COMPLETED` | 2026-10-30 | 100% |
 | **2** | [`web_app_admin_setup`](./web_app_admin_setup) | 5 | 5 | 0 | Completed on 2026-11-01. All 5 tasks verified (Next.js 16, Coral Sunset Shadcn tokens, responsive AppShell, route hierarchy, verification suite). | `COMPLETED` | 2026-11-20 | 100% |
-| **3** | [`web_admin_product_crud`](./web_admin_product_crud) | 6 | 0 | 6 | Active component; starting TASK-01 (Product catalog table, search & lifecycle filter badges). | `IN_PROGRESS` | 2026-11-30 | 0% |
-| **4** | [`service_auth`](./service_auth) | 8 | 2 | 6 | Package scaffold and database schemas completed; Sign-up API next in queue. | `IN_PROGRESS` | 2026-12-15 | 25% |
+| **3** | [`web_admin_product_crud`](./web_admin_product_crud) | 6 | 0 | 6 | Scheduled to begin tomorrow (2026-11-02). Product catalog table, create/edit drawer, and maintenance UI. | `PENDING` | 2026-11-30 | 0% |
+| **4** | [`service_auth`](./service_auth) | 8 | 2 | 6 | Placed in hold per operator instruction. Package scaffold and database schemas completed (2/8). | `IN_HOLD` | 2026-12-15 | 25% |
 | **5** | [`feature_pikyrider_auth`](./feature_pikyrider_auth) | 5 | 0 | 5 | Blocked until `services/auth` Sign-up and Sign-in endpoints are verified. | `BLOCKED` | 2026-12-31 | 0% |
 | **6** | [`web_admin_auth`](./web_admin_auth) | 5 | 0 | 5 | Blocked until `services/auth` admin session and user moderation endpoints are ready. | `BLOCKED` | 2026-12-31 | 0% |
 | **7** | [`feature_pikyrider_solo`](./feature_pikyrider_solo) | 5 | 0 | 5 | Offline map caching, turn-by-turn TTS, and emergency POIs planned. | `PENDING` | 2027-01-15 | 0% |
