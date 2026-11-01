@@ -23,10 +23,10 @@
 | Task ID | Task Title | Key Deliverable | Guide File | Status |
 | :--- | :--- | :--- | :--- | :--- |
 | `TASK-01` | Scaffold `apps/admin` Package and Next.js 16 Foundation | Next.js 16 App Router foundation, tsconfig, package scripts, Turborepo wiring | [`TASK_01_IMPLEMENTATION_GUIDE.md`](./TASK_01_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
-| `TASK-02` | Configure Shadcn UI Components & Styling Tokens | Core Shadcn UI primitives (`@workspace/ui`), Lucide icons, dark/light theme tokens | [`TASK_02_IMPLEMENTATION_GUIDE.md`](./TASK_02_IMPLEMENTATION_GUIDE.md) | `IN_PROGRESS` |
-| `TASK-03` | Build Admin Dashboard Shell & Collapsible Sidebar | Responsive admin layout, collapsible sidebar, top bar with theme toggle & user menu | [`TASK_03_IMPLEMENTATION_GUIDE.md`](./TASK_03_IMPLEMENTATION_GUIDE.md) | `PENDING` |
-| `TASK-04` | Scaffold Navigation Route Hierarchy & Empty Page Shells | Empty placeholder views with breadcrumbs and headers for `/products`, `/maintenance`, `/users`, `/automation`, `/settings` | [`TASK_04_IMPLEMENTATION_GUIDE.md`](./TASK_04_IMPLEMENTATION_GUIDE.md) | `PENDING` |
-| `TASK-05` | Verification Suite, Build Check & Layout Verification | TypeScript verification (`tsc --noEmit`), ESLint, and production build validation | [`TASK_05_IMPLEMENTATION_GUIDE.md`](./TASK_05_IMPLEMENTATION_GUIDE.md) | `PENDING` |
+| `TASK-02` | Configure Shadcn UI Components & Styling Tokens | Core Shadcn UI primitives (`@workspace/ui`), Lucide icons, dark/light theme tokens | [`TASK_02_IMPLEMENTATION_GUIDE.md`](./TASK_02_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
+| `TASK-03` | Build Admin Dashboard Shell & Collapsible Sidebar | Responsive admin layout, collapsible sidebar, top bar with theme toggle & user menu | [`TASK_03_IMPLEMENTATION_GUIDE.md`](./TASK_03_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
+| `TASK-04` | Scaffold Navigation Route Hierarchy & Empty Page Shells | Empty placeholder views with breadcrumbs and headers for `/products`, `/maintenance`, `/users`, `/automation`, `/settings` | [`TASK_04_IMPLEMENTATION_GUIDE.md`](./TASK_04_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
+| `TASK-05` | Verification Suite, Build Check & Layout Verification | TypeScript verification (`tsc --noEmit`), ESLint, and production build validation | [`TASK_05_IMPLEMENTATION_GUIDE.md`](./TASK_05_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
 
 ---
 

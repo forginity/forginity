@@ -66,7 +66,7 @@ export function AppShell({
 
       {/* Mobile Slide-out Drawer */}
       <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-        <SheetContent side="left" className="p-0 w-[236px] border-r border-border/40">
+        <SheetContent side="left" showCloseButton={false} className="p-0 w-[236px] border-r border-border/40">
           <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
           <AppSidebar
             currentPath={currentPath}
@@ -78,6 +78,7 @@ export function AppShell({
             linkComponent={linkComponent}
             onLogout={onLogout}
             onWorkspaceSwitch={onWorkspaceSwitch}
+            onClose={() => setMobileMenuOpen(false)}
             className="w-full border-r-0"
           />
         </SheetContent>
@@ -88,7 +89,6 @@ export function AppShell({
         <AppHeader
           breadcrumbs={breadcrumbs}
           environment={environment}
-          searchPlaceholder={searchPlaceholder}
           onMenuToggle={() => setMobileMenuOpen(true)}
           linkComponent={linkComponent}
           className="shrink-0"

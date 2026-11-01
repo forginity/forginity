@@ -1,10 +1,9 @@
 "use client"
 
 import * as React from "react"
-import { Bell, Menu, Search } from "lucide-react"
+import { Bell, Menu } from "lucide-react"
 import { cn } from "@workspace/ui/lib/utils"
 import { DEFAULT_ENVIRONMENT } from "@workspace/ui/constants/brand.constants"
-import { ForginityLogo } from "@workspace/ui/components/forginity-logo"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -31,7 +30,6 @@ export type EnvironmentMode =
 export interface AppHeaderProps extends React.HTMLAttributes<HTMLElement> {
   breadcrumbs?: BreadcrumbSegment[]
   environment?: EnvironmentMode
-  showLogo?: boolean
   searchPlaceholder?: string
   onSearchClick?: () => void
   onMenuToggle?: () => void
@@ -82,9 +80,8 @@ function getEnvironmentConfig(env?: string) {
 export function AppHeader({
   breadcrumbs = [{ label: "Workspace" }, { label: "Home" }],
   environment = DEFAULT_ENVIRONMENT,
-  showLogo = true,
-  searchPlaceholder = "Search workspace...",
-  onSearchClick,
+  searchPlaceholder: _searchPlaceholder,
+  onSearchClick: _onSearchClick,
   onMenuToggle,
   hasNotifications = false,
   linkComponent: LinkComp = "a",
@@ -96,39 +93,33 @@ export function AppHeader({
   return (
     <header
       className={cn(
-        "flex h-14 w-full items-center justify-between border-b border-border/40 bg-background/95 px-6 backdrop-blur supports-[backdrop-filter]:bg-background/60",
+        "flex h-14 w-full items-center justify-between border-b border-border/40 bg-background/95 px-4 sm:px-6 backdrop-blur supports-[backdrop-filter]:bg-background/60 min-w-0 shrink-0",
         className
       )}
       {...props}
     >
-      {/* Left: Mobile Trigger, Forginity Logo, & Breadcrumbs */}
-      <div className="flex items-center gap-3.5">
+      {/* Left: Mobile Trigger & Responsive Breadcrumbs */}
+      <div className="flex items-center gap-2 sm:gap-3.5 min-w-0 flex-1">
         {onMenuToggle && (
           <button
             type="button"
             onClick={onMenuToggle}
-            className="flex items-center justify-center rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground md:hidden"
+            className="flex items-center justify-center rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground md:hidden shrink-0"
             aria-label="Toggle navigation menu"
           >
             <Menu className="size-4" />
           </button>
         )}
 
-        {showLogo && (
-          <div className="flex items-center pr-3 border-r border-border/40">
-            <ForginityLogo size="xs" />
-          </div>
-        )}
-
-        <Breadcrumb>
-          <BreadcrumbList className="text-xs">
+        <Breadcrumb className="min-w-0 overflow-hidden">
+          <BreadcrumbList className="text-xs flex-nowrap overflow-hidden">
             {breadcrumbs.map((segment, index) => {
               const isLast = index === breadcrumbs.length - 1
               return (
                 <React.Fragment key={`${segment.label}-${index}`}>
-                  <BreadcrumbItem>
+                  <BreadcrumbItem className="min-w-0 shrink truncate">
                     {isLast || !segment.href ? (
-                      <BreadcrumbPage className="font-medium text-foreground">
+                      <BreadcrumbPage className="font-normal text-foreground truncate max-w-[120px] sm:max-w-none">
                         {segment.label}
                       </BreadcrumbPage>
                     ) : (
@@ -139,13 +130,13 @@ export function AppHeader({
                             <LinkComp href={segment.href!} />
                           ) : undefined
                         }
-                        className="text-muted-foreground hover:text-foreground transition-colors"
+                        className="text-muted-foreground hover:text-foreground transition-colors truncate max-w-[90px] sm:max-w-none"
                       >
                         {segment.label}
                       </BreadcrumbLink>
                     )}
                   </BreadcrumbItem>
-                  {!isLast && <BreadcrumbSeparator className="text-muted-foreground/40" />}
+                  {!isLast && <BreadcrumbSeparator className="text-muted-foreground/40 shrink-0" />}
                 </React.Fragment>
               )
             })}
@@ -153,32 +144,17 @@ export function AppHeader({
         </Breadcrumb>
       </div>
 
-      {/* Right: Search, Notifications, Dynamic Environment Badge */}
-      <div className="flex items-center gap-3">
-        {/* Search Input / Command Trigger */}
-        <button
-          type="button"
-          onClick={onSearchClick}
-          className="flex h-8 w-56 items-center justify-between rounded-lg border border-border/50 bg-card/60 px-2.5 text-xs text-muted-foreground transition-colors hover:border-border hover:bg-card/90"
-        >
-          <div className="flex items-center gap-2">
-            <Search className="size-3.5 text-muted-foreground/70" />
-            <span className="truncate">{searchPlaceholder}</span>
-          </div>
-          <kbd className="pointer-events-none hidden h-4 select-none items-center gap-0.5 rounded border border-border/60 bg-muted/70 px-1 font-mono text-[9px] font-medium text-muted-foreground sm:flex">
-            ⌘ K
-          </kbd>
-        </button>
-
+      {/* Right: Notifications & Dynamic Environment Badge */}
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
         {/* Notifications Icon */}
         <button
           type="button"
-          className="relative flex size-8 items-center justify-center rounded-lg border border-border/40 bg-card/40 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+          className="relative flex size-8 items-center justify-center rounded-lg border border-border/40 bg-card/40 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0"
           aria-label="Notifications"
         >
           <Bell className="size-3.5" />
           {hasNotifications && (
-            <span className="absolute top-1.5 right-1.5 size-1.5 rounded-full bg-[#f95738]" />
+            <span className="absolute top-1.5 right-1.5 size-1.5 rounded-full bg-[#FF6347]" />
           )}
         </button>
 
@@ -186,7 +162,7 @@ export function AppHeader({
         {envConfig && (
           <div
             className={cn(
-              "flex h-7 items-center gap-1.5 rounded-full border px-2.5 text-[11px] font-medium transition-colors",
+              "flex h-7 items-center gap-1.5 rounded-full border px-2.5 text-[11px] font-medium transition-colors shrink-0",
               envConfig.badgeClass
             )}
           >

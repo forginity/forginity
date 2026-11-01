@@ -22,12 +22,12 @@ export function DashboardHeader({
       )}
       {...props}
     >
-      <div className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+      <div className="space-y-1.5">
+        <h1 className="text-[32px] font-normal tracking-tight text-[#F6F6F6] leading-tight">
           {title}
         </h1>
         {description && (
-          <p className="text-xs text-muted-foreground">{description}</p>
+          <p className="text-[14px] font-light text-[#838383] leading-normal">{description}</p>
         )}
       </div>
 

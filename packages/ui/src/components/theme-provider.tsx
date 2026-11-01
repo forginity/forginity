@@ -3,6 +3,24 @@
 import * as React from "react"
 import { ThemeProvider as NextThemesProvider, useTheme } from "next-themes"
 
+// Suppress React 19 / Next.js 16 false-positive warning for next-themes' inline script tag
+if (process.env.NODE_ENV === "development") {
+  const originalError = console.error
+  if (!(originalError as unknown as { __scriptTagWarningSuppressed?: boolean }).__scriptTagWarningSuppressed) {
+    const wrappedError = (...args: unknown[]) => {
+      const message = typeof args[0] === "string" ? args[0] : (args[0] as { message?: string })?.message || ""
+      if (typeof message === "string" && message.includes("Encountered a script tag")) {
+        return
+      }
+      originalError.apply(console, args)
+    }
+    ;(wrappedError as unknown as { __scriptTagWarningSuppressed?: boolean }).__scriptTagWarningSuppressed = true
+    console.error = wrappedError
+  }
+}
+
+export { useTheme }
+
 export function ThemeProvider({
   children,
   defaultTheme = "dark",
