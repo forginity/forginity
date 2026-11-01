@@ -12,8 +12,8 @@
   - User directory search and profile inspection table.
   - User moderation actions: role assignment, account suspension, and soft deletion.
 - **Tech Stack:** Next.js 16 (App Router), React 19, Tailwind CSS v4, Shadcn UI (`@workspace/ui`), TypeScript.
-- **Reference Specification:** [`./README.md`](./README.md)
-- **Implementation Record:** [`./IMPLEMENTATIONS_RECORD.md`](file:///home/vikas/Documents/forginity/docs/development/web_admin_auth/IMPLEMENTATIONS_RECORD.md)
+- **Central Implementation Record:** [`../IMPLEMENTATION_RECORD.md`](../IMPLEMENTATION_RECORD.md)
+- **Overall Progress:** [`../PROGRESS.md`](../PROGRESS.md)
 
 ---
 

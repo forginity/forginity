@@ -12,8 +12,8 @@
   - Stall and incident detection when a rider is stationary off-schedule.
   - Group tour completion and shared ride log summary.
 - **Tech Stack:** React Native, Expo, TypeScript, Socket.IO client, Redis Pub/Sub, Turf.js.
-- **Reference Specification:** [`./README.md`](./README.md)
-- **Implementation Record:** [`./IMPLEMENTATIONS_RECORD.md`](file:///home/vikas/Documents/forginity/docs/development/feature_pikyrider_group/IMPLEMENTATIONS_RECORD.md)
+- **Central Implementation Record:** [`../IMPLEMENTATION_RECORD.md`](../IMPLEMENTATION_RECORD.md)
+- **Overall Progress:** [`../PROGRESS.md`](../PROGRESS.md)
 
 ---
 

@@ -3,7 +3,7 @@
 - **Service:** `apps/admin` (and `@workspace/ui`)
 - **Status:** `IN_PROGRESS`
 - **Task List:** [`./TASK_LIST.md`](./TASK_LIST.md)
-- **Record:** [`./IMPLEMENTATIONS_RECORD.md`](./IMPLEMENTATIONS_RECORD.md)
+- **Record:** [`../IMPLEMENTATION_RECORD.md`](../IMPLEMENTATION_RECORD.md)
 
 ---
 
@@ -77,6 +77,6 @@ Test scenarios to cover:
 
 ## 6. RECORD UPDATE
 
-1. Update the **LAST UPDATE** block in [`./IMPLEMENTATIONS_RECORD.md`](./IMPLEMENTATIONS_RECORD.md) with a two-line summary.
-2. Add a row to **COMPLETED TASKS** in [`./IMPLEMENTATIONS_RECORD.md`](./IMPLEMENTATIONS_RECORD.md).
+1. Update the **LAST UPDATE** block in [`../IMPLEMENTATION_RECORD.md`](../IMPLEMENTATION_RECORD.md) with a two-line summary.
+2. Add a row to **COMPLETED TASKS** in [`../IMPLEMENTATION_RECORD.md`](../IMPLEMENTATION_RECORD.md).
 3. Mark task as `COMPLETED` in [`./TASK_LIST.md`](./TASK_LIST.md).

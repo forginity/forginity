@@ -12,8 +12,8 @@
   - Cloudflare edge, origin SSL, and WAF rules.
   - GitHub Actions automated CI/CD pipeline.
 - **Tech Stack:** Docker, Docker Compose, Nginx, Hetzner Cloud, Cloudflare, GitHub Actions.
-- **Reference Specification:** [`./README.md`](./README.md)
-- **Implementation Record:** [`./IMPLEMENTATIONS_RECORD.md`](file:///home/vikas/Documents/forginity/docs/development/deployment_hosting/IMPLEMENTATIONS_RECORD.md)
+- **Central Implementation Record:** [`../IMPLEMENTATION_RECORD.md`](../IMPLEMENTATION_RECORD.md)
+- **Overall Progress:** [`../PROGRESS.md`](../PROGRESS.md)
 
 ---
 

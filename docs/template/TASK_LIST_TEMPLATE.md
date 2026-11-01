@@ -10,8 +10,8 @@
   - [Feature/Flow 2]
 - **Tech Stack:** Referenced in [`docs/org/TDD.md`](file:///home/vikas/Documents/forginity/docs/org/TDD.md)
 - **Reference Service:** [`services/products`](file:///home/vikas/Documents/forginity/services/products)
-- **Service Specification:** [`./README.md`](./README.md)
-- **Implementation Record:** [`./IMPLEMENTATIONS_RECORD.md`](file:///home/vikas/Documents/forginity/docs/development/[SERVICE_NAME]/IMPLEMENTATIONS_RECORD.md)
+- **Central Implementation Record:** [`../IMPLEMENTATION_RECORD.md`](../IMPLEMENTATION_RECORD.md)
+- **Overall Progress:** [`../PROGRESS.md`](../PROGRESS.md)
 
 ---
 

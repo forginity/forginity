@@ -131,8 +131,8 @@ Engineering teams and AI agents must follow Test-Driven Development principles.
 
 ## 7. AI Development Workflow
 
-The AI development workflow operates on a clean, four-stage lifecycle:
-`Service Details -> Progressive Task List -> Task Implementation Guide -> Implementation Record`
+The AI development workflow operates on a clean, streamlined lifecycle:
+`Progressive Task List -> Task Implementation Guide -> Verification -> Central Implementation Record & Progress Update`
 
 ### Universal Task Statuses
 
@@ -142,7 +142,7 @@ Keep task status definitions here in `AGENTS.md`. Do not repeat this legend insi
 | :--- | :--- |
 | `PENDING` | Task is planned. Guide is not yet started. |
 | `IN_PROGRESS` | Implementation guide is active. Code or tests are underway. |
-| `COMPLETED` | Code written, verified with tests, and logged in `IMPLEMENTATIONS_RECORD.md`. |
+| `COMPLETED` | Code written, verified with tests, logged in central `docs/development/IMPLEMENTATION_RECORD.md`, and reflected in `PROGRESS.md`. |
 | `BLOCKED` | Dependent on external API, contract, or operator decision. |
 
 ### Universal Task Execution Lifecycle
@@ -155,13 +155,23 @@ The AI agent checks for an existing task list at:
 docs/development/<service_name>/TASK_LIST.md
 ```
 
-If the file does not exist, the AI agent creates it from [`docs/template/TASK_LIST_TEMPLATE.md`](file:///home/vikas/Documents/forginity/docs/template/TASK_LIST_TEMPLATE.md) with full service details. It also generates the service specification overview at `docs/development/<service_name>/README.md` from [`docs/template/README_TEMPLATE.md`](file:///home/vikas/Documents/forginity/docs/template/README_TEMPLATE.md), and initializes the implementation tracking log at `docs/development/<service_name>/IMPLEMENTATIONS_RECORD.md` using [`docs/template/IMPLEMENTATIONS_RECORD_TEMPLATE.md`](file:///home/vikas/Documents/forginity/docs/template/IMPLEMENTATIONS_RECORD_TEMPLATE.md).
+If the file does not exist, the AI agent creates it from [`docs/template/TASK_LIST_TEMPLATE.md`](file:///home/vikas/Documents/forginity/docs/template/TASK_LIST_TEMPLATE.md) with full service/component details.
 
-Additionally, the agent maintains the progress tracker at `docs/development/PROGRESS.md` containing two tables: **OVERALL DEVELOPMENT PROGRESS** (a single summary row tracking total tasks, completed, pending, and progress percentage across the Forginity monorepo ecosystem) and **TASK DEVELOPMENT PROGRESS** (tracking macro components ordered by priority: Service, Total Tasks, Completed, Pending, Disclaimer, Status, Deadline, and Progress). If this file does not exist, the agent creates it from [`docs/template/PROGRESS_TEMPLATE.md`](file:///home/vikas/Documents/forginity/docs/template/PROGRESS_TEMPLATE.md).
+> [!IMPORTANT]
+> **Zero Redundant Documentation in Task Folders:**
+> Individual service or component folders under `docs/development/<service_name>/` strictly contain only:
+> 1. `TASK_LIST.md` (the progressive task matrix and service/component details)
+> 2. `TASK_<NO>_IMPLEMENTATION_GUIDE.md` (step-by-step implementation guides)
+> 
+> **Do NOT create individual `README.md` or `IMPLEMENTATIONS_RECORD.md` files in task folders.** All status tracking and task completions are consolidated centrally at the root of `docs/development/`.
+
+All progress tracking and audit logs across the ecosystem are maintained exclusively in two root files:
+- **Central Progress Tracker:** [`docs/development/PROGRESS.md`](file:///home/vikas/Documents/forginity/docs/development/PROGRESS.md) containing two tables: **OVERALL DEVELOPMENT PROGRESS** (single summary row tracking total tasks, completed, pending, and progress percentage across the Forginity monorepo ecosystem) and **TASK DEVELOPMENT PROGRESS** (tracking macro components ordered by priority: Service, Total Tasks, Completed, Pending, Disclaimer, Status, Deadline, and Progress).
+- **Central Implementation Record:** [`docs/development/IMPLEMENTATION_RECORD.md`](file:///home/vikas/Documents/forginity/docs/development/IMPLEMENTATION_RECORD.md) containing the ecosystem-wide **Last Update** log and the single authoritative **Completed Tasks** table across all services and components.
 
 #### Step 2: Review Task
 
-The AI agent reviews the service details and selects the next sequential pending task from `docs/development/<service_name>/TASK_LIST.md`.
+The AI agent reviews the service/component details in `docs/development/<service_name>/TASK_LIST.md` and selects the next sequential pending task.
 
 #### Step 3: Create Task Implementation Guide
 
@@ -192,12 +202,15 @@ The AI agent executes the full verification suite against the affected package:
 
 #### Step 6: Update Implementation Records
 
-Once verification succeeds, the AI agent updates service records:
+Once verification succeeds, the AI agent updates records in the following exact sequence:
 
-1. Update the **Last Update Record** (date, completed task, two-line change summary) in `docs/development/<service_name>/IMPLEMENTATIONS_RECORD.md`.
-2. Append a row to the **Completed Tasks** table in `docs/development/<service_name>/IMPLEMENTATIONS_RECORD.md`.
-3. Mark the task as `COMPLETED` in `docs/development/<service_name>/TASK_LIST.md`.
-4. Refresh `docs/development/PROGRESS.md`: update the component row in **TASK DEVELOPMENT PROGRESS** (total tasks, completed, pending, disclaimer, status, progress percentage) and refresh the ecosystem summary metrics in **OVERALL DEVELOPMENT PROGRESS**.
+1. Mark the task as `COMPLETED` in `docs/development/<service_name>/TASK_LIST.md`.
+2. Update the central implementation record in [`docs/development/IMPLEMENTATION_RECORD.md`](file:///home/vikas/Documents/forginity/docs/development/IMPLEMENTATION_RECORD.md):
+   - Update the **Last Update** section with current timestamp, service/component, completed task ID & title, and a two-line summary.
+   - Append a row to the **Completed Tasks** table (Service / Component, Task ID, Task Title, Guide File link, Completed Date, Verified By).
+3. Refresh the progress tracker in [`docs/development/PROGRESS.md`](file:///home/vikas/Documents/forginity/docs/development/PROGRESS.md):
+   - Update the component row in **TASK DEVELOPMENT PROGRESS** (Total Tasks, Completed, Pending, Disclaimer, Status, Deadline, Progress %).
+   - Refresh the summary metrics in **OVERALL DEVELOPMENT PROGRESS** (Total Tasks, Completed, Pending, Progress %).
 
 ### Required Sections in Each Implementation Guide
 
@@ -209,14 +222,13 @@ Every `TASK_<NO>_IMPLEMENTATION_GUIDE.md` must contain:
 4. **Test Scenarios to Cover.** Happy path, input validation failures, duplicate checks, and edge cases.
 5. **Security Scenarios to Cover.** OWASP checks, Zod input validation, authentication guards, and query parameterization.
 6. **Post-Implementation Workflow.** Exact shell commands for type checking, linting, and testing.
-7. **Record Update Instructions.** Instructions to log the completed task in `IMPLEMENTATIONS_RECORD.md` and refresh the Last Update Record.
+7. **Record Update Instructions.** Instructions to mark the task completed in `TASK_LIST.md`, log the completed task in central `docs/development/IMPLEMENTATION_RECORD.md`, and refresh `docs/development/PROGRESS.md`.
 
 ### Templates Reference Directory
 
 The authoritative templates for this workflow live in [`docs/template/`](file:///home/vikas/Documents/forginity/docs/template/):
 
 - Overall Development Progress Template: [`docs/template/PROGRESS_TEMPLATE.md`](file:///home/vikas/Documents/forginity/docs/template/PROGRESS_TEMPLATE.md)
-- Service Specification Template: [`docs/template/README_TEMPLATE.md`](file:///home/vikas/Documents/forginity/docs/template/README_TEMPLATE.md)
+- Central Implementation Record Template: [`docs/template/IMPLEMENTATION_RECORD_TEMPLATE.md`](file:///home/vikas/Documents/forginity/docs/template/IMPLEMENTATION_RECORD_TEMPLATE.md)
 - Task List Template: [`docs/template/TASK_LIST_TEMPLATE.md`](file:///home/vikas/Documents/forginity/docs/template/TASK_LIST_TEMPLATE.md)
 - Task Implementation Guide Template: [`docs/template/TASK_IMPLEMENTATION_GUIDE_TEMPLATE.md`](file:///home/vikas/Documents/forginity/docs/template/TASK_IMPLEMENTATION_GUIDE_TEMPLATE.md)
-- Implementation Record Template: [`docs/template/IMPLEMENTATIONS_RECORD_TEMPLATE.md`](file:///home/vikas/Documents/forginity/docs/template/IMPLEMENTATIONS_RECORD_TEMPLATE.md)

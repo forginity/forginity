@@ -3,7 +3,7 @@
 - **Service:** `services/products`
 - **Status:** `COMPLETED`
 - **Task List:** [`./TASK_LIST.md`](./TASK_LIST.md)
-- **Record:** [`./IMPLEMENTATIONS_RECORD.md`](./IMPLEMENTATIONS_RECORD.md)
+- **Record:** [`../IMPLEMENTATION_RECORD.md`](../IMPLEMENTATION_RECORD.md)
 
 ---
 
@@ -62,5 +62,5 @@ pnpm --filter @services/products test
 
 ## 6. RECORD UPDATE
 
-1. Logged in [`./IMPLEMENTATIONS_RECORD.md`](./IMPLEMENTATIONS_RECORD.md).
+1. Logged in [`../IMPLEMENTATION_RECORD.md`](../IMPLEMENTATION_RECORD.md).
 2. Status marked `COMPLETED` in [`./TASK_LIST.md`](./TASK_LIST.md).

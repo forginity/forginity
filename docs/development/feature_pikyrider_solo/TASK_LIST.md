@@ -12,8 +12,8 @@
   - Emergency POI lookup (fuel, medical, service repair) within a proximity radius.
   - Solo ride recording (telemetry, duration, distance, elevation, top/avg speed).
 - **Tech Stack:** React Native, Expo, TypeScript, SQLite, Turf.js, Expo Speech.
-- **Reference Specification:** [`./README.md`](./README.md)
-- **Implementation Record:** [`./IMPLEMENTATIONS_RECORD.md`](file:///home/vikas/Documents/forginity/docs/development/feature_pikyrider_solo/IMPLEMENTATIONS_RECORD.md)
+- **Central Implementation Record:** [`../IMPLEMENTATION_RECORD.md`](../IMPLEMENTATION_RECORD.md)
+- **Overall Progress:** [`../PROGRESS.md`](../PROGRESS.md)
 
 ---
 

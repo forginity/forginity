@@ -3,7 +3,7 @@
 - **Service:** `services/products`
 - **Status:** `COMPLETED`
 - **Task List:** [`./TASK_LIST.md`](./TASK_LIST.md)
-- **Record:** [`./IMPLEMENTATIONS_RECORD.md`](./IMPLEMENTATIONS_RECORD.md)
+- **Record:** [`../IMPLEMENTATION_RECORD.md`](../IMPLEMENTATION_RECORD.md)
 
 ---
 
@@ -23,7 +23,7 @@ Integrate `@asteasolutions/zod-to-openapi` and `swagger-ui-express` to automatic
   - `services/products/src/db/products.validator.ts` (Extend Zod with `.openapi()` descriptions and examples)
   - `services/products/src/app.ts` (Mount Swagger UI and JSON endpoints)
   - `docs/development/service_products/TASK_LIST.md` (Update task status upon completion)
-  - `docs/development/service_products/IMPLEMENTATIONS_RECORD.md` (Log completion record)
+  - `docs/development/IMPLEMENTATION_RECORD.md` (Log completion record)
 
 ---
 
@@ -100,6 +100,6 @@ Test scenarios to cover:
 
 ## 6. RECORD UPDATE
 
-1. Update the **LAST UPDATE** block in [`./IMPLEMENTATIONS_RECORD.md`](./IMPLEMENTATIONS_RECORD.md) with completion timestamp and summary.
-2. Add a row to **COMPLETED TASKS** in [`./IMPLEMENTATIONS_RECORD.md`](./IMPLEMENTATIONS_RECORD.md).
+1. Update the **LAST UPDATE** block in [`../IMPLEMENTATION_RECORD.md`](../IMPLEMENTATION_RECORD.md) with completion timestamp and summary.
+2. Add a row to **COMPLETED TASKS** in [`../IMPLEMENTATION_RECORD.md`](../IMPLEMENTATION_RECORD.md).
 3. Mark `TASK-05` as `COMPLETED` in [`./TASK_LIST.md`](./TASK_LIST.md).

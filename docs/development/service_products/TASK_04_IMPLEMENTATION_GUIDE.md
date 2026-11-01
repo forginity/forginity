@@ -3,7 +3,7 @@
 - **Service:** `services/products`
 - **Status:** `COMPLETED`
 - **Task List:** [`./TASK_LIST.md`](./TASK_LIST.md)
-- **Record:** [`./IMPLEMENTATIONS_RECORD.md`](./IMPLEMENTATIONS_RECORD.md)
+- **Record:** [`../IMPLEMENTATION_RECORD.md`](../IMPLEMENTATION_RECORD.md)
 
 ---
 
@@ -30,7 +30,7 @@
   - `services/products/src/repositories/product.repository.ts` (Added `checkConnection` helper)
   - `docs/development/service_products/README.md`
   - `docs/development/service_products/TASK_LIST.md`
-  - `docs/development/service_products/IMPLEMENTATIONS_RECORD.md`
+  - `docs/development/IMPLEMENTATION_RECORD.md`
 
 ---
 
@@ -96,5 +96,5 @@ Test Results:
 
 ## 6. RECORD UPDATE
 
-1. Updated [`./IMPLEMENTATIONS_RECORD.md`](./IMPLEMENTATIONS_RECORD.md).
+1. Updated [`../IMPLEMENTATION_RECORD.md`](../IMPLEMENTATION_RECORD.md).
 2. Status marked `COMPLETED` in [`./TASK_LIST.md`](./TASK_LIST.md).

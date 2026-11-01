@@ -12,8 +12,8 @@
   - Webhook signature verification and idempotency ledger.
   - Interactive Swagger / OpenAPI documentation served at `/api/docs` and raw spec at `/api/docs.json`.
 - **Tech Stack:** Express 5, TypeScript, PostgreSQL 18, Drizzle ORM, Stripe SDK, Zod, Vitest, Supertest.
-- **Reference Specification:** [`./README.md`](./README.md)
-- **Implementation Record:** [`./IMPLEMENTATIONS_RECORD.md`](file:///home/vikas/Documents/forginity/docs/development/service_payment/IMPLEMENTATIONS_RECORD.md)
+- **Central Implementation Record:** [`../IMPLEMENTATION_RECORD.md`](../IMPLEMENTATION_RECORD.md)
+- **Overall Progress:** [`../PROGRESS.md`](../PROGRESS.md)
 
 ---
 

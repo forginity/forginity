@@ -1,5 +1,7 @@
 # OVERALL DEVELOPMENT PROGRESS
 
+- **Central Implementation Record:** [`./IMPLEMENTATION_RECORD.md`](./IMPLEMENTATION_RECORD.md)
+
 This section represents the high-level progress across the entire Forginity monorepo ecosystem.
 
 | Total Tasks | Completed | Pending | Progress (%) |

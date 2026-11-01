@@ -12,8 +12,8 @@
   - Rider profile onboarding screen (rider handle, bike details, emergency contact).
   - Silent token refresh and session guard routing.
 - **Tech Stack:** React Native, Expo, TypeScript, `expo-secure-store`, Zod.
-- **Reference Specification:** [`./README.md`](./README.md)
-- **Implementation Record:** [`./IMPLEMENTATIONS_RECORD.md`](file:///home/vikas/Documents/forginity/docs/development/feature_pikyrider_auth/IMPLEMENTATIONS_RECORD.md)
+- **Central Implementation Record:** [`../IMPLEMENTATION_RECORD.md`](../IMPLEMENTATION_RECORD.md)
+- **Overall Progress:** [`../PROGRESS.md`](../PROGRESS.md)
 
 ---
 

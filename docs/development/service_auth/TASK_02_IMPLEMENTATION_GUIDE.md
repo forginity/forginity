@@ -3,7 +3,7 @@
 - **Service:** `services/auth`
 - **Status:** `COMPLETED`
 - **Task List:** [`./TASK_LIST.md`](./TASK_LIST.md)
-- **Record:** [`./IMPLEMENTATIONS_RECORD.md`](./IMPLEMENTATIONS_RECORD.md)
+- **Record:** [`../IMPLEMENTATION_RECORD.md`](../IMPLEMENTATION_RECORD.md)
 
 ---
 
@@ -22,7 +22,7 @@ Define and build the production-grade PostgreSQL database schema for `services/a
 - **Files to Modify:**
   - `services/auth/src/index.ts` (Export schema tables, relations, and Zod validator types)
   - `docs/development/service_auth/TASK_LIST.md` (Update status to COMPLETED once verified)
-  - `docs/development/service_auth/IMPLEMENTATIONS_RECORD.md` (Log completed task and verification date)
+  - `docs/development/IMPLEMENTATION_RECORD.md` (Log completed task and verification date)
 
 ---
 

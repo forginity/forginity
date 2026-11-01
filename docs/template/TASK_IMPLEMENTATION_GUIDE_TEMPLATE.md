@@ -3,7 +3,8 @@
 - **Service:** `[services/service-name]`
 - **Status:** `[IN_PROGRESS | COMPLETED]`
 - **Task List:** [`./TASK_LIST.md`](./TASK_LIST.md)
-- **Record:** [`./IMPLEMENTATIONS_RECORD.md`](./IMPLEMENTATIONS_RECORD.md)
+- **Record:** [`../IMPLEMENTATION_RECORD.md`](../IMPLEMENTATION_RECORD.md)
+- **Progress:** [`../PROGRESS.md`](../PROGRESS.md)
 
 ---
 
@@ -60,6 +61,6 @@ Test scenarios to cover:
 
 ## 6. RECORD UPDATE
 
-1. Update the **LAST UPDATE** block in [`./IMPLEMENTATIONS_RECORD.md`](./IMPLEMENTATIONS_RECORD.md) with a two-line summary.
-2. Add a row to **COMPLETED TASKS** in [`./IMPLEMENTATIONS_RECORD.md`](./IMPLEMENTATIONS_RECORD.md).
-3. Mark task as `COMPLETED` in [`./TASK_LIST.md`](./TASK_LIST.md).
+1. Mark task as `COMPLETED` in [`./TASK_LIST.md`](./TASK_LIST.md).
+2. Update the **LAST UPDATE** block and append task row in [`../IMPLEMENTATION_RECORD.md`](../IMPLEMENTATION_RECORD.md).
+3. Refresh the component row and overall metrics in [`../PROGRESS.md`](../PROGRESS.md).

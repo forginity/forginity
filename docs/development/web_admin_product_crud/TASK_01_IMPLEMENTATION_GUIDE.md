@@ -3,7 +3,7 @@
 - **Service:** `apps/admin` (Component: `web_admin_product_crud`)
 - **Status:** `IN_PROGRESS`
 - **Task List:** [`./TASK_LIST.md`](./TASK_LIST.md)
-- **Record:** [`./IMPLEMENTATIONS_RECORD.md`](./IMPLEMENTATIONS_RECORD.md)
+- **Record:** [`../IMPLEMENTATION_RECORD.md`](../IMPLEMENTATION_RECORD.md)
 
 ---
 
@@ -72,7 +72,7 @@ Test scenarios to cover:
 ## 6. RECORD UPDATE INSTRUCTIONS
 
 Upon completing verification:
-1. Append `TASK-01` row to `docs/development/web_admin_product_crud/IMPLEMENTATIONS_RECORD.md`.
-2. Update **Last Update Record** in `IMPLEMENTATIONS_RECORD.md`.
+1. Append `TASK-01` row to `docs/development/IMPLEMENTATION_RECORD.md`.
+2. Update **Last Update Record** in `docs/development/IMPLEMENTATION_RECORD.md`.
 3. Mark `TASK-01` as `COMPLETED` in `TASK_LIST.md`.
 4. Refresh `docs/development/PROGRESS.md`.

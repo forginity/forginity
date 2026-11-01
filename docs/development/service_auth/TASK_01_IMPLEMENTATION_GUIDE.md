@@ -3,7 +3,7 @@
 - **Service:** `services/auth`
 - **Status:** `COMPLETED`
 - **Task List:** [`./TASK_LIST.md`](./TASK_LIST.md)
-- **Record:** [`./IMPLEMENTATIONS_RECORD.md`](./IMPLEMENTATIONS_RECORD.md)
+- **Record:** [`../IMPLEMENTATION_RECORD.md`](../IMPLEMENTATION_RECORD.md)
 
 ---
 
@@ -27,7 +27,7 @@ Initialize the `services/auth` workspace package using `services/products` as an
   - `services/auth/src/routes/health.route.test.ts`
 - **Files to Modify:**
   - `docs/development/service_auth/TASK_LIST.md`
-  - `docs/development/service_auth/IMPLEMENTATIONS_RECORD.md`
+  - `docs/development/IMPLEMENTATION_RECORD.md`
   - `pnpm-lock.yaml` (updated via package install)
 
 ---
@@ -114,6 +114,6 @@ curl -s -i http://localhost:3001/api/unknown-endpoint
 
 ## 6. RECORD UPDATE
 
-1. Update the **LAST UPDATE** block in [`./IMPLEMENTATIONS_RECORD.md`](./IMPLEMENTATIONS_RECORD.md) with a two-line summary.
-2. Add a row to **COMPLETED TASKS** in [`./IMPLEMENTATIONS_RECORD.md`](./IMPLEMENTATIONS_RECORD.md).
+1. Update the **LAST UPDATE** block in [`../IMPLEMENTATION_RECORD.md`](../IMPLEMENTATION_RECORD.md) with a two-line summary.
+2. Add a row to **COMPLETED TASKS** in [`../IMPLEMENTATION_RECORD.md`](../IMPLEMENTATION_RECORD.md).
 3. Mark task as `COMPLETED` in [`./TASK_LIST.md`](./TASK_LIST.md).

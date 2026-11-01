@@ -14,8 +14,8 @@
   - Interactive Swagger / OpenAPI documentation served at `/api/docs` and raw specification at `/api/docs.json`.
 - **Tech Stack:** Express 5, TypeScript, PostgreSQL 18, Drizzle ORM, Zod, `@asteasolutions/zod-to-openapi`, `swagger-ui-express`, Vitest, Supertest.
 - **Reference Service:** [`services/products`](file:///home/vikas/Documents/forginity/services/products)
-- **Service Specification:** [`./README.md`](./README.md)
-- **Implementation Record:** [`./IMPLEMENTATIONS_RECORD.md`](file:///home/vikas/Documents/forginity/docs/development/service_products/IMPLEMENTATIONS_RECORD.md)
+- **Central Implementation Record:** [`../IMPLEMENTATION_RECORD.md`](../IMPLEMENTATION_RECORD.md)
+- **Overall Progress:** [`../PROGRESS.md`](../PROGRESS.md)
 
 ---
 

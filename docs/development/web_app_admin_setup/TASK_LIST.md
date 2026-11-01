@@ -13,8 +13,8 @@
   - Active route highlighting and breadcrumb path tracking.
 - **Tech Stack:** Next.js 16 (App Router), React 19, Tailwind CSS v4, Shadcn UI (`@workspace/ui`), `next-themes`, Lucide React, TypeScript.
 - **Reference Service:** [`apps/admin`](file:///home/vikas/Documents/forginity/apps/admin)
-- **Service Specification:** [`./README.md`](./README.md)
-- **Implementation Record:** [`./IMPLEMENTATIONS_RECORD.md`](file:///home/vikas/Documents/forginity/docs/development/web_app_admin_setup/IMPLEMENTATIONS_RECORD.md)
+- **Central Implementation Record:** [`../IMPLEMENTATION_RECORD.md`](../IMPLEMENTATION_RECORD.md)
+- **Overall Progress:** [`../PROGRESS.md`](../PROGRESS.md)
 
 ---
 
