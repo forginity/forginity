@@ -22,7 +22,7 @@
 
 | Task ID | Task Title | Key Deliverable | Guide File | Status |
 | :--- | :--- | :--- | :--- | :--- |
-| `TASK-01` | Product Catalog Table & Status Filtering | Data table consuming `GET /api/products`, search by name/slug, status badges | [`TASK_01_IMPLEMENTATION_GUIDE.md`](./TASK_01_IMPLEMENTATION_GUIDE.md) | `PENDING` |
+| `TASK-01` | Product Catalog Table & Status Filtering | Data table consuming `GET /api/products`, search by name/slug, status badges | [`TASK_01_IMPLEMENTATION_GUIDE.md`](./TASK_01_IMPLEMENTATION_GUIDE.md) | `IN_PROGRESS` |
 | `TASK-02` | Create & Edit Product Drawer | Form validation with Zod, calling `POST /api/products` and `PATCH /api/products/:id` | [`TASK_02_IMPLEMENTATION_GUIDE.md`](./TASK_02_IMPLEMENTATION_GUIDE.md) | `PENDING` |
 | `TASK-03` | Product Deletion & Soft-Deprecate Workflow | Confirmation modal calling `DELETE /api/products/:id`, cascade warnings | [`TASK_03_IMPLEMENTATION_GUIDE.md`](./TASK_03_IMPLEMENTATION_GUIDE.md) | `PENDING` |
 | `TASK-04` | Maintenance Windows Scheduling Interface | List and schedule maintenance windows via `POST /api/products/:productId/maintenance` | [`TASK_04_IMPLEMENTATION_GUIDE.md`](./TASK_04_IMPLEMENTATION_GUIDE.md) | `PENDING` |
