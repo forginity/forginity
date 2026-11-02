@@ -7,11 +7,11 @@
 
 ## 1. LAST UPDATE
 
-- **Timestamp:** `2026-11-02 21:55`
+- **Timestamp:** `2026-11-02 22:12`
 - **Component / Service:** `packages/sdk` / `web_admin_product_crud`
-- **Task:** `TASK-01: Scaffold @forginity/sdk Package Foundation & Core HTTP Client`
+- **Task:** `TASK-02: Implement Product Domain SDK (Endpoints, Services & Query Hooks)`
 - **Summary:**
-  Shared client SDK initialized at `packages/sdk` (`@forginity/sdk`) with Axios core, extensible token request interceptor, structured `ApiError` normalization, and resilient TanStack Query defaults. Verified with 7 Vitest unit tests and 0 TypeScript errors.
+  Implemented `@forginity/sdk` products domain with DTOs, endpoint registry, pure async `ProductsService` (supporting atomic initial/new version creation, versionList query inclusion, and confirmation-guarded deletion), TanStack Query key factories, and hooks (`useProducts`, `useProduct`, `useCreateProduct`, `useUpdateProduct`, `useDeleteProduct`). Verified with 20 unit tests across SDK and 0 typecheck errors.
 
 ---
 
@@ -32,3 +32,4 @@
 | 11 | [`web_app_admin_setup`](./web_app_admin_setup/TASK_LIST.md) | `TASK-04` | Scaffold Navigation Route Hierarchy & Placeholder Views | [`TASK_LIST.md#task-04`](./web_app_admin_setup/TASK_LIST.md) | 2026-11-01 | Next.js Static Page Generator (9/9 routes) |
 | 12 | [`web_app_admin_setup`](./web_app_admin_setup/TASK_LIST.md) | `TASK-05` | Verification Suite, Build Check & Layout Verification | [`TASK_LIST.md#task-05`](./web_app_admin_setup/TASK_LIST.md) | 2026-11-01 | `tsc --noEmit` + `eslint` + `next build` (0 errors) |
 | 13 | [`web_admin_product_crud`](./web_admin_product_crud/TASK_LIST.md) | `TASK-01` | Scaffold `@forginity/sdk` Package Foundation & Core HTTP Client | [`TASK_01_IMPLEMENTATION_GUIDE.md`](./web_admin_product_crud/TASK_01_IMPLEMENTATION_GUIDE.md) | 2026-11-02 | Vitest (7 tests) + TypeScript |
+| 14 | [`web_admin_product_crud`](./web_admin_product_crud/TASK_LIST.md) | `TASK-02` | Implement Product Domain SDK (Endpoints, Services & Query Hooks) | [`TASK_02_IMPLEMENTATION_GUIDE.md`](./web_admin_product_crud/TASK_02_IMPLEMENTATION_GUIDE.md) | 2026-11-02 | Vitest (20 tests) + TypeScript |

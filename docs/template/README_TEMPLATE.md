@@ -1,65 +1,101 @@
-# SERVICE SPECIFICATION: [SERVICE_NAME]
+# [SERVICE / PACKAGE / APP NAME] (`@[scope]/[name]`)
 
-## 1. EXECUTIVE SUMMARY
-
-- **Service Name:** `[services/service-name | apps/app-name]`
-- **Domain:** `[Auth | Payments | Products | TrackRide | etc.]`
-- **Owner:** `[Team / Engineer / AI Agent]`
-- **Purpose:** [Explain the primary goal of this service, what problem it solves, and why it exists.]
-- **Consumers:** [List the client applications or backend services that consume this service.]
-- **Development Roadmap:** [`./TASK_LIST.md`](./TASK_LIST.md)
-- **Implementation Record:** [`./IMPLEMENTATIONS_RECORD.md`](./IMPLEMENTATIONS_RECORD.md)
+[One-line summary describing the primary purpose and role of this service, package, or application in the Forginity monorepo platform.]
 
 ---
 
-## 2. BUSINESS & FUNCTIONAL REQUIREMENTS
+## 1. What This [Service / Package / App] Is
 
-- **Core Capabilities:**
-  - [Capability 1: Clear description of expected behavior]
-  - [Capability 2: Clear description of expected behavior]
-- **User Flows & Workflows:**
-  - [Workflow 1: Trigger -> Steps -> Outcome]
-  - [Workflow 2: Trigger -> Steps -> Outcome]
-- **Edge Cases & Failure Modes:**
-  - [Handling invalid inputs, duplicate resources, network retries, and rate limits]
+[Provide a clear 2-3 paragraph explanation of the component, why it exists, what problem it solves, and its high-level responsibilities.]
 
----
+### Primary Responsibilities
+- **[Responsibility 1]:** [Description]
+- **[Responsibility 2]:** [Description]
+- **[Responsibility 3]:** [Description]
 
-## 3. ARCHITECTURE & TECH STACK
-
-- **Runtime Framework:** Node.js, Express, TypeScript.
-- **Database Architecture:** PostgreSQL 18 with Drizzle ORM (Database-per-Service isolation).
-- **Caching & Ephemeral State:** Redis 7.
-- **Validation Engine:** Zod runtime validation with Type-First inferred contracts.
-- **Testing Framework:** Vitest with Supertest.
-- **Architectural Reference:** [`services/products`](file:///home/vikas/Documents/forginity/services/products)
+### Primary Consumers & Integrations
+- **[Consumer 1]:** [How it interacts]
+- **[Consumer 2]:** [How it interacts]
 
 ---
 
-## 4. DOMAIN DATA MODELS
+## 2. Architecture & Tech Stack
 
-Outline the primary entities and relations managed by this service database:
-
-- **Entity 1 (`table_name`):** [Description of fields, constraints, and indexes.]
-- **Entity 2 (`table_name`):** [Description of fields, constraints, and indexes.]
+- **Runtime / Framework:** [e.g. Node.js + Express 5 / Next.js 16 / TypeScript]
+- **Database / Storage:** [e.g. PostgreSQL 18 with Drizzle ORM (Database-per-Service isolation)]
+- **State & Caching:** [e.g. Redis 7 / TanStack Query v5]
+- **Validation Engine:** [e.g. Zod runtime schemas with Type-First inference]
+- **Testing Framework:** [e.g. Vitest with Supertest]
+- **Zero Runtime Server Cost:** [Yes/No - e.g. for packages, state that it is compiled/bundled into client assets]
 
 ---
 
-## 5. API SPECIFICATIONS
+## 3. What It Exposes
 
-Summary of public and internal endpoints exposed by this service:
-
+### [For Backend Services: Endpoints & Routes]
 | Method | Endpoint | Description | Auth Required |
 | :--- | :--- | :--- | :--- |
-| `POST` | `/api/v1/[resource]` | Create resource | Yes / No |
-| `GET` | `/api/v1/[resource]/:id` | Read resource | Yes / No |
-| `PUT` | `/api/v1/[resource]/:id` | Update resource | Yes / No |
-| `DELETE` | `/api/v1/[resource]/:id` | Delete resource | Yes / No |
+| `GET` | `/api/[resource]` | List resources with pagination and filters | No |
+| `GET` | `/api/[resource]/:id` | Retrieve single resource by UUID | No |
+| `POST` | `/api/[resource]` | Create resource with validation payload | Yes |
+| `PATCH` | `/api/[resource]/:id` | Update resource fields | Yes |
+| `DELETE` | `/api/[resource]/:id` | Delete resource | Yes |
+
+### [For Shared Packages: Exported Modules, Hooks & Contracts]
+- **`[module-path]`:** [Description of exported classes, services, or utilities]
+- **`[hooks-path]`:** [Description of React Query hooks and mutation functions]
+- **`[types-path]`:** [Description of exported domain contracts and DTOs]
 
 ---
 
-## 6. SECURITY & COMPLIANCE
+## 4. How to Use & Integrate
 
-- **Zero `.env` Access:** Never inspect, create, or modify `.env` files. Read from `process.env`.
-- **Input Sanitization:** Parse all HTTP payloads strictly through Zod schemas.
-- **Data Protection:** Enforce encryption, hashing, and parameterization across all storage layers.
+### 1. Installation / Dependency Linking
+[Explain how to link or depend on this package/service within the monorepo workspace.]
+
+```json
+{
+  "dependencies": {
+    "@[scope]/[name]": "workspace:*"
+  }
+}
+```
+
+### 2. Configuration & Environment Variables
+[List required configuration variables read from `process.env`. Never create or touch `.env` files directly.]
+
+```bash
+[VAR_NAME]=[default_or_example_value]
+```
+
+### 3. Usage Examples
+[Provide clear, copy-pasteable code snippets demonstrating how to initialize, call, or consume this component.]
+
+```typescript
+// Example usage
+```
+
+---
+
+## 5. Development & Testing Commands
+
+Execute verification commands from the repository root:
+
+```bash
+# Run unit and integration tests
+pnpm --filter @[scope]/[name] test
+
+# Run strict TypeScript typecheck
+pnpm --filter @[scope]/[name] typecheck
+
+# Run linter
+pnpm --filter @[scope]/[name] lint
+```
+
+---
+
+## 6. Security & Guardrails
+
+- **Zero `.env` File Access:** Secrets are read strictly from `process.env`.
+- **Type-First Contracts:** All external payloads validated through authoritative Zod schemas.
+- **No Barrel Exports:** Import symbols directly from their authoritative source files.

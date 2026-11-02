@@ -26,7 +26,7 @@
 | Task ID | Task Title | Key Deliverable | Guide File | Status |
 | :--- | :--- | :--- | :--- | :--- |
 | `TASK-01` | Scaffold `@forginity/sdk` Package Foundation & Core HTTP Client | `packages/sdk` config, Axios client, interceptors, `ApiError` normalization, pnpm workspace link | [`TASK_01_IMPLEMENTATION_GUIDE.md`](./TASK_01_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
-| `TASK-02` | Implement Product Domain SDK (Endpoints, Services & Query Hooks) | Pure async methods, cache key factories, `useProducts` query & mutation hooks in `@forginity/sdk` | [`TASK_02_IMPLEMENTATION_GUIDE.md`](./TASK_02_IMPLEMENTATION_GUIDE.md) | `PENDING` |
+| `TASK-02` | Implement Product Domain SDK (Endpoints, Services & Query Hooks) | Pure async methods, cache key factories, `useProducts` query & mutation hooks in `@forginity/sdk` | [`TASK_02_IMPLEMENTATION_GUIDE.md`](./TASK_02_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
 | `TASK-03` | Integrate SDK in `apps/admin` & Build Product Catalog Table | `QueryProvider` setup, live data table consuming `useProducts`, search by name/slug, status tabs | [`TASK_03_IMPLEMENTATION_GUIDE.md`](./TASK_03_IMPLEMENTATION_GUIDE.md) | `PENDING` |
 | `TASK-04` | Create & Edit Product Drawer | Form validation with Zod, calling `useCreateProduct` & `useUpdateProduct` with cache invalidation | [`TASK_04_IMPLEMENTATION_GUIDE.md`](./TASK_04_IMPLEMENTATION_GUIDE.md) | `PENDING` |
 | `TASK-05` | Product Deletion & Soft-Deprecate Workflow | Confirmation modal calling `useDeleteProduct`, cascade warnings, table state removal | [`TASK_05_IMPLEMENTATION_GUIDE.md`](./TASK_05_IMPLEMENTATION_GUIDE.md) | `PENDING` |

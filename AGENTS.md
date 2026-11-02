@@ -21,6 +21,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - **Strict Git Ban (No Commits or Pushes).** The agent is strictly prohibited from committing code (`git commit`), pushing code (`git push`), tagging, or performing any mutating git actions anywhere. All git commits and pushes must be made manually by the user. Only read-only git commands such as `git status`, `git diff`, and `git log` are permitted.
 - **Root Directory Boundary.** The agent is strictly prohibited from creating, modifying, inspecting, or reading files outside the project root directory (`/home/vikas/Documents/forginity`). All file actions must be strictly bounded within the repository workspace.
 - **Documentation Grounding.** Follow the architectural blueprints in [`docs/org/TDD.md`](file:///home/vikas/Documents/forginity/docs/org/TDD.md), [`docs/org/PRD.md`](file:///home/vikas/Documents/forginity/docs/org/PRD.md), and [`docs/org/SMA-PVR.md`](file:///home/vikas/Documents/forginity/docs/org/SMA-PVR.md).
+- **Self-Explanatory File and Variable Naming.** The name of any file, variable, constant, type, or function should be self-explanatory whenever possible (e.g., prefer `products.cache-keys.ts` and `productCacheKeys` over generic `products.keys.ts` or `keys`; prefer `fetchProductById` over `getById`). While not dogmatically strict in trivial contexts (such as standard loop indexes `i` or standard callback arguments), always prioritize clarity and cognitive ease across all packages, services, and frontend applications so that any developer or agent instantly understands purpose and context without guessing.
 
 ---
 
@@ -163,7 +164,11 @@ If the file does not exist, the AI agent creates it from [`docs/template/TASK_LI
 > 1. `TASK_LIST.md` (the progressive task matrix and service/component details)
 > 2. `TASK_<NO>_IMPLEMENTATION_GUIDE.md` (step-by-step implementation guides)
 > 
-> **Do NOT create individual `README.md` or `IMPLEMENTATIONS_RECORD.md` files in task folders.** All status tracking and task completions are consolidated centrally at the root of `docs/development/`.
+> **Do NOT create individual `README.md` or `IMPLEMENTATIONS_RECORD.md` files in task tracking folders.** All status tracking and task completions are consolidated centrally at the root of `docs/development/`.
+
+> [!NOTE]
+> **Authoritative `README.md` in Service and Package Codebase Folders:**
+> While task tracking folders under `docs/development/` strictly omit local README files, every service, package, and application directory in the codebase root (`services/*`, `packages/*`, `apps/*`) MUST maintain an authoritative `README.md` created from [`docs/template/README_TEMPLATE.md`](file:///home/vikas/Documents/forginity/docs/template/README_TEMPLATE.md). It documents what that service or package is, what contracts/APIs it exposes, and concrete examples on how to consume and integrate it.
 
 All progress tracking and audit logs across the ecosystem are maintained exclusively in two root files:
 - **Central Progress Tracker:** [`docs/development/PROGRESS.md`](file:///home/vikas/Documents/forginity/docs/development/PROGRESS.md) containing two tables: **OVERALL DEVELOPMENT PROGRESS** (single summary row tracking total tasks, completed, pending, and progress percentage across the Forginity monorepo ecosystem) and **TASK DEVELOPMENT PROGRESS** (tracking macro components ordered by priority: Service, Total Tasks, Completed, Pending, Disclaimer, Status, Deadline, and Progress).
