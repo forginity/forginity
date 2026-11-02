@@ -1,45 +1,60 @@
-# TASK IMPLEMENTATION GUIDE: TASK-01 - Product Catalog Table & Status Filtering
+# TASK IMPLEMENTATION GUIDE: TASK-01 - Scaffold @forginity/sdk Package Foundation & Core HTTP Client
 
-- **Service:** `apps/admin` (Component: `web_admin_product_crud`)
-- **Status:** `IN_PROGRESS`
+- **Service:** `packages/sdk` (Component: `web_admin_product_crud`)
+- **Status:** `COMPLETED`
 - **Task List:** [`./TASK_LIST.md`](./TASK_LIST.md)
 - **Record:** [`../IMPLEMENTATION_RECORD.md`](../IMPLEMENTATION_RECORD.md)
+- **Progress:** [`../PROGRESS.md`](../PROGRESS.md)
 
 ---
 
 ## 1. SUMMARY & GOAL
 
-Connect the administrative product portfolio table in `apps/admin` to the real backend service (`services/products`).
-Implement client-side data fetching, search filtering by name or slug, and status tab filtering (`All`, `Live`, `Maintenance`, `Draft`) with loading skeletons and empty state feedback.
+Initialize the shared client SDK package (`packages/sdk` under `@forginity/sdk`) in the Forginity monorepo workspace.
+Establish the foundational HTTP layer using Axios with extensible request interceptors (auth token injection, correlation IDs) and response interceptors (unwrapping and normalizing server errors into standardized `ApiError` shapes), preparing a scalable foundation for multi-product data access.
 
 ---
 
 ## 2. SCOPE OF CHANGES
 
 - **Files to Create:**
-  - `apps/admin/lib/api/products.client.ts` - Type-safe API client functions calling `GET /api/products` and handling error boundaries.
-  - `apps/admin/types/products.types.ts` - Domain types derived from authoritative product schemas.
-- **Files to Modify:**
-  - `apps/admin/app/products/page.tsx` - Wire data fetching, active tab filtering, real-time search, and fallback states into the Coral Sunset Figma table.
+  - `packages/sdk/package.json` - Package manifest with pnpm workspace dependencies (`axios`, `@tanstack/react-query`).
+  - `packages/sdk/tsconfig.json` - TypeScript configuration inheriting from `@workspace/typescript-config`.
+  - `packages/sdk/src/core/api-error.ts` - Standardized `ApiError` domain class and error payload contract.
+  - `packages/sdk/src/core/http-client.ts` - Configured Axios instance with request and response interceptors.
+  - `packages/sdk/src/core/query-client.ts` - TanStack Query default configuration presets for web and admin apps.
+  - `packages/sdk/src/core/http-client.test.ts` - Unit tests verifying error normalization and request configuration.
+
+- **Out of Scope:**
+  - Domain-specific product methods and hooks (covered in `TASK-02`).
+  - Next.js Admin UI table integration (covered in `TASK-03`).
 
 ---
 
 ## 3. STEP-BY-STEP IMPLEMENTATION
 
-### Step 1: Define Authoritative Frontend Product Contracts
-- **Target File:** `apps/admin/types/products.types.ts`
-- **Action:** Define product response contracts, query parameters (search, status, limit, offset), and status enums matching `services/products/src/db/products.validator.ts`.
+### Step 1: Scaffold Package Configuration & Workspace Link
+- **Target Files:** `packages/sdk/package.json`, `packages/sdk/tsconfig.json`
+- **Action:** Define package name `@forginity/sdk`, ESM module resolution, script commands (`typecheck`, `test`), and install dependencies (`axios`, `@tanstack/react-query`).
 
-### Step 2: Implement Type-Safe API Client
-- **Target File:** `apps/admin/lib/api/products.client.ts`
-- **Action:** Create `fetchProducts` with error handling, URL query serialization, and fallback simulation for local development.
+### Step 2: Implement Standardized `ApiError`
+- **Target File:** `packages/sdk/src/core/api-error.ts`
+- **Action:** Create `ApiError` extending `Error` with `status: number`, `code?: string`, `details?: unknown`, and helper method `isApiError(err)`.
 
-### Step 3: Wire Data Table & Filtering in Products View
-- **Target File:** `apps/admin/app/products/page.tsx`
+### Step 3: Implement Core Axios Client & Interceptors
+- **Target File:** `packages/sdk/src/core/http-client.ts`
 - **Action:**
-  - Bind search query input and category/status tabs (`All`, `Active`, `Maintenance`, `Draft`) to reactive state.
-  - Display loading skeleton during fetch.
-  - Handle empty result states gracefully with actionable "Add Product" prompt.
+  - Instantiate Axios client with configurable `baseURL` (resolving from `process.env.NEXT_PUBLIC_API_URL` or fallback).
+  - Add request interceptor for bearer token attachment and tracing headers.
+  - Add response interceptor mapping Axios errors to `ApiError` instances without leaking internal stack traces.
+
+### Step 4: Implement Query Client Defaults
+- **Target File:** `packages/sdk/src/core/query-client.ts`
+- **Action:** Export `createDefaultQueryClient()` configuring optimal caching defaults (`staleTime: 5 mins`, `retry: 1`, `refetchOnWindowFocus: false`).
+
+### Step 5: Unit Test Core HTTP Layer
+- **Target File:** `packages/sdk/src/core/http-client.test.ts`
+- **Action:** Write Vitest unit tests verifying that 4xx/5xx network errors properly unwrap into structured `ApiError` objects and request interceptors properly attach custom headers.
 
 ---
 
@@ -47,32 +62,28 @@ Implement client-side data fetching, search filtering by name or slug, and statu
 
 Execute verification commands:
 ```bash
-pnpm --filter @web/admin typecheck
-pnpm --filter @web/admin lint
-pnpm --filter @web/admin build
+pnpm --filter @forginity/sdk typecheck
+pnpm --filter @forginity/sdk test
 ```
 
 Test scenarios to cover:
-- **Happy Path:** Catalog table loads products and displays names, categories, user counts, and statuses.
-- **Search Filtering:** Searching by text filters products in real time.
-- **Tab Filtering:** Clicking status tabs filters rows to matching lifecycle states.
-- **Empty State:** Searching for nonexistent text renders clean empty state message.
+- **Happy Path:** Axios client successfully executes GET/POST calls and returns typed responses.
+- **Error Normalization:** 400 Bad Request and 500 Internal Error responses are intercepted and transformed into structured `ApiError` instances.
+- **Request Interception:** Dynamic auth headers are properly injected when auth tokens exist.
 
 ---
 
 ## 5. SECURITY & GUARDRAILS
 
-- [ ] **No `.env` touched.** Environment variables read exclusively via `process.env`.
-- [ ] **Input validation.** Search and query parameters sanitized before URL interpolation.
-- [ ] **No barrel exports.** Imports directly target authoritative module files.
-- [ ] **Single font rule.** Exclusively use Lexend typography.
+- [ ] **No `.env` touched.** Secrets read strictly from `process.env`.
+- [ ] **No barrel exports.** Imports directly target authoritative source files (e.g. `@forginity/sdk/core/http-client.js`).
+- [ ] **No token leakage.** Auth headers sanitized in error logs.
 
 ---
 
 ## 6. RECORD UPDATE INSTRUCTIONS
 
 Upon completing verification:
-1. Append `TASK-01` row to `docs/development/IMPLEMENTATION_RECORD.md`.
-2. Update **Last Update Record** in `docs/development/IMPLEMENTATION_RECORD.md`.
-3. Mark `TASK-01` as `COMPLETED` in `TASK_LIST.md`.
-4. Refresh `docs/development/PROGRESS.md`.
+1. Mark `TASK-01` as `COMPLETED` in [`./TASK_LIST.md`](./TASK_LIST.md).
+2. Update **LAST UPDATE** block and append `TASK-01` row in [`../IMPLEMENTATION_RECORD.md`](../IMPLEMENTATION_RECORD.md).
+3. Refresh `web_admin_product_crud` row and overall metrics in [`../PROGRESS.md`](../PROGRESS.md).
