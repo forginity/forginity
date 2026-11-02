@@ -5,8 +5,8 @@ import {
   type UseQueryOptions,
   type UseMutationOptions,
 } from "@tanstack/react-query"
-import { ProductsService } from "./products.service.js"
-import { productCacheKeys } from "./products.cache-keys.js"
+import { ProductsService } from "./products.service"
+import { productCacheKeys } from "./products.cache-keys"
 import type {
   ProductWithRelations,
   ProductVersion,
@@ -19,8 +19,8 @@ import type {
   DeleteProductOptions,
   CreateProductVersionInput,
   CreateProductMaintenanceInput,
-} from "./products.types.js"
-import type { ApiError } from "../../core/api-error.js"
+} from "./products.types"
+import type { ApiError } from "../../core/api-error"
 
 /**
  * React Query hook to list products with filtering and pagination.

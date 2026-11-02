@@ -4,6 +4,7 @@ import express, {
   type Response,
   type NextFunction,
 } from "express"
+import cors from "cors"
 import { apiRouter } from "./routes/api.router.js"
 import { healthRouter } from "./routes/health.route.js"
 
@@ -11,6 +12,12 @@ const app: Express = express()
 const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001
 
 // Standard middleware
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(",") : true,
+    credentials: true,
+  })
+)
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 

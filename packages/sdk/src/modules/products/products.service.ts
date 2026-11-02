@@ -1,6 +1,6 @@
-import { apiClient } from "../../core/http-client.js"
-import { ApiError } from "../../core/api-error.js"
-import { API_ENDPOINTS } from "../../constants/endpoints.js"
+import { apiClient } from "../../core/http-client"
+import { ApiError } from "../../core/api-error"
+import { API_ENDPOINTS } from "../../constants/endpoints"
 import type {
   ProductWithRelations,
   ProductVersion,
@@ -15,7 +15,7 @@ import type {
   UpdateProductVersionInput,
   CreateProductMaintenanceInput,
   UpdateProductMaintenanceInput,
-} from "./products.types.js"
+} from "./products.types"
 
 export const ProductsService = {
   /**

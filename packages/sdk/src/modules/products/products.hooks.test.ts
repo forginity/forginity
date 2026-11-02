@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest"
-import { productCacheKeys, productKeys } from "./products.cache-keys.js"
+import { productCacheKeys, productKeys } from "./products.cache-keys"
 import {
   useProducts,
   useProduct,
@@ -10,7 +10,7 @@ import {
   useProductVersions,
   useProductMaintenance,
   useActiveMaintenance,
-} from "./products.hooks.js"
+} from "./products.hooks"
 
 describe("packages/sdk/src/modules/products/products.cache-keys", () => {
   it("should generate hierarchical query keys correctly", () => {

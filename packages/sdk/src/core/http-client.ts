@@ -4,7 +4,7 @@ import axios, {
   type CreateAxiosDefaults,
   type InternalAxiosRequestConfig,
 } from "axios"
-import { ApiError } from "./api-error.js"
+import { ApiError } from "./api-error"
 
 export type AuthTokenProvider = () => string | null | Promise<string | null>
 

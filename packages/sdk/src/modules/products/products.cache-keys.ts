@@ -1,4 +1,4 @@
-import type { ListProductsParams, GetProductOptions } from "./products.types.js"
+import type { ListProductsParams, GetProductOptions } from "./products.types"
 
 /**
  * Stable TanStack Query Cache Key Factory for Product domain queries.

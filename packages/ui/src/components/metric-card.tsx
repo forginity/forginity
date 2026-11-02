@@ -3,7 +3,7 @@ import { cn } from "@workspace/ui/lib/utils"
 
 export interface MetricCardProps extends React.HTMLAttributes<HTMLDivElement> {
   title: string
-  value: string | number
+  value: React.ReactNode
   change?: string
   changeType?: "positive" | "negative" | "neutral"
   description?: string

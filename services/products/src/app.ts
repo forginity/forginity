@@ -1,12 +1,19 @@
 import express, { type Express } from "express"
+import cors from "cors"
 import swaggerUi from "swagger-ui-express"
 import { apiRouter } from "./routes/api.router.js"
 import { openApiDocument } from "./docs/openapi.js"
 
 const app: Express = express()
-const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 4000
+const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3002
 
 // Standard middleware
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(",") : true,
+    credentials: true,
+  })
+)
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 

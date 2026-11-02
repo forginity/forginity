@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
-import { ProductsService } from "./products.service.js"
-import { apiClient } from "../../core/http-client.js"
-import { ApiError } from "../../core/api-error.js"
+import { ProductsService } from "./products.service"
+import { apiClient } from "../../core/http-client"
+import { ApiError } from "../../core/api-error"
 
 describe("packages/sdk/src/modules/products/products.service", () => {
   beforeEach(() => {

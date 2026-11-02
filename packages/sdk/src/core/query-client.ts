@@ -1,5 +1,5 @@
 import { QueryClient, type QueryClientConfig } from "@tanstack/react-query"
-import { ApiError } from "./api-error.js"
+import { ApiError } from "./api-error"
 
 /**
  * Creates a QueryClient with resilient Forginity platform defaults.

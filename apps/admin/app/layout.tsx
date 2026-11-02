@@ -3,6 +3,7 @@ import { Lexend } from "next/font/google"
 import "@workspace/ui/globals.css"
 import { ThemeProvider } from "@workspace/ui/components/theme-provider"
 import { TooltipProvider } from "@workspace/ui/components/tooltip"
+import { QueryProvider } from "@/providers/query-provider"
 import { cn } from "@workspace/ui/lib/utils"
 
 const lexend = Lexend({
@@ -29,7 +30,9 @@ export default function RootLayout({
     >
       <body className="h-screen max-h-screen overflow-hidden bg-background text-foreground">
         <ThemeProvider defaultTheme="dark">
-          <TooltipProvider>{children}</TooltipProvider>
+          <TooltipProvider>
+            <QueryProvider>{children}</QueryProvider>
+          </TooltipProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest"
 import axios from "axios"
-import { ApiError } from "./api-error.js"
+import { ApiError } from "./api-error"
 import {
   createHttpClient,
   setAuthTokenProvider,
-} from "./http-client.js"
-import { createDefaultQueryClient } from "./query-client.js"
+} from "./http-client"
+import { createDefaultQueryClient } from "./query-client"
 
 describe("packages/sdk/src/core/api-error", () => {
   it("should create an ApiError instance with structured properties", () => {

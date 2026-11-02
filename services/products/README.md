@@ -60,7 +60,7 @@ The service reads configuration values from `process.env`.
 Set the following environment variables:
 
 ```bash
-PORT=3000
+PORT=3002
 DATABASE_URL=postgres://postgres:postgres@localhost:5432/forginity_products
 NODE_ENV=development
 ```
