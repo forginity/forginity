@@ -29,7 +29,7 @@ forginity/
 ## 2. Service Matrix & Port Registry
 
 All applications, microservices, and backing databases are mapped to predictable ports.
-See the authoritative **[`SERVICES.md`](file:///home/vikas/Documents/forginity/SERVICES.md)** (or [`docs/org/PORTS.md`](file:///home/vikas/Documents/forginity/docs/org/PORTS.md)) for the complete matrix:
+See the authoritative **[`docs/development/SERVICES.md`](file:///home/vikas/Documents/forginity/docs/development/SERVICES.md)** for the complete matrix:
 
 | Service / App | Port | Protocol | Tech Stack | Status |
 | :--- | :---: | :---: | :--- | :---: |
@@ -69,7 +69,7 @@ pnpm run build
 
 ## 4. Key Documentation Links
 
-- **Services & Port Matrix:** [`SERVICES.md`](file:///home/vikas/Documents/forginity/SERVICES.md)
+- **Services & Port Matrix:** [`docs/development/SERVICES.md`](file:///home/vikas/Documents/forginity/docs/development/SERVICES.md)
 - **Agent Guidelines & Safety Rules:** [`AGENTS.md`](file:///home/vikas/Documents/forginity/AGENTS.md)
 - **Technical Architecture Design (TDD):** [`docs/org/TDD.md`](file:///home/vikas/Documents/forginity/docs/org/TDD.md)
 - **Central Implementation Record:** [`docs/development/IMPLEMENTATION_RECORD.md`](file:///home/vikas/Documents/forginity/docs/development/IMPLEMENTATION_RECORD.md)
