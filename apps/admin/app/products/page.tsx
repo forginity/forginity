@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation"
 import {
   ArrowUpRight,
   Boxes,
-  ChartNoAxesCombined,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -14,10 +13,12 @@ import {
   Download,
   ListFilter,
   Package,
+  Pencil,
   Plus,
   Radio,
   Search,
   ShieldCheck,
+  Trash2,
   Workflow,
 } from "lucide-react"
 import { AppShell } from "@workspace/ui/components/app-shell"
@@ -32,7 +33,7 @@ import {
   ADMIN_USER_PROFILE,
 } from "@/constants/admin-nav.constants"
 import { useProducts } from "@forginity/sdk/modules/products/products.hooks"
-import type { Product, ProductStatus } from "@forginity/sdk/modules/products/products.types"
+import type { Product } from "@forginity/sdk/modules/products/products.types"
 import { QueryErrorState } from "@/components/query-error-state"
 import { ProductTableSkeleton } from "./product-table-skeleton"
 import { ProductTableEmptyState } from "./product-table-empty-state"
@@ -47,16 +48,8 @@ function getProductIcon(slug: string): React.ElementType {
   return Boxes
 }
 
-const TABS: Array<{ id: "all" | ProductStatus; label: string }> = [
-  { id: "all", label: "All products" },
-  { id: "active", label: "Live / Active" },
-  { id: "beta", label: "Beta" },
-  { id: "deprecated", label: "Deprecated" },
-]
-
 export default function ProductsPage() {
   const pathname = usePathname()
-  const [activeTab, setActiveTab] = React.useState<"all" | ProductStatus>("all")
   const [searchInput, setSearchInput] = React.useState("")
   const [debouncedSearch, setDebouncedSearch] = React.useState("")
   const [selectedIds, setSelectedIds] = React.useState<string[]>([])
@@ -70,10 +63,8 @@ export default function ProductsPage() {
   }, [searchInput])
 
   // Fetch live products via @forginity/sdk
-  const statusFilter = activeTab === "all" ? undefined : activeTab
   const { data, isLoading, isError, error, refetch } = useProducts({
     search: debouncedSearch || undefined,
-    status: statusFilter,
   })
 
   const products: Product[] = data?.items || []
@@ -101,7 +92,6 @@ export default function ProductsPage() {
   const resetFilters = () => {
     setSearchInput("")
     setDebouncedSearch("")
-    setActiveTab("all")
   }
 
   return (
@@ -184,51 +174,18 @@ export default function ProductsPage() {
           </span>
         </div>
 
-        {/* Portfolio Controls: Tabs & Filter Bar (Responsive vertical stack on mobile) */}
+        {/* Portfolio Controls: Search & Filter Bar (Responsive vertical stack on mobile) */}
         <div className="flex flex-col gap-4 px-6 pt-4 pb-5 sm:flex-row sm:items-center sm:justify-between border-b border-[#292929]">
-          {/* Tabs with touch scroll */}
-          <div className="flex items-center gap-6 overflow-x-auto no-scrollbar py-1">
-            {TABS.map((tab) => {
-              const isActive = activeTab === tab.id
-              const count =
-                tab.id === "all"
-                  ? totalCount
-                  : tab.id === "active"
-                  ? activeCount
-                  : tab.id === "beta"
-                  ? betaCount
-                  : deprecatedCount
-
-              return (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => setActiveTab(tab.id)}
-                  className="group relative pb-2 text-sm transition-colors whitespace-nowrap cursor-pointer"
-                >
-                  <span
-                    className={
-                      isActive
-                        ? "font-normal text-[#FF967F]"
-                        : "text-[#838383] group-hover:text-[#F6F6F6]"
-                    }
-                  >
-                    {tab.label}
-                    <span className="ml-1 text-xs opacity-80">
-                      {isLoading ? "…" : count}
-                    </span>
-                  </span>
-                  {isActive && (
-                    <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#FF6347]" />
-                  )}
-                </button>
-              )
-            })}
+          <div className="flex items-center gap-2.5">
+            <span className="text-sm font-normal text-[#F6F6F6]">All products</span>
+            <span className="inline-flex h-5 items-center rounded-full bg-[#1F1F1F] px-2 text-xs font-light text-[#838383]">
+              {isLoading ? "…" : totalCount}
+            </span>
           </div>
 
           {/* Search & Filter Pill */}
           <div className="flex items-center gap-2.5 w-full sm:w-auto">
-            <div className="relative flex-1 sm:w-56">
+            <div className="relative flex-1 sm:w-64">
               <Search className="absolute left-3 top-2.5 size-3.5 text-[#838383]" />
               <Input
                 variant="search"
@@ -252,7 +209,7 @@ export default function ProductsPage() {
 
         {/* Data Table Headings & Rows - Touch-friendly horizontal scroll container */}
         <div className="overflow-x-auto min-w-full">
-          <div className="min-w-[850px]">
+          <div className="min-w-[920px]">
             <div className="flex h-[42px] items-center bg-[#0E0E0E] px-6 text-xs text-[#838383] font-normal border-b border-[#292929]">
               <div className="w-8 flex items-center">
                 <input
@@ -269,12 +226,12 @@ export default function ProductsPage() {
               <div className="w-[140px]">Registered</div>
               <div className="w-[160px]">Status</div>
               <div className="w-[130px]">Lifecycle</div>
-              <div className="w-10 text-right"></div>
+              <div className="w-[120px] text-right pr-2">Actions</div>
             </div>
 
             {/* Viewport Content: Loading Skeleton / Error State / Empty State / Live Rows */}
             {isLoading ? (
-              <ProductTableSkeleton rowCount={5} />
+              <ProductTableSkeleton rowCount={2} />
             ) : isError ? (
               <div className="p-6">
                 <QueryErrorState
@@ -285,7 +242,6 @@ export default function ProductsPage() {
             ) : products.length === 0 ? (
               <ProductTableEmptyState
                 searchTerm={debouncedSearch}
-                activeTab={activeTab}
                 onResetFilters={resetFilters}
               />
             ) : (
@@ -379,15 +335,31 @@ export default function ProductsPage() {
                         </div>
                       </div>
 
-                      {/* Action Details Link (Breadcrumb compliant navigation) */}
-                      <div className="w-10 flex justify-end">
+                      {/* Direct Row Actions (Edit, Delete, View) */}
+                      <div className="w-[120px] flex items-center justify-end gap-1.5">
+                        <Link
+                          href={`/products/${product.id}/edit`}
+                          className="flex size-8 items-center justify-center rounded-lg border border-transparent text-[#838383] hover:border-[#3A3A3A] hover:bg-[#1A1A1A] hover:text-[#F6F6F6] transition-colors"
+                          title={`Edit ${product.name}`}
+                          aria-label={`Edit ${product.name}`}
+                        >
+                          <Pencil className="size-3.5" />
+                        </Link>
+                        <Link
+                          href={`/products/${product.id}/delete`}
+                          className="flex size-8 items-center justify-center rounded-lg border border-transparent text-[#838383] hover:border-[#643333] hover:bg-[#201010] hover:text-[#E59B9B] transition-colors"
+                          title={`Delete ${product.name}`}
+                          aria-label={`Delete ${product.name}`}
+                        >
+                          <Trash2 className="size-3.5" />
+                        </Link>
                         <Link
                           href={`/products/${product.id}`}
-                          className="rounded p-1 text-[#838383] hover:text-[#FF6347] transition-colors"
+                          className="flex size-8 items-center justify-center rounded-lg border border-transparent text-[#838383] hover:border-[#3A3A3A] hover:bg-[#1A1A1A] hover:text-[#FF6347] transition-colors"
                           title={`View details for ${product.name}`}
                           aria-label={`View details for ${product.name}`}
                         >
-                          <ArrowUpRight className="size-4.5" />
+                          <ArrowUpRight className="size-4" />
                         </Link>
                       </div>
                     </div>
@@ -431,30 +403,6 @@ export default function ProductsPage() {
           </div>
         </div>
       </Card>
-
-      {/* Portfolio Insight Callout Card (Figma Node 261:7783) - Responsive wrap */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-[16px] border border-[#292929] bg-[#141414] p-5">
-        <div className="flex items-center gap-4">
-          <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-[#FF6347]/10 text-[#FF6347]">
-            <ChartNoAxesCombined className="size-5" />
-          </div>
-          <div className="flex flex-col">
-            <h3 className="text-sm font-normal text-[#F6F6F6]">
-              Cross-product synergy insight
-            </h3>
-            <p className="text-xs font-light text-[#838383]">
-              Products registered under active lifecycle contribute to centralized SSO authorization and multi-app federation.
-            </p>
-          </div>
-        </div>
-
-        <Link
-          href="/products"
-          className="text-sm font-normal text-[#FF967F] hover:underline shrink-0"
-        >
-          View synergy report →
-        </Link>
-      </div>
     </AppShell>
   )
 }

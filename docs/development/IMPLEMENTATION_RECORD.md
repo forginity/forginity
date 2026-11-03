@@ -7,11 +7,11 @@
 
 ## 1. LAST UPDATE
 
-- **Timestamp:** `2026-11-02 22:58`
+- **Timestamp:** `2026-11-03 22:55`
 - **Component / Service:** `apps/admin` / `web_admin_product_crud`
-- **Task:** `TASK-03: Integrate SDK in apps/admin & Build Product Catalog Table`
+- **Task:** `TASK-04 & TASK-05: Create, Edit, View, and Delete Product Views (Figma Aligned)`
 - **Summary:**
-  Integrated `@forginity/sdk` into `apps/admin` with `QueryProvider` and built the administrative Product Catalog Table at `apps/admin/app/products/page.tsx` adhering to UI-Stream psychology and universal responsiveness (CLS = 0.00, 70px row skeletons, touch-friendly `overflow-x-auto min-w-[850px]`, dynamic KPI cards, lifecycle status filter tabs, debounced search, `QueryErrorState`, and `ProductTableEmptyState`). Verified with Next.js Turbopack build, typecheck, and lint (0 errors).
+  Implemented full Figma Group 5 specification (`281:446`) across `apps/admin/app/products/` (`add/page.tsx`, `[id]/page.tsx`, `[id]/edit/page.tsx`, `[id]/delete/page.tsx`) with breadcrumb-driven navigation, atomic version tracking, character counters, status guidance callouts, UI-stream skeletons, and `@forginity/sdk` React Query hooks. Verified with `tsc --noEmit`, `eslint`, and `next build` (10/10 routes compiled, 0 errors).
 
 ---
 
@@ -34,3 +34,5 @@
 | 13 | [`web_admin_product_crud`](./web_admin_product_crud/TASK_LIST.md) | `TASK-01` | Scaffold `@forginity/sdk` Package Foundation & Core HTTP Client | [`TASK_01_IMPLEMENTATION_GUIDE.md`](./web_admin_product_crud/TASK_01_IMPLEMENTATION_GUIDE.md) | 2026-11-02 | Vitest (7 tests) + TypeScript |
 | 14 | [`web_admin_product_crud`](./web_admin_product_crud/TASK_LIST.md) | `TASK-02` | Implement Product Domain SDK (Endpoints, Services & Query Hooks) | [`TASK_02_IMPLEMENTATION_GUIDE.md`](./web_admin_product_crud/TASK_02_IMPLEMENTATION_GUIDE.md) | 2026-11-02 | Vitest (20 tests) + TypeScript |
 | 15 | [`web_admin_product_crud`](./web_admin_product_crud/TASK_LIST.md) | `TASK-03` | Integrate SDK in `apps/admin` & Build Product Catalog Table | [`TASK_03_IMPLEMENTATION_GUIDE.md`](./web_admin_product_crud/TASK_03_IMPLEMENTATION_GUIDE.md) | 2026-11-02 | Next.js Build + TypeScript + ESLint |
+| 16 | [`web_admin_product_crud`](./web_admin_product_crud/TASK_LIST.md) | `TASK-04` | Create & Edit Product Views (Figma Aligned) | [`TASK_04_IMPLEMENTATION_GUIDE.md`](./web_admin_product_crud/TASK_04_IMPLEMENTATION_GUIDE.md) | 2026-11-03 | Next.js Build + TypeScript + ESLint |
+| 17 | [`web_admin_product_crud`](./web_admin_product_crud/TASK_LIST.md) | `TASK-05` | Product Deletion Workflow (Figma Aligned) | [`TASK_05_IMPLEMENTATION_GUIDE.md`](./web_admin_product_crud/TASK_05_IMPLEMENTATION_GUIDE.md) | 2026-11-03 | Next.js Build + TypeScript + ESLint |

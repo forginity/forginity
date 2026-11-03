@@ -30,6 +30,17 @@ describe("Products API Endpoints", () => {
       expect(res.body.database).toBe("disconnected")
       expect(res.body.error).toContain("Connection to database lost")
     })
+
+    it("should respond to CORS preflight OPTIONS request with Access-Control-Allow-Origin", async () => {
+      const res = await request(app)
+        .options("/api/products")
+        .set("Origin", "http://localhost:3000")
+        .set("Access-Control-Request-Method", "GET")
+        .set("Access-Control-Request-Headers", "content-type,x-request-source")
+      expect(res.status).toBe(204)
+      expect(res.headers["access-control-allow-origin"]).toBe("http://localhost:3000")
+      expect(res.headers["access-control-allow-credentials"]).toBe("true")
+    })
   })
 
   describe("GET /api/products", () => {

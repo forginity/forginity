@@ -69,10 +69,19 @@ app.use(
 )
 
 if (process.env.NODE_ENV !== "test") {
-  app.listen(port, () => {
+  const server = app.listen(port, () => {
     console.log(
       `[products] service listening on port ${port} (API docs: /api/docs)`
     )
+  })
+  server.on("error", (err: NodeJS.ErrnoException) => {
+    if (err.code === "EADDRINUSE") {
+      console.error(
+        `[products] Error: Port ${port} is already in use by another process. Please free port ${port} (see docs/development/SERVICES.md).`
+      )
+    } else {
+      console.error("[products] server error:", err)
+    }
   })
 }
 

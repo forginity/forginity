@@ -45,8 +45,17 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
 })
 
 if (process.env.NODE_ENV !== "test") {
-  app.listen(port, () => {
+  const server = app.listen(port, () => {
     console.log(`[auth] service listening on port ${port} (API prefix: /api/auth)`)
+  })
+  server.on("error", (err: NodeJS.ErrnoException) => {
+    if (err.code === "EADDRINUSE") {
+      console.error(
+        `[auth] Error: Port ${port} is already in use by another process. Please free port ${port} (see docs/development/SERVICES.md).`
+      )
+    } else {
+      console.error("[auth] server error:", err)
+    }
   })
 }
 
