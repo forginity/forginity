@@ -14,16 +14,16 @@ export function StatusPill({ status, className = "" }: StatusPillProps) {
   let dotColor = "bg-[#9DBCA9]"
   let textColor = "text-[#9DBCA9]"
 
-  if (normalized === "active" || normalized === "latest") {
+  if (normalized === "active" || normalized === "latest" || normalized === "completed") {
     dotColor = "bg-[#9DBCA9]"
     textColor = "text-[#9DBCA9]"
   } else if (normalized === "supported") {
     dotColor = "bg-[#B9B9B9]"
     textColor = "text-[#B9B9B9]"
-  } else if (normalized === "beta") {
+  } else if (normalized === "beta" || normalized === "scheduled") {
     dotColor = "bg-[#FFB86C]"
     textColor = "text-[#FFB86C]"
-  } else if (normalized === "deprecated") {
+  } else if (normalized === "deprecated" || normalized === "cancelled") {
     dotColor = "bg-[#838383]"
     textColor = "text-[#838383]"
   }

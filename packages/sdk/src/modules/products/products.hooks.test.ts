@@ -10,6 +10,9 @@ import {
   useProductVersions,
   useProductMaintenance,
   useActiveMaintenance,
+  useCreateProductMaintenance,
+  useUpdateProductMaintenance,
+  useDeleteProductMaintenance,
 } from "./products.hooks"
 
 describe("packages/sdk/src/modules/products/products.cache-keys", () => {
@@ -70,5 +73,8 @@ describe("packages/sdk/src/modules/products/products.hooks", () => {
     expect(typeof useProductVersions).toBe("function")
     expect(typeof useProductMaintenance).toBe("function")
     expect(typeof useActiveMaintenance).toBe("function")
+    expect(typeof useCreateProductMaintenance).toBe("function")
+    expect(typeof useUpdateProductMaintenance).toBe("function")
+    expect(typeof useDeleteProductMaintenance).toBe("function")
   })
 })

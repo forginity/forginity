@@ -19,6 +19,7 @@ import type {
   DeleteProductOptions,
   CreateProductVersionInput,
   CreateProductMaintenanceInput,
+  UpdateProductMaintenanceInput,
 } from "./products.types"
 import type { ApiError } from "../../core/api-error"
 
@@ -207,6 +208,46 @@ export function useCreateProductMaintenance(productId: string) {
       ProductsService.createMaintenance(productId, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: productCacheKeys.maintenance(productId) })
+      queryClient.invalidateQueries({ queryKey: productCacheKeys.maintenance() })
+      queryClient.invalidateQueries({ queryKey: productCacheKeys.detail(productId) })
+    },
+  })
+}
+
+/**
+ * React Query mutation hook to update a maintenance window.
+ */
+export function useUpdateProductMaintenance(productId: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      maintenanceId,
+      payload,
+    }: {
+      maintenanceId: string
+      payload: UpdateProductMaintenanceInput
+    }) => ProductsService.updateMaintenance(maintenanceId, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: productCacheKeys.maintenance(productId) })
+      queryClient.invalidateQueries({ queryKey: productCacheKeys.maintenance() })
+      queryClient.invalidateQueries({ queryKey: productCacheKeys.detail(productId) })
+    },
+  })
+}
+
+/**
+ * React Query mutation hook to delete a maintenance window.
+ */
+export function useDeleteProductMaintenance(productId: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (maintenanceId: string) =>
+      ProductsService.deleteMaintenance(maintenanceId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: productCacheKeys.maintenance(productId) })
+      queryClient.invalidateQueries({ queryKey: productCacheKeys.maintenance() })
       queryClient.invalidateQueries({ queryKey: productCacheKeys.detail(productId) })
     },
   })

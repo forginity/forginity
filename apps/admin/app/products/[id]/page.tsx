@@ -24,6 +24,7 @@ import type {
 import { QueryErrorState } from "@/components/query-error-state"
 import { StatusPill } from "@/components/status-pill"
 import { formatDisplayDate } from "@/lib/date"
+import { MaintenancePanel } from "@/components/maintenance-panel"
 import { ViewProductSkeleton } from "./skeleton"
 
 export default function ViewProductPage() {
@@ -245,6 +246,9 @@ export default function ViewProductPage() {
                 </p>
               </div>
             </Card>
+
+            {/* Maintenance Windows Panel */}
+            <MaintenancePanel productId={id} productName={product.name} />
           </>
         )}
       </div>

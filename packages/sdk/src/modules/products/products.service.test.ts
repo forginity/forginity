@@ -223,28 +223,45 @@ describe("packages/sdk/src/modules/products/products.service", () => {
 
   it("should manage maintenance windows through sub-resource methods", async () => {
     vi.spyOn(apiClient, "get").mockResolvedValueOnce({
-      data: { items: [{ id: "m1", title: "DB migration" }] },
+      data: { items: [{ id: "m1", message: "DB migration", startsAt: "2026-11-03T00:00:00Z", endsAt: "2026-11-03T04:00:00Z", status: "scheduled" }] },
     })
     const activeResult = await ProductsService.listActiveMaintenance()
     expect(apiClient.get).toHaveBeenCalledWith("/api/products/maintenance/active")
     expect(activeResult.items).toHaveLength(1)
 
     vi.spyOn(apiClient, "post").mockResolvedValueOnce({
-      data: { id: "m2", title: "Network patch" },
+      data: { id: "m2", message: "Network patch", startsAt: "2026-11-03T00:00:00Z", endsAt: "2026-11-03T04:00:00Z", status: "scheduled" },
     })
     const createResult = await ProductsService.createMaintenance("prod-1", {
-      title: "Network patch",
-      startTime: "2026-11-03T00:00:00Z",
-      endTime: "2026-11-03T04:00:00Z",
+      message: "Network patch",
+      startsAt: "2026-11-03T00:00:00Z",
+      endsAt: "2026-11-03T04:00:00Z",
     })
     expect(apiClient.post).toHaveBeenCalledWith(
       "/api/products/prod-1/maintenance",
       {
-        title: "Network patch",
-        startTime: "2026-11-03T00:00:00Z",
-        endTime: "2026-11-03T04:00:00Z",
+        message: "Network patch",
+        startsAt: "2026-11-03T00:00:00Z",
+        endsAt: "2026-11-03T04:00:00Z",
       }
     )
-    expect(createResult.title).toBe("Network patch")
+    expect(createResult.message).toBe("Network patch")
+
+    vi.spyOn(apiClient, "patch").mockResolvedValueOnce({
+      data: { id: "m2", message: "Network patch extended", startsAt: "2026-11-03T00:00:00Z", endsAt: "2026-11-03T06:00:00Z", status: "scheduled" },
+    })
+    const updateResult = await ProductsService.updateMaintenance("m2", {
+      message: "Network patch extended",
+    })
+    expect(apiClient.patch).toHaveBeenCalledWith(
+      "/api/products/maintenance/m2",
+      { message: "Network patch extended" }
+    )
+    expect(updateResult.message).toBe("Network patch extended")
+
+    vi.spyOn(apiClient, "delete").mockResolvedValueOnce({ data: {} })
+    const deleteResult = await ProductsService.deleteMaintenance("m2")
+    expect(apiClient.delete).toHaveBeenCalledWith("/api/products/maintenance/m2")
+    expect(deleteResult.success).toBe(true)
   })
 })

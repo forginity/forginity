@@ -1,5 +1,5 @@
 export type ProductStatus = "active" | "beta" | "deprecated"
-export type MaintenanceStatus = "scheduled" | "in_progress" | "completed" | "cancelled"
+export type MaintenanceStatus = "scheduled" | "active" | "completed" | "cancelled"
 export type VersionStatus = "latest" | "supported" | "deprecated"
 
 export interface Product {
@@ -24,14 +24,12 @@ export interface ProductVersion {
 
 export interface ProductMaintenance {
   id: string
-  productId: string | null
-  title: string
-  description: string | null
-  startTime: string
-  endTime: string
+  productId: string
+  startsAt: string
+  endsAt: string
   status: MaintenanceStatus
-  createdAt: string
-  updatedAt: string
+  message: string
+  createdAt?: string
 }
 
 export interface ProductWithRelations extends Product {
@@ -102,19 +100,17 @@ export interface DeleteProductOptions {
 }
 
 export interface CreateProductMaintenanceInput {
-  title: string
-  description?: string
-  startTime: string
-  endTime: string
+  startsAt: string
+  endsAt: string
   status?: MaintenanceStatus
+  message: string
 }
 
 export interface UpdateProductMaintenanceInput {
-  title?: string
-  description?: string
-  startTime?: string
-  endTime?: string
+  startsAt?: string
+  endsAt?: string
   status?: MaintenanceStatus
+  message?: string
 }
 
 export interface UpdateProductVersionInput {

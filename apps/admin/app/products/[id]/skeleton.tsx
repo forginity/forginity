@@ -1,5 +1,6 @@
 import * as React from "react"
 import { Skeleton } from "@workspace/ui/components/skeleton"
+import { MaintenancePanelSkeleton } from "@/components/maintenance-panel-skeleton"
 
 /**
  * High-fidelity View Product skeleton matching Figma Node 283:3630 with CLS = 0.00.
@@ -99,6 +100,9 @@ export function ViewProductSkeleton() {
           <Skeleton className="h-4 w-36 bg-[#1C1C1C]" />
         </div>
       </div>
+
+      {/* Maintenance Windows Panel Skeleton */}
+      <MaintenancePanelSkeleton />
     </div>
   )
 }

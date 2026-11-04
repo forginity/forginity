@@ -13,6 +13,7 @@ import {
   ADMIN_NAV_SECTIONS,
   ADMIN_USER_PROFILE,
 } from "@/constants/admin-nav.constants"
+import { WorkspacePulse } from "@/components/workspace-pulse"
 
 export default function AdminHomePage() {
   const pathname = usePathname()
@@ -114,9 +115,7 @@ export default function AdminHomePage() {
             <p className="text-xs text-muted-foreground">Latest operational updates</p>
           </div>
 
-          <div className="flex h-56 items-center justify-center rounded-lg border border-dashed border-border/40 bg-muted/20 text-xs text-muted-foreground">
-            System pulse, maintenance schedules & notifications
-          </div>
+          <WorkspacePulse />
         </Card>
       </div>
 
