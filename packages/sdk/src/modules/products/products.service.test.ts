@@ -219,6 +219,23 @@ describe("packages/sdk/src/modules/products/products.service", () => {
       { version: "1.1.0" }
     )
     expect(createResult.version).toBe("1.1.0")
+
+    vi.spyOn(apiClient, "patch").mockResolvedValueOnce({
+      data: { id: "v2", version: "1.1.0", status: "supported" },
+    })
+    const updateResult = await ProductsService.updateVersion("v2", {
+      status: "supported",
+    })
+    expect(apiClient.patch).toHaveBeenCalledWith(
+      "/api/products/versions/v2",
+      { status: "supported" }
+    )
+    expect(updateResult.status).toBe("supported")
+
+    vi.spyOn(apiClient, "delete").mockResolvedValueOnce({ data: {} })
+    const deleteResult = await ProductsService.deleteVersion("v2")
+    expect(apiClient.delete).toHaveBeenCalledWith("/api/products/versions/v2")
+    expect(deleteResult.success).toBe(true)
   })
 
   it("should manage maintenance windows through sub-resource methods", async () => {

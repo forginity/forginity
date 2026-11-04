@@ -18,6 +18,7 @@ import type {
   UpdateProductPayload,
   DeleteProductOptions,
   CreateProductVersionInput,
+  UpdateProductVersionInput,
   CreateProductMaintenanceInput,
   UpdateProductMaintenanceInput,
 } from "./products.types"
@@ -169,6 +170,42 @@ export function useCreateProductVersion(productId: string) {
   return useMutation({
     mutationFn: (payload: CreateProductVersionInput) =>
       ProductsService.createVersion(productId, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: productCacheKeys.versions(productId) })
+      queryClient.invalidateQueries({ queryKey: productCacheKeys.detail(productId) })
+    },
+  })
+}
+
+/**
+ * React Query mutation hook to update an existing version for a product.
+ */
+export function useUpdateProductVersion(productId: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      versionId,
+      payload,
+    }: {
+      versionId: string
+      payload: UpdateProductVersionInput
+    }) => ProductsService.updateVersion(versionId, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: productCacheKeys.versions(productId) })
+      queryClient.invalidateQueries({ queryKey: productCacheKeys.detail(productId) })
+    },
+  })
+}
+
+/**
+ * React Query mutation hook to delete a product version.
+ */
+export function useDeleteProductVersion(productId: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (versionId: string) => ProductsService.deleteVersion(versionId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: productCacheKeys.versions(productId) })
       queryClient.invalidateQueries({ queryKey: productCacheKeys.detail(productId) })

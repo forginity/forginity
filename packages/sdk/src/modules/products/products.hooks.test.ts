@@ -8,6 +8,9 @@ import {
   useUpdateProduct,
   useDeleteProduct,
   useProductVersions,
+  useCreateProductVersion,
+  useUpdateProductVersion,
+  useDeleteProductVersion,
   useProductMaintenance,
   useActiveMaintenance,
   useCreateProductMaintenance,
@@ -71,6 +74,9 @@ describe("packages/sdk/src/modules/products/products.hooks", () => {
     expect(typeof useUpdateProduct).toBe("function")
     expect(typeof useDeleteProduct).toBe("function")
     expect(typeof useProductVersions).toBe("function")
+    expect(typeof useCreateProductVersion).toBe("function")
+    expect(typeof useUpdateProductVersion).toBe("function")
+    expect(typeof useDeleteProductVersion).toBe("function")
     expect(typeof useProductMaintenance).toBe("function")
     expect(typeof useActiveMaintenance).toBe("function")
     expect(typeof useCreateProductMaintenance).toBe("function")

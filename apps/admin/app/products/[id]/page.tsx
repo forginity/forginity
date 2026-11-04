@@ -5,8 +5,12 @@ import Link from "next/link"
 import { useParams } from "next/navigation"
 import {
   ArrowLeft,
+  Edit2,
   GitBranch,
+  Loader2,
   Pencil,
+  Plus,
+  Trash2,
 } from "lucide-react"
 import { AppShell } from "@workspace/ui/components/app-shell"
 import { Button } from "@workspace/ui/components/button"
@@ -16,7 +20,10 @@ import {
   ADMIN_NAV_SECTIONS,
   ADMIN_USER_PROFILE,
 } from "@/constants/admin-nav.constants"
-import { useProduct } from "@forginity/sdk/modules/products/products.hooks"
+import {
+  useProduct,
+  useDeleteProductVersion,
+} from "@forginity/sdk/modules/products/products.hooks"
 import type {
   ProductVersion,
   ProductWithRelations,
@@ -25,6 +32,7 @@ import { QueryErrorState } from "@/components/query-error-state"
 import { StatusPill } from "@/components/status-pill"
 import { formatDisplayDate } from "@/lib/date"
 import { MaintenancePanel } from "@/components/maintenance-panel"
+import { VersionDialog } from "@/components/version-dialog"
 import { ViewProductSkeleton } from "./skeleton"
 
 export default function ViewProductPage() {
@@ -43,6 +51,38 @@ export default function ViewProductPage() {
   const versions: ProductVersion[] = product?.versions || []
   const latestVersion = versions.find((v) => v.status === "latest") || versions[0]
   const supportedCount = versions.filter((v) => v.status === "supported").length
+
+  // Version management states
+  const [versionDialogOpen, setVersionDialogOpen] = React.useState(false)
+  const [selectedVersion, setSelectedVersion] =
+    React.useState<ProductVersion | null>(null)
+  const [deletingVersionId, setDeletingVersionId] = React.useState<string | null>(null)
+
+  const { mutateAsync: deleteVersion } = useDeleteProductVersion(id)
+
+  const handleRegisterVersion = () => {
+    setSelectedVersion(null)
+    setVersionDialogOpen(true)
+  }
+
+  const handleEditVersion = (ver: ProductVersion) => {
+    setSelectedVersion(ver)
+    setVersionDialogOpen(true)
+  }
+
+  const handleDeleteVersion = async (ver: ProductVersion) => {
+    const isConfirmed = window.confirm(
+      `Are you sure you want to delete version ${ver.version}?`
+    )
+    if (!isConfirmed) return
+
+    setDeletingVersionId(ver.id)
+    try {
+      await deleteVersion(ver.id)
+    } finally {
+      setDeletingVersionId(null)
+    }
+  }
 
   return (
     <AppShell
@@ -176,23 +216,34 @@ export default function ViewProductPage() {
               className="flex flex-col overflow-hidden rounded-[16px] border border-[#292929] bg-[#141414]"
             >
               {/* Panel Heading */}
-              <div className="flex items-center justify-between p-6 border-b border-[#292929]">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 border-b border-[#292929]">
                 <div className="flex flex-col gap-1">
-                  <h2 className="text-base font-normal text-[#F6F6F6]">Versions</h2>
+                  <div className="flex items-center gap-2.5">
+                    <h2 className="text-base font-normal text-[#F6F6F6]">Versions</h2>
+                    <span className="text-xs font-light text-[#838383]">
+                      ({versions.length} release{versions.length === 1 ? "" : "s"})
+                    </span>
+                  </div>
                   <p className="text-xs font-light text-[#838383]">
                     Release identifiers and support status for {product.name}.
                   </p>
                 </div>
-                <span className="text-xs font-light text-[#838383]">
-                  {versions.length} version{versions.length === 1 ? "" : "s"}
-                </span>
+
+                <Button
+                  onClick={handleRegisterVersion}
+                  className="h-9 gap-2 rounded-full bg-gradient-coral px-4 text-xs font-medium text-[#090909] hover:opacity-90 transition-opacity self-start sm:self-auto cursor-pointer shrink-0"
+                >
+                  <Plus className="size-3.5 text-[#090909]" />
+                  <span>Register version</span>
+                </Button>
               </div>
 
               {/* Table Column Headings */}
-              <div className="bg-[#0E0E0E] h-10 px-6 flex items-center gap-6 text-xs text-[#838383] font-normal border-b border-[#292929]">
-                <span className="w-[220px] shrink-0">Version</span>
-                <span className="w-[220px] shrink-0">Version status</span>
+              <div className="bg-[#0E0E0E] h-10 px-6 flex items-center gap-6 text-xs text-[#838383] font-normal border-b border-[#292929] overflow-x-auto">
+                <span className="w-[180px] shrink-0">Version</span>
+                <span className="w-[160px] shrink-0">Version status</span>
                 <span className="flex-1 min-w-[200px]">Release availability</span>
+                <span className="w-[90px] shrink-0 text-right">Actions</span>
               </div>
 
               {/* Version Rows */}
@@ -201,7 +252,7 @@ export default function ViewProductPage() {
                   No versions registered for this product yet.
                 </div>
               ) : (
-                <div className="divide-y divide-[#292929]">
+                <div className="divide-y divide-[#292929] overflow-x-auto">
                   {versions.map((ver) => {
                     const availabilityNote =
                       ver.changelog ||
@@ -210,6 +261,7 @@ export default function ViewProductPage() {
                         : ver.status === "supported"
                         ? "Previous release, still supported"
                         : "No longer recommended for use")
+                    const isVerDeleting = deletingVersionId === ver.id
 
                     return (
                       <div
@@ -217,7 +269,7 @@ export default function ViewProductPage() {
                         className="h-[70px] px-6 flex items-center gap-6 transition-colors hover:bg-white/[0.02]"
                       >
                         {/* Version Identifier */}
-                        <div className="w-[220px] shrink-0 flex items-center gap-2.5">
+                        <div className="w-[180px] shrink-0 flex items-center gap-2.5">
                           <GitBranch className="size-4 text-[#838383] shrink-0" />
                           <span className="font-mono text-sm text-[#F6F6F6]">
                             {ver.version}
@@ -225,13 +277,38 @@ export default function ViewProductPage() {
                         </div>
 
                         {/* Version Lifecycle Pill */}
-                        <div className="w-[220px] shrink-0 flex items-center">
+                        <div className="w-[160px] shrink-0 flex items-center">
                           <StatusPill status={ver.status} />
                         </div>
 
                         {/* Availability / Changelog */}
                         <div className="flex-1 min-w-[200px] text-sm text-[#B9B9B9] truncate">
                           {availabilityNote}
+                        </div>
+
+                        {/* Actions */}
+                        <div className="w-[90px] shrink-0 flex items-center justify-end gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => handleEditVersion(ver)}
+                            title="Edit version"
+                            className="p-1.5 rounded-lg text-[#838383] hover:text-[#F6F6F6] hover:bg-white/5 transition-colors cursor-pointer"
+                          >
+                            <Edit2 className="size-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteVersion(ver)}
+                            disabled={isVerDeleting}
+                            title="Delete version"
+                            className="p-1.5 rounded-lg text-[#838383] hover:text-rose-400 hover:bg-rose-950/20 transition-colors cursor-pointer disabled:opacity-40"
+                          >
+                            {isVerDeleting ? (
+                              <Loader2 className="size-3.5 animate-spin text-rose-400" />
+                            ) : (
+                              <Trash2 className="size-3.5" />
+                            )}
+                          </button>
                         </div>
                       </div>
                     )
@@ -246,6 +323,15 @@ export default function ViewProductPage() {
                 </p>
               </div>
             </Card>
+
+            {/* Version Dialog Modal */}
+            <VersionDialog
+              open={versionDialogOpen}
+              onOpenChange={setVersionDialogOpen}
+              productId={id}
+              productName={product.name}
+              initialData={selectedVersion}
+            />
 
             {/* Maintenance Windows Panel */}
             <MaintenancePanel productId={id} productName={product.name} />

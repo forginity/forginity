@@ -7,11 +7,11 @@
 
 ## 1. LAST UPDATE
 
-- **Timestamp:** `2026-11-04 21:30`
+- **Timestamp:** `2026-11-04 22:04`
 - **Component / Service:** `packages/sdk` & `apps/admin` / `web_admin_product_crud`
-- **Task:** `TASK-06: Maintenance Windows Scheduling Interface`
+- **Task:** `TASK-07: Version Control & Release Track Manager`
 - **Summary:**
-  Implemented complete Maintenance Windows scheduling interface in `apps/admin` and aligned `@forginity/sdk` maintenance models (`startsAt`, `endsAt`, `status`, `message`). Integrated `MaintenancePanel`, `MaintenanceDialog`, and zero-CLS `MaintenancePanelSkeleton` into Product Details view, backed by client-side Zod validation and React Query mutation hooks. Verified with `vitest` (20 SDK tests, 49 product service tests), `tsc --noEmit`, `eslint`, and `next build` (10/10 routes compiled, 0 errors).
+  Implemented interactive Version Control & Release Track Manager in `apps/admin` and extended `@forginity/sdk` with `useUpdateProductVersion` and `useDeleteProductVersion` mutation hooks. Integrated `VersionDialog`, semantic version Zod validation, and in-table edit/delete row actions on the Product Details page. Verified with `vitest` (20 SDK tests, 49 product service tests), `tsc --noEmit`, `eslint`, and `next build` (10/10 routes compiled, 0 errors).
 
 ---
 
@@ -37,3 +37,4 @@
 | 16 | [`web_admin_product_crud`](./web_admin_product_crud/TASK_LIST.md) | `TASK-04` | Create & Edit Product Views (Figma Aligned) | [`TASK_04_IMPLEMENTATION_GUIDE.md`](./web_admin_product_crud/TASK_04_IMPLEMENTATION_GUIDE.md) | 2026-11-03 | Next.js Build + TypeScript + ESLint |
 | 17 | [`web_admin_product_crud`](./web_admin_product_crud/TASK_LIST.md) | `TASK-05` | Product Deletion Workflow (Figma Aligned) | [`TASK_05_IMPLEMENTATION_GUIDE.md`](./web_admin_product_crud/TASK_05_IMPLEMENTATION_GUIDE.md) | 2026-11-03 | Next.js Build + TypeScript + ESLint |
 | 18 | [`web_admin_product_crud`](./web_admin_product_crud/TASK_LIST.md) | `TASK-06` | Maintenance Windows Scheduling Interface | [`TASK_06_IMPLEMENTATION_GUIDE.md`](./web_admin_product_crud/TASK_06_IMPLEMENTATION_GUIDE.md) | 2026-11-04 | Next.js Build + Vitest + TypeScript + ESLint |
+| 19 | [`web_admin_product_crud`](./web_admin_product_crud/TASK_LIST.md) | `TASK-07` | Version Control & Release Track Manager | [`TASK_07_IMPLEMENTATION_GUIDE.md`](./web_admin_product_crud/TASK_07_IMPLEMENTATION_GUIDE.md) | 2026-11-04 | Next.js Build + Vitest + TypeScript + ESLint |
