@@ -32,7 +32,7 @@
 | `TASK-05` | Product Deletion Workflow (Figma Aligned) | Confirmation screen calling `useDeleteProduct`, cascade warnings, table state removal | [`TASK_05_IMPLEMENTATION_GUIDE.md`](./TASK_05_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
 | `TASK-06` | Maintenance Windows Scheduling Interface | List and schedule maintenance windows via `useProductMaintenance` & `useCreateMaintenance` | [`TASK_06_IMPLEMENTATION_GUIDE.md`](./TASK_06_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
 | `TASK-07` | Version Control & Release Track Manager | Release version registry UI, `useProductVersions` & `useCreateVersion` | [`TASK_07_IMPLEMENTATION_GUIDE.md`](./TASK_07_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
-| `TASK-08` | Implement Admin RBAC Guards on Mutating Endpoints | Route guards & UI permissions restricting create, edit, delete actions to Admin role | [`TASK_08_IMPLEMENTATION_GUIDE.md`](./TASK_08_IMPLEMENTATION_GUIDE.md) | `PENDING` |
+| `TASK-08` | Implement Admin RBAC Guards on Mutating Endpoints | Route guards & UI permissions restricting create, edit, delete actions to Admin role | [`TASK_08_IMPLEMENTATION_GUIDE.md`](./TASK_08_IMPLEMENTATION_GUIDE.md) | `BLOCKED` |
 
 ---
 
@@ -68,4 +68,5 @@
 
 ### `TASK-08`: Implement Admin RBAC Guards on Mutating Endpoints
 - **Description:** Enforce administrative role verification on all mutating product actions (create, edit, delete, maintenance scheduling). Conditionally hide or disable mutation controls for read-only / support operators, returning clean authorization error toasts.
+- **Status Note:** `BLOCKED` until `services/auth` admin session, token verification, and RBAC contracts are implemented.
 - **Guide:** [`TASK_08_IMPLEMENTATION_GUIDE.md`](./TASK_08_IMPLEMENTATION_GUIDE.md)

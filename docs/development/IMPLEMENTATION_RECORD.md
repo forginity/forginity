@@ -7,18 +7,18 @@
 
 ## 1. LAST UPDATE
 
-- **Timestamp:** `2026-11-04 22:04`
-- **Component / Service:** `packages/sdk` & `apps/admin` / `web_admin_product_crud`
-- **Task:** `TASK-07: Version Control & Release Track Manager`
+- **Timestamp:** `2026-11-06 21:30`
+- **Component / Service:** `services/auth` / `service_auth`
+- **Task:** `TASK-03: Reusable OTP Service & Transport Engine`
 - **Summary:**
-  Implemented interactive Version Control & Release Track Manager in `apps/admin` and extended `@forginity/sdk` with `useUpdateProductVersion` and `useDeleteProductVersion` mutation hooks. Integrated `VersionDialog`, semantic version Zod validation, and in-table edit/delete row actions on the Product Details page. Verified with `vitest` (20 SDK tests, 49 product service tests), `tsc --noEmit`, `eslint`, and `next build` (10/10 routes compiled, 0 errors).
+  Re-architected auth foundation to decouple a standalone platform-level Reusable OTP Service keyed by opaque `requestId` and unify passwordless authentication. Created implementation guide for `TASK-03` covering HMAC-SHA256 timing-safe verification, Resend Nodemailer transport (`smtp.resend.com:465`), and 60-second cooldown rate limiting.
 
 ---
 
 ## 2. COMPLETED TASKS
 
 | # | Service / Component | Task ID | Task Title | Guide File | Completed Date | Verified By |
-| :-: | :--- | :--- | :--- | :--- | :--- | :---: | :--- |
+| :-: | :--- | :--- | :--- | :--- | :---: | :--- |
 | 1 | [`service_products`](./service_products/TASK_LIST.md) | `TASK-01` | Scaffold `services/products` package and configs | [`TASK_01_IMPLEMENTATION_GUIDE.md`](./service_products/TASK_01_IMPLEMENTATION_GUIDE.md) | 2026-10-24 | TypeScript + Vitest |
 | 2 | [`service_products`](./service_products/TASK_LIST.md) | `TASK-02` | Build database schemas, relations, and migrations | [`TASK_02_IMPLEMENTATION_GUIDE.md`](./service_products/TASK_02_IMPLEMENTATION_GUIDE.md) | 2026-10-24 | Drizzle Kit + PostgreSQL |
 | 3 | [`service_products`](./service_products/TASK_LIST.md) | `TASK-03` | Implement Product, Feature, Maintenance, and Version CRUD APIs & Service Layer | [`TASK_03_IMPLEMENTATION_GUIDE.md`](./service_products/TASK_03_IMPLEMENTATION_GUIDE.md) | 2026-10-24 | Vitest (17 tests) + Supertest |
