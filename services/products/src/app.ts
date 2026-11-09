@@ -49,7 +49,9 @@ app.use(
     // Handle malformed JSON body from body-parser (express.json)
     if (
       err.type === "entity.parse.failed" ||
-      (err instanceof SyntaxError && "status" in err && (err as any).status === 400)
+      (err instanceof SyntaxError &&
+        "status" in err &&
+        (err as any).status === 400)
     ) {
       res.status(400).json({
         error: "Malformed JSON payload in request body",
@@ -58,7 +60,7 @@ app.use(
     }
 
     const statusCode = err.status || err.statusCode || 500
-    if (statusCode >= 500 && process.env.NODE_ENV !== "test") {
+    if (statusCode >= 500 && !process.env.VITEST) {
       console.error("[products] unhandled error:", err)
     }
 
@@ -68,7 +70,7 @@ app.use(
   }
 )
 
-if (process.env.NODE_ENV !== "test") {
+if (!process.env.VITEST) {
   const server = app.listen(port, () => {
     console.log(
       `[products] service listening on port ${port} (API docs: /api/docs)`

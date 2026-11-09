@@ -1,7 +1,7 @@
 # TASK IMPLEMENTATION GUIDE: TASK-03 - Reusable OTP Service & Transport Engine
 
 - **Service:** `services/auth`
-- **Status:** `IN_PROGRESS`
+- **Status:** `COMPLETED`
 - **Task List:** [`./TASK_LIST.md`](./TASK_LIST.md)
 - **Record:** [`../IMPLEMENTATION_RECORD.md`](../IMPLEMENTATION_RECORD.md)
 - **Progress:** [`../PROGRESS.md`](../PROGRESS.md)
@@ -33,14 +33,14 @@ The service generates cryptographically secure 6-digit numeric OTPs, computes ti
   - `services/auth/src/transports/resend-email.transport.ts` — Production Nodemailer SMTP transport for Resend.
   - `services/auth/src/repositories/otp.repository.ts` — Drizzle ORM queries for `auth_db.otps` keyed by `requestId`.
   - `services/auth/src/services/otp.service.ts` — Standalone OTP generation, HMAC-SHA-256 hashing, timing-safe validation, expiration, and attempt tracking.
-  - `services/auth/src/controllers/otp.controller.ts` — Express controller for `/api/otp/send` and `/api/otp/verify`.
-  - `services/auth/src/routes/otp.route.ts` — Express route bindings for `/api/otp/send` and `/api/otp/verify`.
+  - `services/auth/src/controllers/otp.controller.ts` — Express controller for `/api/auth/otp/send` and `/api/auth/otp/verify`.
+  - `services/auth/src/routes/otp.route.ts` — Express route bindings for `/api/auth/otp/send` and `/api/auth/otp/verify`.
   - `services/auth/src/docs/openapi.ts` — OpenAPI 3.0 registration for OTP endpoints.
   - `services/auth/src/services/otp.service.test.ts` — Unit tests for cryptographic OTP logic and attempt limits.
   - `services/auth/src/routes/otp.route.test.ts` — Route integration tests validating 200 OK, 400 Bad Request, 429 Too Many Requests, and OpenAPI docs.
 
 - **Files to Modify:**
-  - `services/auth/src/routes/api.router.ts` — Mount `otpRouter` under `/api/otp`.
+  - `services/auth/src/routes/api.router.ts` — Mount `otpRouter` under `/api/auth/otp`.
   - `services/auth/src/app.ts` — Mount Swagger UI at `/api/docs`, raw spec at `/api/docs.json`, and centralized malformed JSON error handling.
 
 ---
@@ -93,12 +93,12 @@ The service generates cryptographically secure 6-digit numeric OTPs, computes ti
     - Dispatch via `OtpTransport`.
     - Return `{ success: true, requestId: record.id, expiresInSeconds: 600, cooldownSeconds: 60 }`.
   - `verifyOtp(params: { requestId: string, code: string })`:
-    - Lookup by `requestId`. If not found, throw 400 Bad Request ("Invalid or expired verification request.").
-    - If already verified: throw 400 Bad Request ("This verification code has already been used.").
-    - If expired (`new Date() > record.expiresAt`): throw 400 Bad Request ("Verification code has expired. Please request a new code.").
-    - If `attempts >= maxAttempts`: throw 400 Bad Request ("Maximum verification attempts exceeded. Please request a new code.").
+    - Lookup by `requestId`. If not found, throw 400 Bad Request with `{ error: "Verification request not found. Invalid request ID.", code: "REQUEST_NOT_FOUND" }`.
+    - If already verified: throw 400 Bad Request with `{ error: "This verification code has already been used.", code: "ALREADY_VERIFIED" }`.
+    - If expired (`new Date() > record.expiresAt`): throw 400 Bad Request with `{ error: "Verification code has expired. Please request a new code.", code: "OTP_EXPIRED", remainingAttempts, maxAttempts }`.
+    - If `attempts >= maxAttempts`: throw 400 Bad Request with `{ error: "Maximum verification attempts exceeded. Please request a new code.", code: "MAX_ATTEMPTS_EXCEEDED", remainingAttempts: 0, maxAttempts }`.
     - Timing-safe hash validation (`crypto.timingSafeEqual`):
-      - If invalid: increment attempts, throw 400 Bad Request with remaining attempts.
+      - If invalid: increment attempts, throw 400 Bad Request with `{ error: "Invalid verification code.", code: "INVALID_CODE", remainingAttempts, maxAttempts }` or `"MAX_ATTEMPTS_EXCEEDED"`.
       - If valid: mark OTP verified. Return `{ verified: true, requestId, identifier: record.identifier, purpose: record.purpose }`.
 
 ### Step 6: OTP Controller & Routes (`otp.controller.ts`, `otp.route.ts`)
@@ -106,14 +106,14 @@ The service generates cryptographically secure 6-digit numeric OTPs, computes ti
   - `services/auth/src/controllers/otp.controller.ts`
   - `services/auth/src/routes/otp.route.ts`
 - **Action:**
-  - `POST /api/otp/send`: Validates body using `SendOtpSchema`. Returns 200 OK with `requestId`.
-  - `POST /api/otp/verify`: Validates body using `VerifyOtpRequestSchema` (`requestId: uuid`, `code: 6-digits`). Returns 200 OK with verification result.
+  - `POST /api/auth/otp/send`: Validates body using `SendOtpSchema`. Returns 200 OK with `requestId`.
+  - `POST /api/auth/otp/verify`: Validates body using `VerifyOtpRequestSchema` (`requestId: uuid`, `code: 6-digits`). Returns 200 OK with verification result.
   - Mount router in `api.router.ts`.
 
 ### Step 7: Swagger / OpenAPI 3.0 Documentation (`openapi.ts`)
 - **Target File:** `services/auth/src/docs/openapi.ts`
 - **Action:**
-  - Register OpenAPI paths and schemas for `/api/otp/send` and `/api/otp/verify`.
+  - Register OpenAPI paths and schemas for `/api/auth/otp/send` and `/api/auth/otp/verify`.
   - Expose interactive Swagger UI at `/api/docs` and raw spec at `/api/docs.json`.
 
 ### Step 8: Automated Tests & Verification
@@ -137,13 +137,13 @@ pnpm typecheck
 
 ### Test Scenarios to Cover:
 1. **Happy Path — OTP Send:**
-   - POST `/api/otp/send` with `{ identifier: "user@forginity.com", identifierType: "email", purpose: "authentication" }`.
+   - POST `/api/auth/otp/send` with `{ identifier: "user@forginity.com", identifierType: "email", purpose: "authentication" }`.
    - Returns 200 OK with `{ success: true, requestId: "<uuid>", expiresInSeconds: 600, cooldownSeconds: 60 }`.
 2. **Happy Path — OTP Verify with `requestId`:**
-   - POST `/api/otp/verify` with `{ requestId: "<uuid>", code: "123456" }`.
+   - POST `/api/auth/otp/verify` with `{ requestId: "<uuid>", code: "123456" }`.
    - Returns 200 OK with `{ verified: true, requestId: "<uuid>", identifier: "user@forginity.com", purpose: "authentication" }`.
 3. **Invalid Code Handling:**
-   - Submit incorrect 6-digit code -> Returns 400 Bad Request ("Invalid verification code. 2 attempt(s) remaining.").
+   - Submit incorrect 6-digit code -> Returns 400 Bad Request ("Invalid verification code.").
 4. **Max Attempts Exceeded:**
    - Fail OTP 3 times -> Returns 400 Bad Request ("Maximum verification attempts exceeded. Please request a new code.").
 5. **Expired Code Rejection:**

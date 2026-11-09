@@ -49,7 +49,7 @@ Initialize the `services/auth` workspace package using `services/products` as an
 - **Action:**
   - Implement `/api/auth/health` endpoint returning `{ status: "ok", service: "auth", timestamp, uptime }`.
   - Configure `apiRouter` to mount sub-routes prefixed with `/api/auth`.
-  - Bootstrap `app.ts` with standard body parsing middleware, root info endpoint (`api: "/api/auth"`, `health: "/api/auth/health"`), centralized error handler, and conditional listener for `NODE_ENV !== "test"`.
+  - Bootstrap `app.ts` with standard body parsing middleware, root info endpoint (`api: "/api/auth"`, `health: "/api/auth/health"`), centralized error handler, and conditional listener for `NODE_ENV !== "development"`.
   - Export public exports in `src/index.ts`.
 
 ### Step 3: Scaffold Unit & Integration Tests

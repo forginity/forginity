@@ -1,3 +1,4 @@
+import "dotenv/config"
 import express, {
   type Express,
   type Request,
@@ -5,8 +6,10 @@ import express, {
   type NextFunction,
 } from "express"
 import cors from "cors"
+import swaggerUi from "swagger-ui-express"
 import { apiRouter } from "./routes/api.router.js"
 import { healthRouter } from "./routes/health.route.js"
+import { openApiDocument } from "./docs/openapi.js"
 
 const app: Express = express()
 const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001
@@ -21,7 +24,14 @@ app.use(
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-// Prefix all application routes with /api/auth
+// OpenAPI / Swagger Documentation
+app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(openApiDocument))
+app.get("/api/docs.json", (_req: Request, res: Response) => {
+  res.setHeader("Content-Type", "application/json")
+  res.json(openApiDocument)
+})
+
+// Application routes (prefixed with /api/auth)
 app.use("/api/auth", apiRouter)
 
 // Direct health check route alias
@@ -33,18 +43,37 @@ app.get("/", (_req: Request, res: Response) => {
     name: "auth-service",
     api: "/api/auth",
     health: "/api/auth/health",
+    docs: "/api/docs",
+    openapi: "/api/docs.json",
   })
 })
 
 // Centralized error handling
 app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-  console.error("[auth] unhandled error:", err)
-  res.status(err.status || 500).json({
+  // Handle malformed JSON body from body-parser (express.json)
+  if (
+    err.type === "entity.parse.failed" ||
+    (err instanceof SyntaxError && "status" in err && (err as any).status === 400)
+  ) {
+    res.status(400).json({
+      error: "Malformed JSON payload in request body",
+    })
+    return
+  }
+
+  const statusCode = err.status || err.statusCode || 500
+  if (statusCode >= 500) {
+    console.error("[auth] unhandled internal server error:", err)
+  }
+
+  res.status(statusCode).json({
     error: err.message || "Internal Server Error",
   })
 })
 
-if (process.env.NODE_ENV !== "test") {
+// Start HTTP listener (in development, staging, or production)
+// Automatically skips listening when imported inside Vitest test suites
+if (!process.env.VITEST) {
   const server = app.listen(port, () => {
     console.log(`[auth] service listening on port ${port} (API prefix: /api/auth)`)
   })

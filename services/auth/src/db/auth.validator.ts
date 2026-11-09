@@ -15,7 +15,7 @@ export type Gender = z.infer<typeof GenderEnum>
 export const OtpIdentifierTypeEnum = z.enum(["email", "phone"])
 export type OtpIdentifierType = z.infer<typeof OtpIdentifierTypeEnum>
 
-export const OtpPurposeEnum = z.enum(["sign_up", "sign_in", "verify"])
+export const OtpPurposeEnum = z.enum(["authentication", "verification", "transaction", "sign_in", "sign_up"])
 export type OtpPurpose = z.infer<typeof OtpPurposeEnum>
 
 export const DeviceTypeEnum = z.enum(["mobile", "desktop", "tablet"])
@@ -93,8 +93,8 @@ export type CreateUserInput = z.infer<typeof CreateUserSchema>
 export const SendOtpSchema = z
   .object({
     identifier: z.string().trim().min(1, "Identifier is required").max(255),
-    identifierType: OtpIdentifierTypeEnum,
-    purpose: OtpPurposeEnum.default("sign_in"),
+    identifierType: OtpIdentifierTypeEnum.default("email"),
+    purpose: OtpPurposeEnum.default("authentication"),
   })
   .refine(
     (data) => {
@@ -116,6 +116,12 @@ export const VerifyOtpSchema = z.object({
   productId: z.string().uuid().optional(),
 })
 export type VerifyOtpInput = z.infer<typeof VerifyOtpSchema>
+
+export const VerifyOtpRequestSchema = z.object({
+  requestId: z.string().uuid("Invalid requestId UUID format"),
+  code: z.string().regex(/^\d{6}$/, "Verification code must be a 6-digit numeric string"),
+})
+export type VerifyOtpRequestInput = z.infer<typeof VerifyOtpRequestSchema>
 
 export const GoogleAuthSchema = z.object({
   idToken: z.string().min(1, "Google ID token is required"),

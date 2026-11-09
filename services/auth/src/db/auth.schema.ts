@@ -56,7 +56,7 @@ export const otps = pgTable(
     identifier: varchar("identifier", { length: 255 }).notNull(),
     identifierType: varchar("identifier_type", { length: 20 }).notNull(), // 'email', 'phone'
     otpHash: text("otp_hash").notNull(),
-    purpose: varchar("purpose", { length: 50 }).notNull().default("sign_in"), // 'sign_up', 'sign_in', 'verify'
+    purpose: varchar("purpose", { length: 50 }).notNull().default("authentication"), // 'authentication', 'verification', 'transaction'
     attempts: integer("attempts").notNull().default(0),
     maxAttempts: integer("max_attempts").notNull().default(3),
     expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),

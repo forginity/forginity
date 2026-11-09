@@ -13,7 +13,7 @@
   - Mandatory Profile Onboarding collecting First Name, Last Name, Gender, and Country per Figma Node `179:509`.
   - User lifecycle management: Edit Profile, Emergency Contacts, Soft Delete, and Admin Block/Unblock.
 - **Tech Stack:** Express, TypeScript, PostgreSQL 18, Drizzle ORM, Zod, Redis 7, `jose`, Nodemailer / Resend SMTP, Vitest, Supertest.
-- **Service Status:** `IN_PROGRESS` (Active: TASK-03 Reusable OTP Engine underway).
+- **Service Status:** `IN_PROGRESS` (Active: TASK-03 completed; TASK-04 up next).
 - **Reference Service:** [`services/products`](file:///home/vikas/Documents/forginity/services/products)
 - **Central Implementation Record:** [`../IMPLEMENTATION_RECORD.md`](../IMPLEMENTATION_RECORD.md)
 - **Overall Progress:** [`../PROGRESS.md`](../PROGRESS.md)
@@ -26,8 +26,8 @@
 | :--- | :--- | :--- | :--- | :--- |
 | `TASK-01` | Scaffold `services/auth` package and configs | Base Express app, tsconfig, drizzle config | [`TASK_01_IMPLEMENTATION_GUIDE.md`](./TASK_01_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
 | `TASK-02` | Build database schemas and migrations | `src/db/auth.schema.ts` and migrations | [`TASK_02_IMPLEMENTATION_GUIDE.md`](./TASK_02_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
-| `TASK-03` | Reusable OTP Service & Transport Engine | Standalone OTP generator, HMAC-SHA256, `requestId` dispatch/verify, Resend transport | [`TASK_03_IMPLEMENTATION_GUIDE.md`](./TASK_03_IMPLEMENTATION_GUIDE.md) | `IN_PROGRESS` |
-| `TASK-04` | Unified Passwordless Email Authentication API | `POST /api/auth/email/initiate` (`isNewUser` detection) & `POST /api/auth/email/verify` | [`TASK_04_IMPLEMENTATION_GUIDE.md`](./TASK_04_IMPLEMENTATION_GUIDE.md) | `PENDING` |
+| `TASK-03` | Reusable OTP Service & Transport Engine | Standalone OTP generator, HMAC-SHA256, `requestId` dispatch/verify, Resend transport | [`TASK_03_IMPLEMENTATION_GUIDE.md`](./TASK_03_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
+| `TASK-04` | Unified Passwordless Email Authentication API | `POST /api/auth/email/initiate` (`isNewUser` detection) & `POST /api/auth/email/verify` | [`TASK_04_IMPLEMENTATION_GUIDE.md`](./TASK_04_IMPLEMENTATION_GUIDE.md) | `IN_PROGRESS` |
 | `TASK-05` | User Session Management & Token Engine | `POST /api/auth/session` (15m Access JWT, 30d Refresh token, `auth_db.sessions`, revocation) | [`TASK_05_IMPLEMENTATION_GUIDE.md`](./TASK_05_IMPLEMENTATION_GUIDE.md) | `PENDING` |
 | `TASK-06` | Mandatory Profile Onboarding API | `POST /api/auth/onboarding` (Name, Gender, Country per Figma `179:509`), session upgrade | [`TASK_06_IMPLEMENTATION_GUIDE.md`](./TASK_06_IMPLEMENTATION_GUIDE.md) | `PENDING` |
 | `TASK-07` | Social Authentication (Google OAuth 2.0 / OIDC) | Google ID token verification, account linking, routes to session or onboarding | [`TASK_07_IMPLEMENTATION_GUIDE.md`](./TASK_07_IMPLEMENTATION_GUIDE.md) | `PENDING` |
@@ -50,7 +50,7 @@
 
 ### `TASK-03`: Reusable OTP Service & Transport Engine
 - **Description:** Implement a standalone, platform-wide OTP subsystem decoupled from specific user tables.
-  Supports `POST /api/otp/send` and `POST /api/otp/verify` bound to opaque `requestId`s.
+  Supports `POST /api/auth/otp/send` and `POST /api/auth/otp/verify` bound to opaque `requestId`s.
   Generates 6-digit numeric codes, stores timing-safe HMAC-SHA-256 hashes, dispatches branded emails via Nodemailer + Resend SMTP (`smtp.resend.com:465`), and provides zero-cost `ConsoleOtpTransport` for development and automated testing.
 - **Guide:** [`TASK_03_IMPLEMENTATION_GUIDE.md`](./TASK_03_IMPLEMENTATION_GUIDE.md)
 
