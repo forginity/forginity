@@ -24,6 +24,7 @@
 | `TASK-02` | Phone Number & SMS/WhatsApp OTP Sign-In Flow | Passwordless phone authentication, session issuance, dormant account recovery | [`TASK_02_IMPLEMENTATION_GUIDE.md`](./TASK_02_IMPLEMENTATION_GUIDE.md) | `PENDING` |
 | `TASK-03` | Telecom Gateway Integration & Carrier Routing | Pluggable adapters for Twilio, AWS SNS, MSG91, and Meta WhatsApp Business API | [`TASK_03_IMPLEMENTATION_GUIDE.md`](./TASK_03_IMPLEMENTATION_GUIDE.md) | `PENDING` |
 | `TASK-04` | Telephony Toll-Fraud Defense & Geo-Fencing | Phone verification risk scoring, anti-pumping protection, carrier cost caps | [`TASK_04_IMPLEMENTATION_GUIDE.md`](./TASK_04_IMPLEMENTATION_GUIDE.md) | `PENDING` |
+| `TASK-05` | Admin Console RBAC & Mutating Endpoints Guard | Route guards & UI permissions restricting create, edit, delete actions to Admin role | [`TASK_05_IMPLEMENTATION_GUIDE.md`](./TASK_05_IMPLEMENTATION_GUIDE.md) | `PENDING` |
 
 ---
 
@@ -46,3 +47,8 @@
 ### `TASK-04`: Telephony Toll-Fraud Defense & Geo-Fencing
 - **Description:** Implement defensive security barriers against SMS pumping attacks, fraudulent destination range routing, automated bot registration, and per-carrier monthly expenditure limits.
 - **Guide:** [`TASK_04_IMPLEMENTATION_GUIDE.md`](./TASK_04_IMPLEMENTATION_GUIDE.md)
+
+### `TASK-05`: Admin Console RBAC & Mutating Endpoints Guard (Moved from V1)
+- **Description:** Enforce administrative role verification on all mutating product actions (create, edit, delete, maintenance scheduling) in `apps/admin`.
+  Conditionally hide or disable mutation controls for read-only / support operators, returning clean authorization error toasts once `services/auth` RBAC tokens are fully integrated.
+- **Guide:** [`TASK_05_IMPLEMENTATION_GUIDE.md`](./TASK_05_IMPLEMENTATION_GUIDE.md)

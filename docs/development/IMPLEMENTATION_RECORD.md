@@ -7,18 +7,18 @@
 
 ## 1. LAST UPDATE
 
-- **Timestamp:** `2026-11-09 23:00`
+- **Timestamp:** `2026-11-09 23:17`
 - **Component / Service:** `services/auth` / `service_auth`
 - **Task:** `TASK-03: Reusable OTP Service & Transport Engine`
 - **Summary:**
-  Implemented standalone, platform-wide Reusable OTP Service keyed by opaque `requestId` (UUID) in `services/auth`. Features HMAC-SHA-256 timing-safe verification, 3-attempt caps with explicit structured error responses (`remainingAttempts`, `maxAttempts`, and specific error codes: `INVALID_CODE`, `OTP_EXPIRED`, `ALREADY_VERIFIED`, `MAX_ATTEMPTS_EXCEEDED`, `REQUEST_NOT_FOUND`), 60-second cooldown rate limiting (`RATE_LIMITED`), branded Coral Sunset email templates, Resend Nodemailer SMTP transport (`smtp.resend.com:465` with custom domain support), zero-cost `ConsoleOtpTransport` for test/dev, clean deep-linking Swagger/OpenAPI documentation at `/api/docs` and `/api/docs.json`. Verified with `vitest` (48 tests across 5 test suites), live PostgreSQL container queries, and workspace-wide `turbo typecheck`.
+  Implemented standalone, platform-wide Reusable OTP Service keyed by opaque `requestId` (UUID) in `services/auth`. Features HMAC-SHA-256 timing-safe verification, 3-attempt caps with explicit structured error responses (`error: "Invalid verification code."`, `remainingAttempts`, `maxAttempts`, and specific error codes: `INVALID_CODE`, `OTP_EXPIRED`, `ALREADY_VERIFIED`, `MAX_ATTEMPTS_EXCEEDED`, `REQUEST_NOT_FOUND`), 60-second cooldown rate limiting (`RATE_LIMITED`), branded Coral Sunset email templates, Resend Nodemailer SMTP transport (`smtp.resend.com:465` with verified domain support), zero-cost `ConsoleOtpTransport` for test/dev, and Swagger/OpenAPI documentation at `/api/docs` and `/api/docs.json`. Verified with `vitest` (48 tests across 5 test suites), live PostgreSQL container queries, and workspace-wide `turbo typecheck`.
 
 ---
 
 ## 2. COMPLETED TASKS
 
 | # | Service / Component | Task ID | Task Title | Guide File | Completed Date | Verified By |
-| :-: | :--- | :--- | :--- | :--- | :---: | :--- |
+| :-: | :--- | :--- | :--- | :--- | :--- :---: | :--- |
 | 1 | [`service_products`](./service_products/TASK_LIST.md) | `TASK-01` | Scaffold `services/products` package and configs | [`TASK_01_IMPLEMENTATION_GUIDE.md`](./service_products/TASK_01_IMPLEMENTATION_GUIDE.md) | 2026-10-24 | TypeScript + Vitest |
 | 2 | [`service_products`](./service_products/TASK_LIST.md) | `TASK-02` | Build database schemas, relations, and migrations | [`TASK_02_IMPLEMENTATION_GUIDE.md`](./service_products/TASK_02_IMPLEMENTATION_GUIDE.md) | 2026-10-24 | Drizzle Kit + PostgreSQL |
 | 3 | [`service_products`](./service_products/TASK_LIST.md) | `TASK-03` | Implement Product, Feature, Maintenance, and Version CRUD APIs & Service Layer | [`TASK_03_IMPLEMENTATION_GUIDE.md`](./service_products/TASK_03_IMPLEMENTATION_GUIDE.md) | 2026-10-24 | Vitest (17 tests) + Supertest |
@@ -38,4 +38,4 @@
 | 17 | [`web_admin_product_crud`](./web_admin_product_crud/TASK_LIST.md) | `TASK-05` | Product Deletion Workflow (Figma Aligned) | [`TASK_05_IMPLEMENTATION_GUIDE.md`](./web_admin_product_crud/TASK_05_IMPLEMENTATION_GUIDE.md) | 2026-11-03 | Next.js Build + TypeScript + ESLint |
 | 18 | [`web_admin_product_crud`](./web_admin_product_crud/TASK_LIST.md) | `TASK-06` | Maintenance Windows Scheduling Interface | [`TASK_06_IMPLEMENTATION_GUIDE.md`](./web_admin_product_crud/TASK_06_IMPLEMENTATION_GUIDE.md) | 2026-11-04 | Next.js Build + Vitest + TypeScript + ESLint |
 | 19 | [`web_admin_product_crud`](./web_admin_product_crud/TASK_LIST.md) | `TASK-07` | Version Control & Release Track Manager | [`TASK_07_IMPLEMENTATION_GUIDE.md`](./web_admin_product_crud/TASK_07_IMPLEMENTATION_GUIDE.md) | 2026-11-04 | Next.js Build + Vitest + TypeScript + ESLint |
-| 20 | [`service_auth`](./service_auth/TASK_LIST.md) | `TASK-03` | Reusable OTP Service & Transport Engine | [`TASK_03_IMPLEMENTATION_GUIDE.md`](./service_auth/TASK_03_IMPLEMENTATION_GUIDE.md) | 2026-11-06 | Vitest (48 tests) + PostgreSQL + TypeScript |
+| 20 | [`service_auth`](./service_auth/TASK_LIST.md) | `TASK-03` | Reusable OTP Service & Transport Engine | [`TASK_03_IMPLEMENTATION_GUIDE.md`](./service_auth/TASK_03_IMPLEMENTATION_GUIDE.md) | 2026-11-09 | Vitest (48 tests) + PostgreSQL + TypeScript |

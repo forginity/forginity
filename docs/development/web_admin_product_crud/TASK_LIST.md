@@ -16,6 +16,7 @@
   - Admin RBAC guards on mutating operations (create, update, delete).
   - Interactive toast feedback on create, edit, and delete operations.
 - **Tech Stack:** Next.js 16 (App Router), React 19, Tailwind CSS v4, Shadcn UI (`@workspace/ui`), `@forginity/sdk` (Axios, `@tanstack/react-query`), TypeScript.
+- **Component Status:** `COMPLETED` (Completed on 2026-11-04; All 7 tasks verified; RBAC deferred to V2 Vision)
 - **Central Implementation Record:** [`../IMPLEMENTATION_RECORD.md`](../IMPLEMENTATION_RECORD.md)
 - **Overall Progress:** [`../PROGRESS.md`](../PROGRESS.md)
 
@@ -32,7 +33,9 @@
 | `TASK-05` | Product Deletion Workflow (Figma Aligned) | Confirmation screen calling `useDeleteProduct`, cascade warnings, table state removal | [`TASK_05_IMPLEMENTATION_GUIDE.md`](./TASK_05_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
 | `TASK-06` | Maintenance Windows Scheduling Interface | List and schedule maintenance windows via `useProductMaintenance` & `useCreateMaintenance` | [`TASK_06_IMPLEMENTATION_GUIDE.md`](./TASK_06_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
 | `TASK-07` | Version Control & Release Track Manager | Release version registry UI, `useProductVersions` & `useCreateVersion` | [`TASK_07_IMPLEMENTATION_GUIDE.md`](./TASK_07_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
-| `TASK-08` | Implement Admin RBAC Guards on Mutating Endpoints | Route guards & UI permissions restricting create, edit, delete actions to Admin role | [`TASK_08_IMPLEMENTATION_GUIDE.md`](./TASK_08_IMPLEMENTATION_GUIDE.md) | `BLOCKED` |
+
+> [!NOTE]
+> **Moved to V2 Vision:** Admin RBAC Guards on Mutating Endpoints (former `TASK-08`) has been deferred to [`docs/development/v2_vision/TASK_LIST.md`](../v2_vision/TASK_LIST.md#task-05) to align with full cross-service session and RBAC rollouts.
 
 ---
 
@@ -66,7 +69,8 @@
 - **Description:** Build version history list displaying semantic versions and support statuses (`latest`, `supported`, `deprecated`). Provide modal to register new version releases tied to the selected product via version SDK hooks.
 - **Guide:** [`TASK_07_IMPLEMENTATION_GUIDE.md`](./TASK_07_IMPLEMENTATION_GUIDE.md)
 
-### `TASK-08`: Implement Admin RBAC Guards on Mutating Endpoints
-- **Description:** Enforce administrative role verification on all mutating product actions (create, edit, delete, maintenance scheduling). Conditionally hide or disable mutation controls for read-only / support operators, returning clean authorization error toasts.
-- **Status Note:** `BLOCKED` until `services/auth` admin session, token verification, and RBAC contracts are implemented.
-- **Guide:** [`TASK_08_IMPLEMENTATION_GUIDE.md`](./TASK_08_IMPLEMENTATION_GUIDE.md)
+---
+
+> [!NOTE]
+> **Former `TASK-08` (Admin RBAC Guards on Mutating Endpoints):**
+> Deferred to V2 Vision ([`docs/development/v2_vision/TASK_LIST.md#task-05`](../v2_vision/TASK_LIST.md#task-05)) to align with full cross-service session and RBAC rollouts.
