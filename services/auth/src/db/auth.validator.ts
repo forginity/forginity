@@ -123,6 +123,26 @@ export const VerifyOtpRequestSchema = z.object({
 })
 export type VerifyOtpRequestInput = z.infer<typeof VerifyOtpRequestSchema>
 
+/**
+ * Unified Passwordless Email Auth Schemas
+ */
+export const InitiateEmailAuthSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .min(1, "Email is required")
+    .max(255)
+    .email("Invalid email address format")
+    .transform((val) => val.toLowerCase()),
+})
+export type InitiateEmailAuthInput = z.infer<typeof InitiateEmailAuthSchema>
+
+export const VerifyEmailAuthSchema = z.object({
+  requestId: z.string().uuid("Invalid requestId UUID format"),
+  code: z.string().regex(/^\d{6}$/, "Verification code must be a 6-digit numeric string"),
+})
+export type VerifyEmailAuthInput = z.infer<typeof VerifyEmailAuthSchema>
+
 export const GoogleAuthSchema = z.object({
   idToken: z.string().min(1, "Google ID token is required"),
   productId: z.string().uuid().optional(),

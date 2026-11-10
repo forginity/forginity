@@ -22,6 +22,7 @@ export const users = pgTable(
     id: uuid("id").primaryKey().defaultRandom(),
     email: varchar("email", { length: 255 }),
     phone: varchar("phone", { length: 50 }),
+    name: varchar("name", { length: 255 }),
     passwordHash: text("password_hash"),
     firstName: varchar("first_name", { length: 100 }),
     lastName: varchar("last_name", { length: 100 }),
@@ -31,6 +32,8 @@ export const users = pgTable(
     googleId: varchar("google_id", { length: 255 }),
     authProvider: varchar("auth_provider", { length: 50 }).notNull().default("email_otp"), // 'email_otp', 'phone_otp', 'google'
     isVerified: boolean("is_verified").notNull().default(false),
+    isEmailVerified: boolean("is_email_verified").notNull().default(false),
+    isPhoneVerified: boolean("is_phone_verified").notNull().default(false),
     isOnboarded: boolean("is_onboarded").notNull().default(false),
     status: varchar("status", { length: 50 }).notNull().default("active"), // 'active', 'blocked', 'deleted'
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),

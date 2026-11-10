@@ -7,6 +7,8 @@ import {
 import {
   SendOtpSchema,
   VerifyOtpRequestSchema,
+  InitiateEmailAuthSchema,
+  VerifyEmailAuthSchema,
 } from "../db/auth.validator.js"
 
 // Patch Zod with OpenAPI methods
@@ -87,6 +89,67 @@ export const VerifyOtpResponseSchema = z
   })
   .openapi("VerifyOtpResponse", {
     description: "Verification response confirming successful code validation against requestId",
+  })
+
+export const InitiateEmailAuthResponseSchema = z
+  .object({
+    success: z.boolean().openapi({ example: true }),
+    isNewUser: z
+      .boolean()
+      .openapi({
+        example: true,
+        description: "True if the email belongs to a new user; false if returning user",
+      }),
+    requestId: z.string().uuid().openapi({ example: "550e8400-e29b-41d4-a716-446655440000" }),
+    expiresInSeconds: z.number().openapi({ example: 600 }),
+    cooldownSeconds: z.number().openapi({ example: 60 }),
+    debugOtp: z.string().optional().openapi({ example: "123456" }),
+  })
+  .openapi("InitiateEmailAuthResponse", {
+    description: "Response from unified passwordless email authentication initiation",
+  })
+
+export const UserResponseSchema = z
+  .object({
+    id: z.string().uuid().openapi({ example: "550e8400-e29b-41d4-a716-446655440000" }),
+    email: z.string().email().openapi({ example: "rider@forginity.com" }),
+    phone: z.string().nullable().optional(),
+    name: z.string().nullable().optional().openapi({ example: "John Doe" }),
+    firstName: z.string().nullable().optional().openapi({ example: "John" }),
+    lastName: z.string().nullable().optional().openapi({ example: "Doe" }),
+    gender: z.string().nullable().optional().openapi({ example: "male" }),
+    country: z.string().nullable().optional().openapi({ example: "IN" }),
+    avatarUrl: z.string().nullable().optional(),
+    authProvider: z.string().openapi({ example: "email_otp" }),
+    isVerified: z.boolean().openapi({ example: true }),
+    isEmailVerified: z.boolean().openapi({ example: true }),
+    isPhoneVerified: z.boolean().openapi({ example: false }),
+    isOnboarded: z.boolean().openapi({ example: false }),
+    status: z.string().openapi({ example: "active" }),
+    createdAt: z.date().or(z.string()).openapi({ example: "2026-11-10T20:00:00.000Z" }),
+    updatedAt: z.date().or(z.string()).openapi({ example: "2026-11-10T20:00:00.000Z" }),
+  })
+  .openapi("UserResponse", {
+    description: "Sanitized user profile entity",
+  })
+
+export const VerifyEmailAuthResponseSchema = z
+  .object({
+    success: z.boolean().openapi({ example: true }),
+    isNewUser: z.boolean().openapi({ example: true }),
+    isOnboarded: z.boolean().openapi({ example: false }),
+    user: UserResponseSchema,
+    onboardingToken: z.string().optional().openapi({ example: "eyJhbGciOiJIUzI1NiIsIn..." }),
+    session: z
+      .object({
+        accessToken: z.string().openapi({ example: "eyJhbGciOiJIUzI1NiIsIn..." }),
+        refreshToken: z.string().openapi({ example: "eyJhbGciOiJIUzI1NiIsIn..." }),
+        expiresIn: z.number().openapi({ example: 900 }),
+      })
+      .optional(),
+  })
+  .openapi("VerifyEmailAuthResponse", {
+    description: "Verification response returning onboardingToken or active session",
   })
 
 // 1. Health Route
@@ -198,6 +261,111 @@ registry.registerPath({
     },
     400: {
       description: "Invalid OTP code, expired code, or maximum attempts exceeded",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+  },
+})
+
+// 4. Email Auth Initiate Route
+registry.registerPath({
+  method: "post",
+  path: "/api/auth/email/initiate",
+  tags: ["Authentication"],
+  summary: "Initiate Passwordless Email Sign-In / Sign-Up",
+  description:
+    "Unified entry point for both registration and authentication. Checks if the account exists, validates account status, dispatches a 6-digit OTP code, and returns isNewUser: true/false with an opaque requestId.",
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: InitiateEmailAuthSchema,
+          example: {
+            email: "rider@forginity.com",
+          },
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: "OTP dispatched successfully with isNewUser indication",
+      content: {
+        "application/json": {
+          schema: InitiateEmailAuthResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: "Validation failure (e.g. malformed email)",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    403: {
+      description: "Account is blocked or deleted",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    429: {
+      description: "Rate limit cooldown active (must wait 60 seconds)",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+  },
+})
+
+// 5. Email Auth Verify Route
+registry.registerPath({
+  method: "post",
+  path: "/api/auth/email/verify",
+  tags: ["Authentication"],
+  summary: "Verify Email OTP & Provision Session or Onboarding Token",
+  description:
+    "Validates the OTP code against requestId. If the user is new, automatically registers the account and returns a 2-hour onboardingToken. If the user is returning and onboarded, establishes an active session and returns accessToken + refreshToken.",
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: VerifyEmailAuthSchema,
+          example: {
+            requestId: "550e8400-e29b-41d4-a716-446655440000",
+            code: "123456",
+          },
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: "Code verified successfully; returns user entity with onboardingToken or active session",
+      content: {
+        "application/json": {
+          schema: VerifyEmailAuthResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: "Invalid OTP code, expired code, or maximum attempts exceeded",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    403: {
+      description: "Account is blocked or deleted",
       content: {
         "application/json": {
           schema: ErrorResponseSchema,

@@ -7,11 +7,11 @@
 
 ## 1. LAST UPDATE
 
-- **Timestamp:** `2026-11-09 23:17`
+- **Timestamp:** `2026-11-10 20:20`
 - **Component / Service:** `services/auth` / `service_auth`
-- **Task:** `TASK-03: Reusable OTP Service & Transport Engine`
+- **Task:** `TASK-04: Unified Passwordless Email Authentication API`
 - **Summary:**
-  Implemented standalone, platform-wide Reusable OTP Service keyed by opaque `requestId` (UUID) in `services/auth`. Features HMAC-SHA-256 timing-safe verification, 3-attempt caps with explicit structured error responses (`error: "Invalid verification code."`, `remainingAttempts`, `maxAttempts`, and specific error codes: `INVALID_CODE`, `OTP_EXPIRED`, `ALREADY_VERIFIED`, `MAX_ATTEMPTS_EXCEEDED`, `REQUEST_NOT_FOUND`), 60-second cooldown rate limiting (`RATE_LIMITED`), branded Coral Sunset email templates, Resend Nodemailer SMTP transport (`smtp.resend.com:465` with verified domain support), zero-cost `ConsoleOtpTransport` for test/dev, and Swagger/OpenAPI documentation at `/api/docs` and `/api/docs.json`. Verified with `vitest` (48 tests across 5 test suites), live PostgreSQL container queries, and workspace-wide `turbo typecheck`.
+  Implemented unified single-entry passwordless email authentication API (`POST /api/auth/email/initiate` and `POST /api/auth/email/verify`) in `services/auth`. Features automatic `isNewUser: true/false` detection, moderation status protection (blocked/deleted accounts return 403), cryptographic JWT token issuance (`jose`) for 15-minute access tokens, 30-day session refresh tokens, and scoped 2-hour onboarding tokens. Includes complete repository layers (`UserRepository` and `SessionRepository`), Express controller and route bindings, full OpenAPI/Swagger documentation, and 71 passed tests.
 
 ---
 
@@ -39,3 +39,4 @@
 | 18 | [`web_admin_product_crud`](./web_admin_product_crud/TASK_LIST.md) | `TASK-06` | Maintenance Windows Scheduling Interface | [`TASK_06_IMPLEMENTATION_GUIDE.md`](./web_admin_product_crud/TASK_06_IMPLEMENTATION_GUIDE.md) | 2026-11-04 | Next.js Build + Vitest + TypeScript + ESLint |
 | 19 | [`web_admin_product_crud`](./web_admin_product_crud/TASK_LIST.md) | `TASK-07` | Version Control & Release Track Manager | [`TASK_07_IMPLEMENTATION_GUIDE.md`](./web_admin_product_crud/TASK_07_IMPLEMENTATION_GUIDE.md) | 2026-11-04 | Next.js Build + Vitest + TypeScript + ESLint |
 | 20 | [`service_auth`](./service_auth/TASK_LIST.md) | `TASK-03` | Reusable OTP Service & Transport Engine | [`TASK_03_IMPLEMENTATION_GUIDE.md`](./service_auth/TASK_03_IMPLEMENTATION_GUIDE.md) | 2026-11-09 | Vitest (48 tests) + PostgreSQL + TypeScript |
+| 21 | [`service_auth`](./service_auth/TASK_LIST.md) | `TASK-04` | Unified Passwordless Email Authentication API | [`TASK_04_IMPLEMENTATION_GUIDE.md`](./service_auth/TASK_04_IMPLEMENTATION_GUIDE.md) | 2026-11-10 | Vitest (71 tests) + PostgreSQL + TypeScript |
