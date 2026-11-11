@@ -25,7 +25,15 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 // OpenAPI / Swagger Documentation
-app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(openApiDocument))
+app.use(
+  "/api/docs",
+  swaggerUi.serve,
+  swaggerUi.setup(openApiDocument, {
+    swaggerOptions: {
+      persistAuthorization: true,
+    },
+  })
+)
 app.get("/api/docs.json", (_req: Request, res: Response) => {
   res.setHeader("Content-Type", "application/json")
   res.json(openApiDocument)

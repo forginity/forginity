@@ -12,6 +12,7 @@ import {
   RefreshSessionSchema,
   SwitchProductSchema,
   RevokeSessionSchema,
+  OnboardingProfileSchema,
 } from "../db/auth.validator.js"
 
 // Patch Zod with OpenAPI methods
@@ -628,6 +629,80 @@ registry.registerPath({
     },
     404: {
       description: "No active session found",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+  },
+})
+
+export const OnboardingResponseSchema = z
+  .object({
+    success: z.boolean().openapi({ example: true }),
+    user: UserResponseSchema,
+    session: z.object({
+      accessToken: z.string().openapi({ example: "eyJhbGciOiJIUzI1NiIsIn..." }),
+      refreshToken: z.string().openapi({ example: "eyJhbGciOiJIUzI1NiIsIn..." }),
+      expiresIn: z.number().openapi({ example: 900 }),
+    }),
+  })
+  .openapi("OnboardingResponse", {
+    description: "Response from profile onboarding with updated user and upgraded session tokens",
+  })
+
+// 11. Profile Onboarding Route
+registry.registerPath({
+  method: "post",
+  path: "/api/auth/onboarding",
+  tags: ["Onboarding"],
+  summary: "Complete Mandatory Profile Onboarding",
+  description:
+    "Captures first name, last name, gender, and ISO country code per Figma Node 179:509. Guarded strictly by the 2-hour scoped onboardingToken. Flips isOnboarded to true and upgrades session to production tokens.",
+  security: [{ BearerAuth: [] }],
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: OnboardingProfileSchema,
+          example: {
+            firstName: "Alex",
+            lastName: "Rider",
+            gender: "male",
+            country: "US",
+          },
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: "Profile onboarding completed successfully; returns active session and user entity",
+      content: {
+        "application/json": {
+          schema: OnboardingResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: "Validation error in profile fields",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    401: {
+      description: "Missing or invalid onboarding token",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    403: {
+      description: "Account is blocked or deleted",
       content: {
         "application/json": {
           schema: ErrorResponseSchema,

@@ -25,6 +25,7 @@
 | `TASK-03` | Telecom Gateway Integration & Carrier Routing | Pluggable adapters for Twilio, AWS SNS, MSG91, and Meta WhatsApp Business API | [`TASK_03_IMPLEMENTATION_GUIDE.md`](./TASK_03_IMPLEMENTATION_GUIDE.md) | `PENDING` |
 | `TASK-04` | Telephony Toll-Fraud Defense & Geo-Fencing | Phone verification risk scoring, anti-pumping protection, carrier cost caps | [`TASK_04_IMPLEMENTATION_GUIDE.md`](./TASK_04_IMPLEMENTATION_GUIDE.md) | `PENDING` |
 | `TASK-05` | Admin Console RBAC & Mutating Endpoints Guard | Route guards & UI permissions restricting create, edit, delete actions to Admin role | [`TASK_05_IMPLEMENTATION_GUIDE.md`](./TASK_05_IMPLEMENTATION_GUIDE.md) | `PENDING` |
+| `TASK-06` | Auth Service RBAC & Account Moderation Guards | Role-based authorization policies restricting user block, unblock, and soft-delete to Admin/Moderator | [`TASK_06_IMPLEMENTATION_GUIDE.md`](./TASK_06_IMPLEMENTATION_GUIDE.md) | `PENDING` |
 
 ---
 
@@ -52,3 +53,8 @@
 - **Description:** Enforce administrative role verification on all mutating product actions (create, edit, delete, maintenance scheduling) in `apps/admin`.
   Conditionally hide or disable mutation controls for read-only / support operators, returning clean authorization error toasts once `services/auth` RBAC tokens are fully integrated.
 - **Guide:** [`TASK_05_IMPLEMENTATION_GUIDE.md`](./TASK_05_IMPLEMENTATION_GUIDE.md)
+
+### `TASK-06`: Auth Service RBAC & Account Moderation Guards (Moved from V1)
+- **Description:** Enforce administrative role verification on account moderation endpoints (administrative block/unblock, soft delete, and account restoration) in `services/auth`.
+  Restricts moderation capabilities strictly to authenticated users carrying valid administrative claims/roles in their session tokens.
+- **Guide:** [`TASK_06_IMPLEMENTATION_GUIDE.md`](./TASK_06_IMPLEMENTATION_GUIDE.md)

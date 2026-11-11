@@ -7,11 +7,11 @@
 
 ## 1. LAST UPDATE
 
-- **Timestamp:** `2026-11-10 22:08`
+- **Timestamp:** `2026-11-11 21:40`
 - **Component / Service:** `services/auth` / `service_auth`
-- **Task:** `TASK-05: User Session Management & Token Engine`
+- **Task:** `TASK-06: Mandatory Profile Onboarding API`
 - **Summary:**
-  Implemented centralized SSO session management and token lifecycle engine (`POST /api/auth/session`, `POST /api/auth/session/refresh`, `POST /api/auth/session/switch-product`, `POST /api/auth/session/revoke`, `POST /api/auth/session/revoke-all`, and `GET /api/auth/session/me`) in `services/auth`. Features cryptographically secure refresh token rotation (RTR) with reuse detection, multi-tenant product switching, instant session revocation, Bearer JWT authentication middleware, complete OpenAPI/Swagger documentation, and 98 passing tests.
+  Implemented mandatory profile onboarding API (`POST /api/auth/onboarding`) in `services/auth`. Strictly guarded by 2-hour scoped onboardingToken, captures and validates profile details (firstName, lastName, gender, 2-letter ISO country code) per Figma Node 179:509, sets composite name, flips isOnboarded: true, and upgrades user to active production session tokens with full Swagger/OpenAPI documentation and 109 passing tests.
 
 ---
 
@@ -41,3 +41,4 @@
 | 20 | [`service_auth`](./service_auth/TASK_LIST.md) | `TASK-03` | Reusable OTP Service & Transport Engine | [`TASK_03_IMPLEMENTATION_GUIDE.md`](./service_auth/TASK_03_IMPLEMENTATION_GUIDE.md) | 2026-11-09 | Vitest (48 tests) + PostgreSQL + TypeScript |
 | 21 | [`service_auth`](./service_auth/TASK_LIST.md) | `TASK-04` | Unified Passwordless Email Authentication API | [`TASK_04_IMPLEMENTATION_GUIDE.md`](./service_auth/TASK_04_IMPLEMENTATION_GUIDE.md) | 2026-11-10 | Vitest (71 tests) + PostgreSQL + TypeScript |
 | 22 | [`service_auth`](./service_auth/TASK_LIST.md) | `TASK-05` | User Session Management & Token Engine | [`TASK_05_IMPLEMENTATION_GUIDE.md`](./service_auth/TASK_05_IMPLEMENTATION_GUIDE.md) | 2026-11-10 | Vitest (98 tests) + PostgreSQL + TypeScript |
+| 23 | [`service_auth`](./service_auth/TASK_LIST.md) | `TASK-06` | Mandatory Profile Onboarding API | [`TASK_06_IMPLEMENTATION_GUIDE.md`](./service_auth/TASK_06_IMPLEMENTATION_GUIDE.md) | 2026-11-11 | Vitest (109 tests) + PostgreSQL + TypeScript |

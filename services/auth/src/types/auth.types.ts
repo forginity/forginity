@@ -131,6 +131,7 @@ export type AuthErrorCode =
   | "SESSION_REVOKED"
   | "UNAUTHORIZED"
   | "FORBIDDEN"
+  | "ALREADY_ONBOARDED"
 
 export interface AuthErrorDetails {
   code: AuthErrorCode
@@ -188,4 +189,17 @@ export interface SessionMeResult {
   success: true
   user: SanitizedUser
   session: SessionInfo
+}
+
+/**
+ * 7. Onboarding Service Contracts
+ */
+export interface OnboardingResult {
+  success: true
+  user: SanitizedUser
+  session: {
+    accessToken: string
+    refreshToken: string
+    expiresIn: number
+  }
 }
