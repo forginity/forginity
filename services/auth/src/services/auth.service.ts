@@ -212,6 +212,7 @@ export class AuthService {
       const refreshToken = await signRefreshToken({
         userId: user.id,
         sessionId: sessionRecord.id,
+        tokenSecret: sessionTokenBytes,
       })
 
       return {
@@ -222,7 +223,7 @@ export class AuthService {
         session: {
           accessToken,
           refreshToken,
-          expiresIn: 900, // 15 minutes
+          expiresIn: 900, // 15 minutes- use for access Token
         },
       }
     }

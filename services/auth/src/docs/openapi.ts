@@ -9,6 +9,9 @@ import {
   VerifyOtpRequestSchema,
   InitiateEmailAuthSchema,
   VerifyEmailAuthSchema,
+  RefreshSessionSchema,
+  SwitchProductSchema,
+  RevokeSessionSchema,
 } from "../db/auth.validator.js"
 
 // Patch Zod with OpenAPI methods
@@ -39,19 +42,7 @@ export const HealthResponseSchema = z
 export const ErrorResponseSchema = z
   .object({
     error: z.string().openapi({ example: "Invalid verification code." }),
-    code: z
-      .enum([
-        "REQUEST_NOT_FOUND",
-        "OTP_EXPIRED",
-        "ALREADY_VERIFIED",
-        "MAX_ATTEMPTS_EXCEEDED",
-        "INVALID_CODE",
-        "RATE_LIMITED",
-        "DISPATCH_FAILED",
-        "PHONE_VERIFICATION_DEFERRED",
-      ])
-      .optional()
-      .openapi({ example: "INVALID_CODE" }),
+    code: z.string().optional().openapi({ example: "INVALID_CODE" }),
     remainingAttempts: z.number().int().optional().openapi({ example: 2 }),
     maxAttempts: z.number().int().optional().openapi({ example: 3 }),
     issues: z
@@ -366,6 +357,277 @@ registry.registerPath({
     },
     403: {
       description: "Account is blocked or deleted",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+  },
+})
+
+export const SessionTokensResponseSchema = z
+  .object({
+    success: z.boolean().openapi({ example: true }),
+    session: z.object({
+      accessToken: z.string().openapi({ example: "eyJhbGciOiJIUzI1NiIsIn..." }),
+      refreshToken: z.string().openapi({ example: "eyJhbGciOiJIUzI1NiIsIn..." }),
+      expiresIn: z.number().openapi({ example: 900 }),
+    }),
+  })
+  .openapi("SessionTokensResponse", {
+    description: "Refreshed and rotated session tokens",
+  })
+
+export const SwitchProductResponseSchema = z
+  .object({
+    success: z.boolean().openapi({ example: true }),
+    accessToken: z.string().openapi({ example: "eyJhbGciOiJIUzI1NiIsIn..." }),
+    currentProductId: z.string().uuid().openapi({ example: "550e8400-e29b-41d4-a716-446655440002" }),
+    currentSection: z.string().nullable().optional().openapi({ example: "dashboard" }),
+    expiresIn: z.number().openapi({ example: 900 }),
+  })
+  .openapi("SwitchProductResponse", {
+    description: "Updated access token with new active product context",
+  })
+
+export const RevokeSessionResponseSchema = z
+  .object({
+    success: z.boolean().openapi({ example: true }),
+    message: z.string().openapi({ example: "Session successfully revoked." }),
+  })
+  .openapi("RevokeSessionResponse")
+
+export const RevokeAllSessionsResponseSchema = z
+  .object({
+    success: z.boolean().openapi({ example: true }),
+    message: z.string().openapi({ example: "All user sessions successfully revoked." }),
+    revokedCount: z.number().int().openapi({ example: 2 }),
+  })
+  .openapi("RevokeAllSessionsResponse")
+
+export const SessionMeResponseSchema = z
+  .object({
+    success: z.boolean().openapi({ example: true }),
+    user: UserResponseSchema,
+    session: z.object({
+      id: z.string().uuid().openapi({ example: "550e8400-e29b-41d4-a716-446655440000" }),
+      userId: z.string().uuid().openapi({ example: "550e8400-e29b-41d4-a716-446655440001" }),
+      currentProductId: z.string().uuid().nullable().optional(),
+      currentSection: z.string().nullable().optional(),
+      ipAddress: z.string().nullable().optional(),
+      userAgent: z.string().nullable().optional(),
+      deviceType: z.string().nullable().optional(),
+      expiresAt: z.date().or(z.string()),
+      lastActiveAt: z.date().or(z.string()),
+      createdAt: z.date().or(z.string()),
+    }),
+  })
+  .openapi("SessionMeResponse")
+
+// 6. Session Refresh Route
+registry.registerPath({
+  method: "post",
+  path: "/api/auth/session/refresh",
+  tags: ["Session Management"],
+  summary: "Refresh Session Tokens with Token Rotation",
+  description:
+    "Accepts a 30-day refresh token, verifies its signature and database standing in auth_db.sessions, rotates the refresh token secret to eliminate replay attacks, and issues a fresh 15-minute access JWT.",
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: RefreshSessionSchema,
+          example: {
+            refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+          },
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: "Session refreshed and rotated successfully",
+      content: {
+        "application/json": {
+          schema: SessionTokensResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: "Invalid request payload or malformed token",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    401: {
+      description: "Expired, revoked, or reused refresh token",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    403: {
+      description: "Account is blocked or deleted",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+  },
+})
+
+// 7. Multi-Tenant Product Switch Route
+registry.registerPath({
+  method: "post",
+  path: "/api/auth/session/switch-product",
+  tags: ["Session Management"],
+  summary: "Switch Active Product Context",
+  description:
+    "Updates the active product ID on the user session and issues a new access token containing updated product claims.",
+  security: [{ BearerAuth: [] }],
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: SwitchProductSchema,
+          example: {
+            productId: "550e8400-e29b-41d4-a716-446655440002",
+            section: "rider-map",
+          },
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: "Switched product context successfully",
+      content: {
+        "application/json": {
+          schema: SwitchProductResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: "Invalid product ID format",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    401: {
+      description: "Missing or invalid Bearer access token",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    403: {
+      description: "Account is blocked or deleted",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+  },
+})
+
+// 8. Revoke Single Session Route
+registry.registerPath({
+  method: "post",
+  path: "/api/auth/session/revoke",
+  tags: ["Session Management"],
+  summary: "Revoke Single Session (Logout)",
+  description:
+    "Revokes the session corresponding to the provided refresh token or active session.",
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: RevokeSessionSchema,
+          example: {
+            refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+          },
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: "Session revoked successfully",
+      content: {
+        "application/json": {
+          schema: RevokeSessionResponseSchema,
+        },
+      },
+    },
+  },
+})
+
+// 9. Revoke All Sessions Route
+registry.registerPath({
+  method: "post",
+  path: "/api/auth/session/revoke-all",
+  tags: ["Session Management"],
+  summary: "Revoke All Sessions for User (Global Logout)",
+  description:
+    "Deletes all active sessions across all devices for the authenticated user.",
+  security: [{ BearerAuth: [] }],
+  responses: {
+    200: {
+      description: "All sessions revoked successfully",
+      content: {
+        "application/json": {
+          schema: RevokeAllSessionsResponseSchema,
+        },
+      },
+    },
+    401: {
+      description: "Unauthorized",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+  },
+})
+
+// 10. Current Session Me Route
+registry.registerPath({
+  method: "get",
+  path: "/api/auth/session/me",
+  tags: ["Session Management"],
+  summary: "Get Current Active Session & User Profile",
+  description:
+    "Retrieves the authenticated user profile and active session metadata.",
+  security: [{ BearerAuth: [] }],
+  responses: {
+    200: {
+      description: "Current session retrieved successfully",
+      content: {
+        "application/json": {
+          schema: SessionMeResponseSchema,
+        },
+      },
+    },
+    401: {
+      description: "Unauthorized",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    404: {
+      description: "No active session found",
       content: {
         "application/json": {
           schema: ErrorResponseSchema,

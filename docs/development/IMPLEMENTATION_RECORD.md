@@ -7,18 +7,18 @@
 
 ## 1. LAST UPDATE
 
-- **Timestamp:** `2026-11-10 20:20`
+- **Timestamp:** `2026-11-10 22:08`
 - **Component / Service:** `services/auth` / `service_auth`
-- **Task:** `TASK-04: Unified Passwordless Email Authentication API`
+- **Task:** `TASK-05: User Session Management & Token Engine`
 - **Summary:**
-  Implemented unified single-entry passwordless email authentication API (`POST /api/auth/email/initiate` and `POST /api/auth/email/verify`) in `services/auth`. Features automatic `isNewUser: true/false` detection, moderation status protection (blocked/deleted accounts return 403), cryptographic JWT token issuance (`jose`) for 15-minute access tokens, 30-day session refresh tokens, and scoped 2-hour onboarding tokens. Includes complete repository layers (`UserRepository` and `SessionRepository`), Express controller and route bindings, full OpenAPI/Swagger documentation, and 71 passed tests.
+  Implemented centralized SSO session management and token lifecycle engine (`POST /api/auth/session`, `POST /api/auth/session/refresh`, `POST /api/auth/session/switch-product`, `POST /api/auth/session/revoke`, `POST /api/auth/session/revoke-all`, and `GET /api/auth/session/me`) in `services/auth`. Features cryptographically secure refresh token rotation (RTR) with reuse detection, multi-tenant product switching, instant session revocation, Bearer JWT authentication middleware, complete OpenAPI/Swagger documentation, and 98 passing tests.
 
 ---
 
 ## 2. COMPLETED TASKS
 
 | # | Service / Component | Task ID | Task Title | Guide File | Completed Date | Verified By |
-| :-: | :--- | :--- | :--- | :--- | :--- :---: | :--- |
+| :-: | :--- | :--- | :--- | :--- | :---: | :--- |
 | 1 | [`service_products`](./service_products/TASK_LIST.md) | `TASK-01` | Scaffold `services/products` package and configs | [`TASK_01_IMPLEMENTATION_GUIDE.md`](./service_products/TASK_01_IMPLEMENTATION_GUIDE.md) | 2026-10-24 | TypeScript + Vitest |
 | 2 | [`service_products`](./service_products/TASK_LIST.md) | `TASK-02` | Build database schemas, relations, and migrations | [`TASK_02_IMPLEMENTATION_GUIDE.md`](./service_products/TASK_02_IMPLEMENTATION_GUIDE.md) | 2026-10-24 | Drizzle Kit + PostgreSQL |
 | 3 | [`service_products`](./service_products/TASK_LIST.md) | `TASK-03` | Implement Product, Feature, Maintenance, and Version CRUD APIs & Service Layer | [`TASK_03_IMPLEMENTATION_GUIDE.md`](./service_products/TASK_03_IMPLEMENTATION_GUIDE.md) | 2026-10-24 | Vitest (17 tests) + Supertest |
@@ -40,3 +40,4 @@
 | 19 | [`web_admin_product_crud`](./web_admin_product_crud/TASK_LIST.md) | `TASK-07` | Version Control & Release Track Manager | [`TASK_07_IMPLEMENTATION_GUIDE.md`](./web_admin_product_crud/TASK_07_IMPLEMENTATION_GUIDE.md) | 2026-11-04 | Next.js Build + Vitest + TypeScript + ESLint |
 | 20 | [`service_auth`](./service_auth/TASK_LIST.md) | `TASK-03` | Reusable OTP Service & Transport Engine | [`TASK_03_IMPLEMENTATION_GUIDE.md`](./service_auth/TASK_03_IMPLEMENTATION_GUIDE.md) | 2026-11-09 | Vitest (48 tests) + PostgreSQL + TypeScript |
 | 21 | [`service_auth`](./service_auth/TASK_LIST.md) | `TASK-04` | Unified Passwordless Email Authentication API | [`TASK_04_IMPLEMENTATION_GUIDE.md`](./service_auth/TASK_04_IMPLEMENTATION_GUIDE.md) | 2026-11-10 | Vitest (71 tests) + PostgreSQL + TypeScript |
+| 22 | [`service_auth`](./service_auth/TASK_LIST.md) | `TASK-05` | User Session Management & Token Engine | [`TASK_05_IMPLEMENTATION_GUIDE.md`](./service_auth/TASK_05_IMPLEMENTATION_GUIDE.md) | 2026-11-10 | Vitest (98 tests) + PostgreSQL + TypeScript |

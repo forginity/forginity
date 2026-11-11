@@ -25,6 +25,7 @@ export interface RefreshTokenPayload extends JWTPayload {
   sub: string // User UUID
   sessionId: string // Session UUID
   scope: "refresh"
+  tokenSecret?: string // Random session secret for rotation verification
 }
 
 export interface OnboardingTokenPayload extends JWTPayload {
@@ -125,8 +126,66 @@ export type AuthErrorCode =
   | "TOKEN_EXPIRED"
   | "INVALID_CREDENTIALS"
   | "VALIDATION_ERROR"
+  | "SESSION_NOT_FOUND"
+  | "SESSION_EXPIRED"
+  | "SESSION_REVOKED"
+  | "UNAUTHORIZED"
+  | "FORBIDDEN"
 
 export interface AuthErrorDetails {
   code: AuthErrorCode
   issues?: Array<{ field: string; message: string }>
+}
+
+/**
+ * 6. Session Service Contracts
+ */
+export interface RefreshSessionInput {
+  refreshToken: string
+}
+
+export interface SwitchProductInput {
+  productId: string
+  section?: string
+}
+
+export interface RevokeSessionInput {
+  refreshToken?: string
+  sessionId?: string
+}
+
+export interface SessionTokensResult {
+  success: true
+  session: {
+    accessToken: string
+    refreshToken: string
+    expiresIn: number
+  }
+}
+
+export interface SwitchProductResult {
+  success: true
+  accessToken: string
+  currentProductId: string
+  currentSection?: string | null
+  expiresIn: number
+}
+
+export interface SessionInfo {
+  id: string
+  userId: string
+  currentProductId: string | null
+  currentSection: string | null
+  ipAddress: string | null
+  userAgent: string | null
+  deviceType: string | null
+  expiresAt: Date
+  lastActiveAt: Date
+  createdAt: Date
+}
+
+export interface SessionMeResult {
+  success: true
+  user: SanitizedUser
+  session: SessionInfo
 }

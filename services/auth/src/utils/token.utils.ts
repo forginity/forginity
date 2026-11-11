@@ -46,12 +46,14 @@ export async function signAccessToken(payload: {
 export async function signRefreshToken(payload: {
   userId: string
   sessionId: string
+  tokenSecret?: string
 }): Promise<string> {
   const secretKey = getJwtSecretKey()
 
   return new SignJWT({
     sessionId: payload.sessionId,
     scope: "refresh",
+    ...(payload.tokenSecret ? { tokenSecret: payload.tokenSecret } : {}),
   })
     .setProtectedHeader({ alg: "HS256" })
     .setSubject(payload.userId)

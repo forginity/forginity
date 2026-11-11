@@ -166,8 +166,19 @@ export type CreateSessionInput = z.infer<typeof CreateSessionSchema>
 
 export const SwitchProductSchema = z.object({
   productId: z.string().uuid("Invalid product ID"),
+  section: z.string().trim().max(100).optional(),
 })
 export type SwitchProductInput = z.infer<typeof SwitchProductSchema>
+
+export const RefreshSessionSchema = z.object({
+  refreshToken: z.string().trim().min(1, "Refresh token is required"),
+})
+export type RefreshSessionInput = z.infer<typeof RefreshSessionSchema>
+
+export const RevokeSessionSchema = z.object({
+  refreshToken: z.string().trim().min(1, "Refresh token is required").optional(),
+})
+export type RevokeSessionInput = z.infer<typeof RevokeSessionSchema>
 
 /**
  * User Products Schemas

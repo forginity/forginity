@@ -188,7 +188,10 @@ export class OtpService {
     }
 
     if (new Date() > new Date(record.expiresAt)) {
-      const remainingAttempts = Math.max(0, record.maxAttempts - record.attempts)
+      const remainingAttempts = Math.max(
+        0,
+        record.maxAttempts - record.attempts
+      )
       throw new OtpServiceError(
         "Verification code has expired. Please request a new code.",
         400,
@@ -218,7 +221,10 @@ export class OtpService {
     if (!isValid) {
       const updated = await this.repository.incrementOtpAttempts(record.id)
       const currentAttempts = updated ? updated.attempts : record.attempts + 1
-      const remainingAttempts = Math.max(0, record.maxAttempts - currentAttempts)
+      const remainingAttempts = Math.max(
+        0,
+        record.maxAttempts - currentAttempts
+      )
 
       if (remainingAttempts <= 0) {
         throw new OtpServiceError(
@@ -232,15 +238,11 @@ export class OtpService {
         )
       }
 
-      throw new OtpServiceError(
-        "Invalid verification code.",
-        400,
-        {
-          code: "INVALID_CODE",
-          remainingAttempts,
-          maxAttempts: record.maxAttempts,
-        }
-      )
+      throw new OtpServiceError("Invalid verification code.", 400, {
+        code: "INVALID_CODE",
+        remainingAttempts,
+        maxAttempts: record.maxAttempts,
+      })
     }
 
     // 3. Mark OTP as verified

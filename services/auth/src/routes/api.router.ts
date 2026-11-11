@@ -2,6 +2,7 @@ import { Router } from "express"
 import { healthRouter } from "./health.route.js"
 import { otpRouter } from "./otp.route.js"
 import { authRouter } from "./auth.route.js"
+import { sessionRouter } from "./session.route.js"
 
 export const apiRouter = Router()
 
@@ -9,3 +10,4 @@ export const apiRouter = Router()
 apiRouter.use("/health", healthRouter)
 apiRouter.use("/otp", otpRouter)
 apiRouter.use("/email", authRouter)
+apiRouter.use("/session", sessionRouter)
