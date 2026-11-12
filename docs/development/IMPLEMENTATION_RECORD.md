@@ -7,11 +7,11 @@
 
 ## 1. LAST UPDATE
 
-- **Timestamp:** `2026-11-11 21:40`
+- **Timestamp:** `2026-11-12 21:00`
 - **Component / Service:** `services/auth` / `service_auth`
-- **Task:** `TASK-06: Mandatory Profile Onboarding API`
+- **Task:** `TASK-07: Social Authentication (Google OAuth 2.0 / OIDC)`
 - **Summary:**
-  Implemented mandatory profile onboarding API (`POST /api/auth/onboarding`) in `services/auth`. Strictly guarded by 2-hour scoped onboardingToken, captures and validates profile details (firstName, lastName, gender, 2-letter ISO country code) per Figma Node 179:509, sets composite name, flips isOnboarded: true, and upgrades user to active production session tokens with full Swagger/OpenAPI documentation and 109 passing tests.
+  Implemented Google OAuth 2.0 / OIDC social authentication (`POST /api/auth/google`) in `services/auth`. Features remote JWKS verification using `jose` against Google's public certificates, deterministic identity resolution and account linking, moderation enforcement, smart session and onboarding routing, full OpenAPI/Swagger documentation, and 133 passing tests.
 
 ---
 
@@ -42,3 +42,4 @@
 | 21 | [`service_auth`](./service_auth/TASK_LIST.md) | `TASK-04` | Unified Passwordless Email Authentication API | [`TASK_04_IMPLEMENTATION_GUIDE.md`](./service_auth/TASK_04_IMPLEMENTATION_GUIDE.md) | 2026-11-10 | Vitest (71 tests) + PostgreSQL + TypeScript |
 | 22 | [`service_auth`](./service_auth/TASK_LIST.md) | `TASK-05` | User Session Management & Token Engine | [`TASK_05_IMPLEMENTATION_GUIDE.md`](./service_auth/TASK_05_IMPLEMENTATION_GUIDE.md) | 2026-11-10 | Vitest (98 tests) + PostgreSQL + TypeScript |
 | 23 | [`service_auth`](./service_auth/TASK_LIST.md) | `TASK-06` | Mandatory Profile Onboarding API | [`TASK_06_IMPLEMENTATION_GUIDE.md`](./service_auth/TASK_06_IMPLEMENTATION_GUIDE.md) | 2026-11-11 | Vitest (109 tests) + PostgreSQL + TypeScript |
+| 24 | [`service_auth`](./service_auth/TASK_LIST.md) | `TASK-07` | Social Authentication (Google OAuth 2.0 / OIDC) | [`TASK_07_IMPLEMENTATION_GUIDE.md`](./service_auth/TASK_07_IMPLEMENTATION_GUIDE.md) | 2026-11-12 | Vitest (133 tests) + PostgreSQL + TypeScript |

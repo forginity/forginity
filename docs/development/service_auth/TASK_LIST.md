@@ -34,7 +34,7 @@
 | `TASK-04` | Unified Passwordless Email Authentication API   | `POST /api/auth/email/initiate` (`isNewUser` detection) & `POST /api/auth/email/verify`      | [`TASK_04_IMPLEMENTATION_GUIDE.md`](./TASK_04_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
 | `TASK-05` | User Session Management & Token Engine          | `POST /api/auth/session` (15m Access JWT, 30d Refresh token, `auth_db.sessions`, revocation) | [`TASK_05_IMPLEMENTATION_GUIDE.md`](./TASK_05_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
 | `TASK-06` | Mandatory Profile Onboarding API                | `POST /api/auth/onboarding` (Name, Gender, Country per Figma `179:509`), session upgrade     | [`TASK_06_IMPLEMENTATION_GUIDE.md`](./TASK_06_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
-| `TASK-07` | Social Authentication (Google OAuth 2.0 / OIDC) | Google ID token verification, account linking, routes to session or onboarding (Target: Nov 12) | [`TASK_07_IMPLEMENTATION_GUIDE.md`](./TASK_07_IMPLEMENTATION_GUIDE.md) | `PENDING`   |
+| `TASK-07` | Social Authentication (Google OAuth 2.0 / OIDC) | Google ID token verification, account linking, routes to session or onboarding (Target: Nov 12) | [`TASK_07_IMPLEMENTATION_GUIDE.md`](./TASK_07_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
 | `TASK-08` | User Profile & Emergency Contacts API           | `GET/PUT /api/users/me` profile manager, emergency contact CRUD sub-resources (Target: Nov 13) | [`TASK_08_IMPLEMENTATION_GUIDE.md`](./TASK_08_IMPLEMENTATION_GUIDE.md) | `PENDING`   |
 | `TASK-09` | User Lifecycle & Account Moderation CRUD API     | Soft deletion, admin block/unblock, restore, and instant session revocation. RBAC in V2 (Target: Nov 14) | [`TASK_09_IMPLEMENTATION_GUIDE.md`](./TASK_09_IMPLEMENTATION_GUIDE.md) | `PENDING`   |
 

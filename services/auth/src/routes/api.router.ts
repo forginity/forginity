@@ -4,6 +4,7 @@ import { otpRouter } from "./otp.route.js"
 import { authRouter } from "./auth.route.js"
 import { sessionRouter } from "./session.route.js"
 import { onboardingRouter } from "./onboarding.route.js"
+import { googleAuthRouter } from "./google-auth.route.js"
 
 export const apiRouter = Router()
 
@@ -11,5 +12,6 @@ export const apiRouter = Router()
 apiRouter.use("/health", healthRouter)
 apiRouter.use("/otp", otpRouter)
 apiRouter.use("/email", authRouter)
+apiRouter.use("/google", googleAuthRouter)
 apiRouter.use("/session", sessionRouter)
 apiRouter.use("/onboarding", onboardingRouter)

@@ -46,6 +46,8 @@ export interface CreateUserInput {
   email: string
   name?: string
   authProvider?: string
+  googleId?: string
+  avatarUrl?: string
   isVerified?: boolean
   isEmailVerified?: boolean
   isPhoneVerified?: boolean
@@ -117,6 +119,52 @@ export type VerifyEmailAuthResult =
   | VerifyEmailAuthNewUserResult
   | VerifyEmailAuthPendingOnboardingResult
   | VerifyEmailAuthOnboardedResult
+
+/**
+ * 6. Google Auth Contracts
+ */
+export interface GoogleTokenClaims {
+  sub: string
+  email: string
+  email_verified?: boolean
+  name?: string
+  picture?: string
+  given_name?: string
+  family_name?: string
+}
+
+export interface GoogleAuthNewUserResult {
+  success: true
+  isNewUser: true
+  isOnboarded: false
+  user: SanitizedUser
+  onboardingToken: string
+}
+
+export interface GoogleAuthPendingOnboardingResult {
+  success: true
+  isNewUser: false
+  isOnboarded: false
+  user: SanitizedUser
+  onboardingToken: string
+}
+
+export interface GoogleAuthOnboardedResult {
+  success: true
+  isNewUser: false
+  isOnboarded: true
+  user: SanitizedUser
+  session: {
+    accessToken: string
+    refreshToken: string
+    expiresIn: number
+  }
+}
+
+export type GoogleAuthResult =
+  | GoogleAuthNewUserResult
+  | GoogleAuthPendingOnboardingResult
+  | GoogleAuthOnboardedResult
 
 export type AuthErrorCode =
   | "ACCOUNT_BLOCKED"

@@ -39,6 +39,16 @@ export class UserRepository {
     return result[0] || null
   }
 
+  async findUserByGoogleId(googleId: string): Promise<User | null> {
+    const result = await this.client
+      .select()
+      .from(users)
+      .where(eq(users.googleId, googleId))
+      .limit(1)
+
+    return result[0] || null
+  }
+
   async createUser(input: CreateUserInput): Promise<User> {
     const normalizedEmail = input.email.toLowerCase().trim()
 
@@ -48,6 +58,8 @@ export class UserRepository {
         email: normalizedEmail,
         name: input.name,
         authProvider: input.authProvider || "email_otp",
+        googleId: input.googleId,
+        avatarUrl: input.avatarUrl,
         isVerified: input.isVerified ?? false,
         isEmailVerified: input.isEmailVerified ?? false,
         isPhoneVerified: input.isPhoneVerified ?? false,

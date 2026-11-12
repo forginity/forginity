@@ -9,6 +9,7 @@ import {
   VerifyOtpRequestSchema,
   InitiateEmailAuthSchema,
   VerifyEmailAuthSchema,
+  GoogleAuthSchema,
   RefreshSessionSchema,
   SwitchProductSchema,
   RevokeSessionSchema,
@@ -142,6 +143,34 @@ export const VerifyEmailAuthResponseSchema = z
   })
   .openapi("VerifyEmailAuthResponse", {
     description: "Verification response returning onboardingToken or active session",
+  })
+
+export const GoogleAuthResponseSchema = z
+  .object({
+    success: z.boolean().openapi({ example: true }),
+    isNewUser: z.boolean().openapi({
+      example: false,
+      description: "True if a new user account was registered; false if returning user",
+    }),
+    isOnboarded: z.boolean().openapi({
+      example: true,
+      description: "True if profile onboarding is complete; false if onboarding is required",
+    }),
+    user: UserResponseSchema,
+    onboardingToken: z.string().optional().openapi({
+      example: "eyJhbGciOiJIUzI1NiIsIn...",
+      description: "2-hour scoped JWT token returned when isOnboarded is false for mandatory onboarding",
+    }),
+    session: z
+      .object({
+        accessToken: z.string().openapi({ example: "eyJhbGciOiJIUzI1NiIsIn..." }),
+        refreshToken: z.string().openapi({ example: "eyJhbGciOiJIUzI1NiIsIn..." }),
+        expiresIn: z.number().openapi({ example: 900 }),
+      })
+      .optional(),
+  })
+  .openapi("GoogleAuthResponse", {
+    description: "Response from Google authentication returning onboardingToken or active session",
   })
 
 // 1. Health Route
@@ -358,6 +387,63 @@ registry.registerPath({
     },
     403: {
       description: "Account is blocked or deleted",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+  },
+})
+
+// 6. Google Social Auth Route
+registry.registerPath({
+  method: "post",
+  path: "/api/auth/google",
+  tags: ["Authentication"],
+  summary: "Google OAuth 2.0 / OIDC Social Authentication",
+  description:
+    "Verifies Google ID token cryptographically using remote JWKS. Performs automatic account linking and provisions new user or returns session tokens.",
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: GoogleAuthSchema,
+          example: {
+            idToken: "eyJhbGciOiJSUzI1NiIsImtpZCI6...",
+            productId: "550e8400-e29b-41d4-a716-446655440000",
+          },
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: "Google authentication successful; returns session tokens or onboarding token",
+      content: {
+        "application/json": {
+          schema: GoogleAuthResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: "Invalid request body or malformed payload",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    401: {
+      description: "Invalid, expired, or unverified Google ID token",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    403: {
+      description: "Account is blocked or soft-deleted",
       content: {
         "application/json": {
           schema: ErrorResponseSchema,

@@ -14,5 +14,6 @@ describe("Auth OpenAPI / Swagger Integration", () => {
     expect(res.status).toBe(200)
     expect(res.body.components.securitySchemes).toHaveProperty("BearerAuth")
     expect(res.body.paths["/api/auth/onboarding"].post.security).toEqual([{ BearerAuth: [] }])
+    expect(res.body.paths["/api/auth/google"].post).toBeDefined()
   })
 })
