@@ -2,16 +2,16 @@
 
 ## 1. COMPONENT DETAILS
 
-- **Component Name:** `apps/admin` (Admin Authentication & User Moderation Suite)
-- **Domain:** Forginity Admin Console Authentication, RBAC, and User Management
-- **Purpose:** Secure the Forginity Admin Portal (`apps/admin`) with administrative authentication, HTTP-only session cookies, Next.js middleware protected route guards, and an administrative user management directory via integration with `services/auth`.
+- **Component Name:** `apps/admin` (Admin Authentication & User Directory Suite)
+- **Domain:** Forginity Admin Console Authentication, Directory, and Moderation
+- **Purpose:** Secure the Forginity Admin Portal (`apps/admin`) with passwordless administrative login (Email + OTP), HTTP-only session cookies, Next.js middleware protected route guards, and an administrative user management directory via integration with `services/auth`.
 - **Key Features & Flows:**
-  - Dedicated admin login screen with client Zod validation.
-  - HTTP-only cookie session handling and Next.js auth proxy handlers.
-  - Next.js middleware route protection redirecting unauthenticated requests.
-  - User directory search and profile inspection table.
-  - User moderation actions: role assignment, account suspension, and soft deletion.
-- **Tech Stack:** Next.js 16 (App Router), React 19, Tailwind CSS v4, Shadcn UI (`@workspace/ui`), TypeScript.
+  - Dedicated admin passwordless login screen (Email entry, 6-digit OTP prompt, client Zod validation).
+  - HTTP-only cookie session handling and Next.js route middleware protecting `/users`, `/products`, etc.
+  - Interactive user directory data table at `/users` consuming `services/auth` `GET /api/users` with search, status filtering, and pagination.
+  - View User detail drawer / modal consuming `GET /api/users/:userId` with full user metadata, emergency contacts, and moderation actions (`active`, `blocked`, `deleted`).
+- **Tech Stack:** Next.js 16 (App Router), React 19, Tailwind CSS v4, Shadcn UI (`@workspace/ui`), TypeScript, TanStack Query v5.
+- **Component Status:** `PENDING` (0/3 tasks completed; target deadline: **Tomorrow, 2026-11-14**).
 - **Central Implementation Record:** [`../IMPLEMENTATION_RECORD.md`](../IMPLEMENTATION_RECORD.md)
 - **Overall Progress:** [`../PROGRESS.md`](../PROGRESS.md)
 
@@ -21,37 +21,36 @@
 
 | Task ID | Task Title | Key Deliverable | Guide File | Status |
 | :--- | :--- | :--- | :--- | :--- |
-| `TASK-01` | Admin Sign-In Screen | Credentials form with email and admin password, client Zod validation | [`TASK_01_IMPLEMENTATION_GUIDE.md`](./TASK_01_IMPLEMENTATION_GUIDE.md) | `PENDING` |
-| `TASK-02` | HTTP-Only Cookie Session & Next.js Proxy Routes | Secure session cookie setting, server route handlers for auth proxying | [`TASK_02_IMPLEMENTATION_GUIDE.md`](./TASK_02_IMPLEMENTATION_GUIDE.md) | `PENDING` |
-| `TASK-03` | Next.js Middleware Route Protection | Middleware interceptor checking admin token, redirecting unauthorized requests | [`TASK_03_IMPLEMENTATION_GUIDE.md`](./TASK_03_IMPLEMENTATION_GUIDE.md) | `PENDING` |
-| `TASK-04` | User Directory & Role Management UI | Admin views to search users, inspect accounts, and assign admin/support roles | [`TASK_04_IMPLEMENTATION_GUIDE.md`](./TASK_04_IMPLEMENTATION_GUIDE.md) | `PENDING` |
-| `TASK-05` | Account Suspension & Deletion Moderation Actions | Trigger suspend/unblock or soft-delete endpoints via `services/auth` | [`TASK_05_IMPLEMENTATION_GUIDE.md`](./TASK_05_IMPLEMENTATION_GUIDE.md) | `PENDING` |
+| `TASK-01` | Login Screen UI & Login API Integration (Email + OTP) | Responsive `/login` view, email OTP initiation & verify form, HTTP-only session cookies, and Next.js `middleware.ts` route protection | [`TASK_01_IMPLEMENTATION_GUIDE.md`](./TASK_01_IMPLEMENTATION_GUIDE.md) | `PENDING` |
+| `TASK-02` | User List UI & Directory API Integration | Interactive responsive data table at `/users`, TanStack Query fetching `GET /api/users`, search filter, status tabs, pagination, and zero-CLS skeleton | [`TASK_02_IMPLEMENTATION_GUIDE.md`](./TASK_02_IMPLEMENTATION_GUIDE.md) | `PENDING` |
+| `TASK-03` | View User UI & Account Moderation Integration | Slide-over user detail drawer at `/users` consuming `GET /api/users/:userId`, contact stats, and block/unblock action dialogs triggering `PATCH /api/users/:userId/status` | [`TASK_03_IMPLEMENTATION_GUIDE.md`](./TASK_03_IMPLEMENTATION_GUIDE.md) | `PENDING` |
 
 ---
 
 ## 3. TASK LIST
 
-### `TASK-01`: Admin Sign-In Screen
-- **Description:** Build responsive login view at `/login` with email and password inputs.
-  Validate inputs using Zod and submit authentication requests to `services/auth`.
-- **Guide:** [`TASK_01_IMPLEMENTATION_GUIDE.md`](./TASK_01_IMPLEMENTATION_GUIDE.md) (Covers scope, step-by-step code, test cases, and security gates.)
+### `TASK-01`: Login Screen UI & Login API Integration (Email + OTP)
+- **Target Completion Date:** 2026-11-14 (Tomorrow)
+- **Description:** Build responsive login view at `/login` supporting two-step passwordless Email + OTP authentication:
+  - Step 1: Input admin email address, validate format via Zod, and dispatch `POST /api/auth/email/initiate` to `services/auth`.
+  - Step 2: Render 6-digit numeric OTP input code screen, submit verification to `POST /api/auth/email/verify`.
+  - Enforce `userType === "admin"` check. If caller is not an admin, reject with unauthorized notification.
+  - Store JWT tokens in secure HTTP-only cookies (`admin_session`) and configure root Next.js `middleware.ts` to guard `/`, `/users`, and `/products`.
+- **Guide:** [`TASK_01_IMPLEMENTATION_GUIDE.md`](./TASK_01_IMPLEMENTATION_GUIDE.md)
 
-### `TASK-02`: HTTP-Only Cookie Session & Next.js Proxy Routes
-- **Description:** Implement Next.js App Router route handlers at `/api/auth/session` to store JWT tokens in encrypted HTTP-only cookies.
-  Expose session retrieval helper for React Server Components.
-- **Guide:** [`TASK_02_IMPLEMENTATION_GUIDE.md`](./TASK_02_IMPLEMENTATION_GUIDE.md) (Covers scope, step-by-step code, test cases, and security gates.)
+### `TASK-02`: User List UI & Directory API Integration
+- **Target Completion Date:** 2026-11-14 (Tomorrow)
+- **Description:** Build user management directory data table at `/users` consuming `services/auth` `GET /api/users`:
+  - Connect TanStack Query `useQuery` hook with debounced search input (by name or email) and status tab filter (`All`, `Active`, `Blocked`, `Deleted`).
+  - Render touch-friendly horizontal scroll table (`min-w-[850px]`) with avatar, full name, provider badge, verification indicators, and formatted timestamps.
+  - Implement zero-CLS loading skeleton matching table container geometry and row count.
+- **Guide:** [`TASK_02_IMPLEMENTATION_GUIDE.md`](./TASK_02_IMPLEMENTATION_GUIDE.md)
 
-### `TASK-03`: Next.js Middleware Route Protection
-- **Description:** Configure root Next.js `middleware.ts` to inspect session tokens on all protected routes.
-  Redirect unauthenticated or non-admin users to `/login` with return URL preservation.
-- **Guide:** [`TASK_03_IMPLEMENTATION_GUIDE.md`](./TASK_03_IMPLEMENTATION_GUIDE.md) (Covers scope, step-by-step code, test cases, and security gates.)
-
-### `TASK-04`: User Directory & Role Management UI
-- **Description:** Build user management data table at `/users` consuming `services/auth` user listing endpoints.
-  Support filtering by email, registration date, and role (`user`, `support`, `admin`).
-- **Guide:** [`TASK_04_IMPLEMENTATION_GUIDE.md`](./TASK_04_IMPLEMENTATION_GUIDE.md) (Covers scope, step-by-step code, test cases, and security gates.)
-
-### `TASK-05`: Account Suspension & Deletion Moderation Actions
-- **Description:** Implement moderation action buttons to suspend, unblock, or soft-delete user accounts.
-  Confirm destructive actions with a modal dialog and invoke administrative endpoints in `services/auth`.
-- **Guide:** [`TASK_05_IMPLEMENTATION_GUIDE.md`](./TASK_05_IMPLEMENTATION_GUIDE.md) (Covers scope, step-by-step code, test cases, and security gates.)
+### `TASK-03`: View User UI & Account Moderation Integration
+- **Target Completion Date:** 2026-11-14 (Tomorrow)
+- **Description:** Implement detailed user inspection drawer and moderation actions:
+  - Slide-over sheet component opening on row click, fetching full account profile via `GET /api/users/:userId` (demographics, emergency contacts count, active sessions).
+  - Moderation action triggers: Block User, Unblock User, and Soft Delete Account.
+  - Destructive action confirmation modal warning that blocking immediately purges all active database sessions across devices.
+  - Submit `PATCH /api/users/:userId/status` and invalidate TanStack Query cache.
+- **Guide:** [`TASK_03_IMPLEMENTATION_GUIDE.md`](./TASK_03_IMPLEMENTATION_GUIDE.md)

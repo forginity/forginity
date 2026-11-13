@@ -33,7 +33,8 @@ registry.registerComponent("securitySchemes", "BearerAuth", {
   type: "http",
   scheme: "bearer",
   bearerFormat: "JWT",
-  description: "Scoped Onboarding or SSO Session JWT",
+  description:
+    "Scoped Onboarding, SSO Session, or Administrative Access JWT",
 })
 
 // Common Schemas
@@ -188,6 +189,33 @@ registry.registerPath({
   tags: ["System"],
   summary: "Health Check",
   description: "Returns health status of the auth microservice and database connection.",
+  responses: {
+    200: {
+      description: "Service is healthy and database is connected",
+      content: {
+        "application/json": {
+          schema: HealthResponseSchema,
+        },
+      },
+    },
+    503: {
+      description: "Service or database is unhealthy",
+      content: {
+        "application/json": {
+          schema: HealthResponseSchema,
+        },
+      },
+    },
+  },
+})
+
+// 1b. Health Check Sub-Router Route (GET /api/auth/health)
+registry.registerPath({
+  method: "get",
+  path: "/api/auth/health",
+  tags: ["System"],
+  summary: "Auth Microservice Health Check",
+  description: "Mounted health check endpoint under the /api/auth microservice route hierarchy.",
   responses: {
     200: {
       description: "Service is healthy and database is connected",
@@ -578,6 +606,62 @@ registry.registerPath({
   },
 })
 
+// 6b. Session Refresh Alias Route (POST /api/auth/session)
+registry.registerPath({
+  method: "post",
+  path: "/api/auth/session",
+  tags: ["Session Management"],
+  summary: "Refresh Session Tokens (Root Session Alias)",
+  description:
+    "Direct alias for /api/auth/session/refresh to support RESTful session rotation requests.",
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: RefreshSessionSchema,
+          example: {
+            refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+          },
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: "Session refreshed and rotated successfully",
+      content: {
+        "application/json": {
+          schema: SessionTokensResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: "Invalid request payload or malformed token",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    401: {
+      description: "Expired, revoked, or reused refresh token",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    403: {
+      description: "Account is blocked or deleted",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+  },
+})
+
 // 7. Multi-Tenant Product Switch Route
 registry.registerPath({
   method: "post",
@@ -636,14 +720,15 @@ registry.registerPath({
   },
 })
 
-// 8. Revoke Single Session Route
+// 8. Revoke Single Session Route (Token Revocation)
 registry.registerPath({
   method: "post",
   path: "/api/auth/session/revoke",
   tags: ["Session Management"],
-  summary: "Revoke Single Session (Logout)",
+  summary: "Revoke Single Session (Token Revocation)",
   description:
-    "Revokes the session corresponding to the provided refresh token or active session.",
+    "Token-level session revocation endpoint. Revokes the session corresponding to the provided refresh token or active session.",
+  security: [{ BearerAuth: [] }, {}],
   request: {
     body: {
       content: {
@@ -665,15 +750,88 @@ registry.registerPath({
         },
       },
     },
+    400: {
+      description: "Invalid request payload",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    401: {
+      description: "Unauthorized: Invalid or expired Bearer token",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
   },
 })
 
-// 9. Revoke All Sessions Route
+// 8b. Authenticated Single Session Logout Route
+registry.registerPath({
+  method: "post",
+  path: "/api/auth/session/logout",
+  tags: ["Session Management"],
+  summary: "Logout Current Session",
+  description:
+    "Authenticated logout endpoint. Revokes the active session for the authenticated user using Bearer authentication (and optional refreshToken in body).",
+  security: [{ BearerAuth: [] }],
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: RevokeSessionSchema,
+          example: {
+            refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+          },
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: "Session successfully logged out and revoked",
+      content: {
+        "application/json": {
+          schema: RevokeSessionResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: "Invalid request payload",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    401: {
+      description: "Unauthorized: Missing, invalid, or expired Bearer token",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    403: {
+      description: "Forbidden: Account is blocked or deleted",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+  },
+})
+
+// 9. Revoke All Sessions Route (Global Revocation)
 registry.registerPath({
   method: "post",
   path: "/api/auth/session/revoke-all",
   tags: ["Session Management"],
-  summary: "Revoke All Sessions for User (Global Logout)",
+  summary: "Revoke All Sessions for User (Global Revocation)",
   description:
     "Deletes all active sessions across all devices for the authenticated user.",
   security: [{ BearerAuth: [] }],
@@ -688,6 +846,43 @@ registry.registerPath({
     },
     401: {
       description: "Unauthorized",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    403: {
+      description: "Forbidden: Account is blocked or deleted",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+  },
+})
+
+// 9b. Authenticated Global Logout Route (All Devices)
+registry.registerPath({
+  method: "post",
+  path: "/api/auth/session/logout-all",
+  tags: ["Session Management"],
+  summary: "Global Logout Across All Devices",
+  description:
+    "Revokes all active sessions across all devices for the authenticated user (global logout alias).",
+  security: [{ BearerAuth: [] }],
+  responses: {
+    200: {
+      description: "All sessions successfully revoked and logged out across all devices",
+      content: {
+        "application/json": {
+          schema: RevokeAllSessionsResponseSchema,
+        },
+      },
+    },
+    401: {
+      description: "Unauthorized: Missing, invalid, or expired Bearer token",
       content: {
         "application/json": {
           schema: ErrorResponseSchema,
@@ -1370,10 +1565,10 @@ const UpdateUserStatusResponseSchema = z.object({
 registry.registerPath({
   method: "get",
   path: "/api/users",
-  tags: ["User Profile"],
-  summary: "List Users Directory with Search & Pagination",
+  tags: ["Admin User Management"],
+  summary: "List Users Directory with Search & Pagination (Admin Only)",
   description:
-    "Retrieves a paginated list of platform users. Supports search by email or name, status filtering, and pagination.",
+    "Retrieves a paginated list of platform users. Restricted strictly to users with userType === 'admin'. Supports search by email or name, status filtering, and pagination.",
   security: [{ BearerAuth: [] }],
   request: {
     query: UserDirectoryQuerySchema,
@@ -1404,7 +1599,7 @@ registry.registerPath({
       },
     },
     403: {
-      description: "Forbidden: Administrative access required",
+      description: "Forbidden: Administrative access required (userType must be admin)",
       content: {
         "application/json": {
           schema: ErrorResponseSchema,
@@ -1418,10 +1613,10 @@ registry.registerPath({
 registry.registerPath({
   method: "get",
   path: "/api/users/{userId}",
-  tags: ["User Profile"],
-  summary: "Retrieve User Details & Verification Status",
+  tags: ["Admin User Management"],
+  summary: "Retrieve User Details & Verification Status (Admin Only)",
   description:
-    "Retrieves full details for a single user by UUID, including linked emergency contacts count and active sessions.",
+    "Retrieves full details for a single user by UUID, including linked emergency contacts count and active sessions. Restricted strictly to users with userType === 'admin'.",
   security: [{ BearerAuth: [] }],
   request: {
     params: UserIdParamSchema,
@@ -1452,7 +1647,7 @@ registry.registerPath({
       },
     },
     403: {
-      description: "Forbidden: Administrative access required",
+      description: "Forbidden: Administrative access required (userType must be admin)",
       content: {
         "application/json": {
           schema: ErrorResponseSchema,
@@ -1474,10 +1669,10 @@ registry.registerPath({
 registry.registerPath({
   method: "patch",
   path: "/api/users/{userId}/status",
-  tags: ["User Profile"],
-  summary: "Update User Status & Invalidate Active Sessions",
+  tags: ["Admin User Management"],
+  summary: "Update User Status & Invalidate Active Sessions (Admin Only)",
   description:
-    "Moderation endpoint to update user status (active, blocked, deleted). If status is set to blocked or deleted, immediately purges all active database sessions and refresh tokens across all devices.",
+    "Moderation endpoint to update user status (active, blocked, deleted). Restricted strictly to users with userType === 'admin'. If status is set to blocked or deleted, immediately purges all active database sessions and refresh tokens across all devices.",
   security: [{ BearerAuth: [] }],
   request: {
     params: UserIdParamSchema,

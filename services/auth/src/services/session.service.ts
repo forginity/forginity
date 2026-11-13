@@ -253,7 +253,8 @@ export class SessionService {
    */
   async revokeSession(
     input: RevokeSessionInput,
-    preferredSessionId?: string
+    preferredSessionId?: string,
+    userId?: string
   ): Promise<{ success: true; message: string }> {
     let targetSessionId = preferredSessionId
 
@@ -267,6 +268,13 @@ export class SessionService {
       } catch {
         // Idempotent return for invalid or expired tokens
         return { success: true, message: "Session successfully revoked." }
+      }
+    }
+
+    if (!targetSessionId && userId) {
+      const userSessions = await this.sessionRepo.findSessionsByUserId(userId)
+      if (userSessions.length > 0) {
+        targetSessionId = userSessions[0].id
       }
     }
 

@@ -76,7 +76,12 @@ export class SessionController {
     next: NextFunction
   ): Promise<void> => {
     try {
-      const result = await this.service.revokeSession(req.body)
+      const userId = req.user?.id
+      const result = await this.service.revokeSession(
+        req.body,
+        undefined,
+        userId
+      )
       res.status(200).json(result)
     } catch (error) {
       if (error instanceof SessionServiceError) {

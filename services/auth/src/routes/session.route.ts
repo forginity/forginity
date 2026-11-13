@@ -39,10 +39,21 @@ sessionRouter.post(
 
 /**
  * POST /api/auth/session/revoke
- * Revokes a single session (logout) via refresh token or active session.
+ * Token-level session revocation via refreshToken in request body.
  */
 sessionRouter.post(
   "/revoke",
+  validateRequest({ body: RevokeSessionSchema }),
+  sessionController.revokeSession
+)
+
+/**
+ * POST /api/auth/session/logout
+ * Authenticated single session logout via Bearer access token (and optional refreshToken).
+ */
+sessionRouter.post(
+  "/logout",
+  authenticate,
   validateRequest({ body: RevokeSessionSchema }),
   sessionController.revokeSession
 )
@@ -53,6 +64,15 @@ sessionRouter.post(
  */
 sessionRouter.post(
   "/revoke-all",
+  authenticate,
+  sessionController.revokeAllSessions
+)
+
+/**
+ * POST /api/auth/session/logout-all (Alias for /revoke-all)
+ */
+sessionRouter.post(
+  "/logout-all",
   authenticate,
   sessionController.revokeAllSessions
 )

@@ -51,12 +51,13 @@ It serves as the single source of truth for user accounts, credential issuance, 
 | `POST` | `/api/auth/email/verify` | Verify email OTP; issues onboardingToken or session | No | Public |
 | `POST` | `/api/auth/google` | Google Social Sign-In via Google ID token | No | Public |
 | `POST` | `/api/auth/onboarding` | Complete first-time user profile onboarding | Yes | Onboarding Token |
-| `POST` | `/api/auth/session/refresh` | Rotate session refresh token and issue access token | No | Refresh Token Body |
+| `POST` | `/api/auth/session/refresh` | Rotate session refresh token and issue access token (alias: `/api/auth/session`) | No | Refresh Token Body |
+| `POST` | `/api/auth/session/revoke` | Revoke a single session via refresh token (token-level revocation) | No | Refresh Token Body |
+| `POST` | `/api/auth/session/logout` | Authenticated session logout via Bearer token (and optional refreshToken) | Yes | Access Token |
+| `POST` | `/api/auth/session/revoke-all` | Revoke all active sessions for authenticated user (global revocation) | Yes | Access Token |
+| `POST` | `/api/auth/session/logout-all` | Authenticated global logout across all devices | Yes | Access Token |
+| `POST` | `/api/auth/session/switch-product` | Switch session product context without re-auth | Yes | Access Token |
 | `GET` | `/api/auth/session/me` | Retrieve active session details and user profile | Yes | Access Token |
-| `POST` | `/api/auth/sessions/switch-product` | Switch session product context without re-auth | Yes | Access Token |
-| `GET` | `/api/auth/sessions` | List all active sessions across devices | Yes | Access Token |
-| `DELETE` | `/api/auth/sessions` | Revoke all active sessions (global sign-out) | Yes | Access Token |
-| `DELETE` | `/api/auth/sessions/:sessionId` | Revoke a single specific active session by UUID | Yes | Access Token |
 | `GET` | `/api/users/me` | Retrieve authenticated user profile | Yes | Access Token |
 | `PUT` | `/api/users/me` | Update personal profile information | Yes | Access Token |
 | `DELETE` | `/api/users/me` | Soft-delete own account and terminate sessions | Yes | Access Token |

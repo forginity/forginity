@@ -200,6 +200,28 @@ describe("Session Routes (/api/auth/session)", () => {
       expect(res.body.success).toBe(true)
       expect(res.body.message).toBe("Session successfully revoked.")
     })
+
+    it("should also resolve via the /api/auth/session/logout alias when authenticated", async () => {
+      vi.spyOn(sessionService, "revokeSession").mockResolvedValue({
+        success: true,
+        message: "Session successfully revoked.",
+      })
+
+      const res1 = await request(app)
+        .post("/api/auth/session/logout")
+        .set("Authorization", `Bearer ${validAccessToken}`)
+        .send({ refreshToken: "mock.refresh.token" })
+      expect(res1.status).toBe(200)
+      expect(res1.body.success).toBe(true)
+    })
+
+    it("should return 401 Unauthorized for /api/auth/session/logout when Bearer token is omitted", async () => {
+      const res = await request(app)
+        .post("/api/auth/session/logout")
+        .send({ refreshToken: "mock.refresh.token" })
+      expect(res.status).toBe(401)
+      expect(res.body.code).toBe("UNAUTHORIZED")
+    })
   })
 
   describe("POST /api/auth/session/revoke-all", () => {
@@ -212,6 +234,23 @@ describe("Session Routes (/api/auth/session)", () => {
 
       const res = await request(app)
         .post("/api/auth/session/revoke-all")
+        .set("Authorization", `Bearer ${validAccessToken}`)
+        .send()
+
+      expect(res.status).toBe(200)
+      expect(res.body.success).toBe(true)
+      expect(res.body.revokedCount).toBe(3)
+    })
+
+    it("should also resolve via the /api/auth/session/logout-all alias", async () => {
+      vi.spyOn(sessionService, "revokeAllSessions").mockResolvedValueOnce({
+        success: true,
+        message: "All user sessions successfully revoked.",
+        revokedCount: 3,
+      })
+
+      const res = await request(app)
+        .post("/api/auth/session/logout-all")
         .set("Authorization", `Bearer ${validAccessToken}`)
         .send()
 
