@@ -27,6 +27,7 @@ describe("Onboarding Route (POST /api/auth/onboarding)", () => {
     isEmailVerified: true,
     isPhoneVerified: false,
     isOnboarded: false,
+    userType: "user",
     status: "active",
     createdAt: new Date(),
     updatedAt: new Date(),

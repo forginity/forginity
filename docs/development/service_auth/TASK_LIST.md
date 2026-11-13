@@ -13,11 +13,12 @@
   - Mandatory Profile Onboarding collecting First Name, Last Name, Gender, and Country per Figma Node `179:509`.
   - User lifecycle management: Edit Profile, Emergency Contacts, Soft Delete, and Admin Block/Unblock.
 - **Tech Stack:** Express, TypeScript, PostgreSQL 18, Drizzle ORM, Zod, Redis 7, `jose`, Nodemailer / Resend SMTP, Vitest, Supertest.
-- **Service Status:** `IN_PROGRESS` (6/9 tasks completed; final deadline: Sunday, 2026-11-14).
+- **Service Status:** `COMPLETED` (10/10 tasks completed = 100%).
 - **Milestone Schedule:**
-  - `TASK-07` (Google OAuth 2.0 / OIDC): **2026-11-12**
-  - `TASK-08` (Profile & Emergency Contacts): **2026-11-13**
-  - `TASK-09` (User Lifecycle & Moderation CRUD): **2026-11-14** (Full Service Completion)
+  - `TASK-07` (Google OAuth 2.0 / OIDC): **2026-11-12** (COMPLETED)
+  - `TASK-08` (Profile & Emergency Contacts): **2026-11-13** (COMPLETED)
+  - `TASK-09` (User Lifecycle & Self-Service Account Deletion): **2026-11-13** (COMPLETED)
+  - `TASK-10` (Admin User Management Suite & RBAC Authorization): **2026-11-13** (COMPLETED)
 - **Reference Service:** [`services/products`](file:///home/vikas/Documents/forginity/services/products)
 - **Central Implementation Record:** [`../IMPLEMENTATION_RECORD.md`](../IMPLEMENTATION_RECORD.md)
 - **Overall Progress:** [`../PROGRESS.md`](../PROGRESS.md)
@@ -37,7 +38,7 @@
 | `TASK-07` | Social Authentication (Google OAuth 2.0 / OIDC) | Google ID token verification, account linking, routes to session or onboarding (Target: Nov 12) | [`TASK_07_IMPLEMENTATION_GUIDE.md`](./TASK_07_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
 | `TASK-08` | User Profile & Emergency Contacts API           | `GET/PUT /api/users/me` profile manager, emergency contact CRUD sub-resources (Target: Nov 13) | [`TASK_08_IMPLEMENTATION_GUIDE.md`](./TASK_08_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
 | `TASK-09` | User Lifecycle & Self-Service Account Deletion API | `DELETE /api/users/me` soft deletion, recovery, and instant session purge (Target: Nov 13) | [`TASK_09_IMPLEMENTATION_GUIDE.md`](./TASK_09_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
-| `TASK-10` | Admin User Management Suite (API & Admin UI) | User directory, detail view, block/unblock API & Next.js Admin UI at `/users` (Target: Nov 14) | [`TASK_10_IMPLEMENTATION_GUIDE.md`](./TASK_10_IMPLEMENTATION_GUIDE.md) | `PENDING`   |
+| `TASK-10` | Admin User Management Suite (API & RBAC Authorization) | User directory, detail inspection, status moderation APIs & userType RBAC guard | [`TASK_10_IMPLEMENTATION_GUIDE.md`](./TASK_10_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
 
 ---
 
@@ -104,16 +105,14 @@
   - Instant cross-service session purging engine.
 - **Guide:** [`TASK_09_IMPLEMENTATION_GUIDE.md`](./TASK_09_IMPLEMENTATION_GUIDE.md)
 
-### `TASK-10`: Admin User Management Suite (API & Admin UI)
+### `TASK-10`: Admin User Management Suite (API & RBAC Authorization)
 
-- **Target Completion Date:** 2026-11-14 (Full `services/auth` microservice completion)
-- **Description:** Implement comprehensive administration capabilities across API and UI:
+- **Target Completion Date:** 2026-11-13 (Full `services/auth` microservice completion)
+- **Description:** Implement backend administrative directory and moderation capabilities with strict RBAC:
+  - **Database & RBAC Foundation:** Added `user_type` column to `users` table and `requireAdmin` guard requiring `userType === "admin"`. Non-admin requests receive `403 FORBIDDEN`.
   - **Backend APIs (`services/auth`):**
     - `GET /api/users`: List users with search by name/email, status filtering (`?status=active|blocked|deleted`), and pagination (`limit`, `offset`).
     - `GET /api/users/:userId`: View single user detail with joined auth providers, products, and contact statistics.
     - `PATCH /api/users/:userId/status`: Block, unblock, or suspend user accounts with immediate cross-service session invalidation.
-  - **Admin UI (`apps/admin`):**
-    - User directory data table view at `/users`.
-    - User detail view/drawer.
-    - Block / Unblock action triggers with confirmation modal dialogs.
+  - *Note:* Shared client SDK and Web Admin UI are tracked independently under the dedicated Web Admin Auth initiative in `PROGRESS.md`.
 - **Guide:** [`TASK_10_IMPLEMENTATION_GUIDE.md`](./TASK_10_IMPLEMENTATION_GUIDE.md)

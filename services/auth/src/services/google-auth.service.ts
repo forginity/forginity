@@ -167,7 +167,8 @@ export class GoogleAuthService {
         userId: user.id,
         email: user.email!,
         currentProductId: input.productId,
-        role: user.status,
+        role: user.userType,
+        userType: user.userType,
       })
 
       const refreshToken = await signRefreshToken({

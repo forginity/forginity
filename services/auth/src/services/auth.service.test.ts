@@ -51,6 +51,7 @@ describe("AuthService Unit Tests", () => {
           isEmailVerified: input.isEmailVerified ?? false,
           isPhoneVerified: input.isPhoneVerified ?? false,
           isOnboarded: input.isOnboarded ?? false,
+          userType: input.userType || "user",
           status: input.status || "active",
           createdAt: new Date(),
           updatedAt: new Date(),

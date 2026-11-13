@@ -35,6 +35,7 @@ export const users = pgTable(
     isEmailVerified: boolean("is_email_verified").notNull().default(false),
     isPhoneVerified: boolean("is_phone_verified").notNull().default(false),
     isOnboarded: boolean("is_onboarded").notNull().default(false),
+    userType: varchar("user_type", { length: 50 }).notNull().default("user"), // 'user', 'admin'
     status: varchar("status", { length: 50 }).notNull().default("active"), // 'active', 'blocked', 'deleted'
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
@@ -45,6 +46,7 @@ export const users = pgTable(
     uniqueIndex("users_google_id_idx").on(table.googleId),
     index("users_status_idx").on(table.status),
     index("users_auth_provider_idx").on(table.authProvider),
+    index("users_user_type_idx").on(table.userType),
   ]
 )
 

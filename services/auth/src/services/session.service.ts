@@ -171,7 +171,8 @@ export class SessionService {
       userId: user.id,
       email: user.email!,
       currentProductId: session.currentProductId || undefined,
-      role: user.status,
+      userType: user.userType,
+      role: user.userType,
     })
 
     const refreshToken = await signRefreshToken({
@@ -234,7 +235,8 @@ export class SessionService {
       userId: user.id,
       email: user.email!,
       currentProductId: input.productId,
-      role: user.status,
+      userType: user.userType,
+      role: user.userType,
     })
 
     return {

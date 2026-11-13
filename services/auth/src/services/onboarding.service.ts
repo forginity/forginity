@@ -103,10 +103,12 @@ export class OnboardingService {
       userAgent: context?.userAgent,
     })
 
+    const userRole = updatedUser?.userType || user.userType || "user"
     const accessToken = await signAccessToken({
       userId: user.id,
       email: user.email!,
-      role: user.status,
+      role: userRole,
+      userType: userRole,
     })
 
     const refreshToken = await signRefreshToken({

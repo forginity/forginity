@@ -19,6 +19,8 @@ import {
   UpdateEmergencyContactSchema,
   ContactIdParamSchema,
   UserIdParamSchema,
+  UserDirectoryQuerySchema,
+  UpdateUserStatusSchema,
 } from "../db/auth.validator.js"
 
 // Patch Zod with OpenAPI methods
@@ -123,6 +125,7 @@ export const UserResponseSchema = z
     isEmailVerified: z.boolean().openapi({ example: true }),
     isPhoneVerified: z.boolean().openapi({ example: false }),
     isOnboarded: z.boolean().openapi({ example: false }),
+    userType: z.string().openapi({ example: "user" }),
     status: z.string().openapi({ example: "active" }),
     createdAt: z.date().or(z.string()).openapi({ example: "2026-11-10T20:00:00.000Z" }),
     updatedAt: z.date().or(z.string()).openapi({ example: "2026-11-10T20:00:00.000Z" }),
@@ -691,6 +694,14 @@ registry.registerPath({
         },
       },
     },
+    403: {
+      description: "Forbidden: Account is blocked or deleted",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
   },
 })
 
@@ -714,6 +725,14 @@ registry.registerPath({
     },
     401: {
       description: "Unauthorized",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    403: {
+      description: "Forbidden: Account is blocked or deleted",
       content: {
         "application/json": {
           schema: ErrorResponseSchema,
@@ -977,6 +996,14 @@ registry.registerPath({
         },
       },
     },
+    403: {
+      description: "Forbidden: Account is blocked or deleted",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
   },
 })
 
@@ -1028,6 +1055,14 @@ registry.registerPath({
         },
       },
     },
+    403: {
+      description: "Forbidden: Account is blocked or deleted",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
   },
 })
 
@@ -1053,6 +1088,14 @@ registry.registerPath({
     },
     401: {
       description: "Unauthorized",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    403: {
+      description: "Forbidden: Account is blocked or deleted",
       content: {
         "application/json": {
           schema: ErrorResponseSchema,
@@ -1119,6 +1162,14 @@ registry.registerPath({
         },
       },
     },
+    403: {
+      description: "Forbidden: Account is blocked or deleted",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
     404: {
       description: "Contact not found",
       content: {
@@ -1152,6 +1203,14 @@ registry.registerPath({
     },
     401: {
       description: "Unauthorized",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    403: {
+      description: "Forbidden: Account is blocked or deleted",
       content: {
         "application/json": {
           schema: ErrorResponseSchema,
@@ -1224,6 +1283,14 @@ registry.registerPath({
         },
       },
     },
+    403: {
+      description: "Forbidden: Account is blocked or deleted",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
   },
 })
 
@@ -1249,6 +1316,206 @@ registry.registerPath({
     },
     401: {
       description: "Unauthorized",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    403: {
+      description: "Forbidden: Account is blocked or deleted",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    404: {
+      description: "User not found",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+  },
+})
+
+const UserDirectoryResponseSchema = z.object({
+  success: z.literal(true),
+  users: z.array(UserResponseSchema),
+  pagination: z.object({
+    total: z.number().int(),
+    limit: z.number().int(),
+    offset: z.number().int(),
+    hasMore: z.boolean(),
+  }),
+})
+
+const AdminUserDetailsResponseSchema = z.object({
+  success: z.literal(true),
+  user: UserResponseSchema,
+  emergencyContacts: z.array(EmergencyContactSchema),
+  activeSessionsCount: z.number().int(),
+})
+
+const UpdateUserStatusResponseSchema = z.object({
+  success: z.literal(true),
+  message: z.string(),
+  user: UserResponseSchema,
+  revokedSessionsCount: z.number().int(),
+})
+
+// Route 21: GET /api/users
+registry.registerPath({
+  method: "get",
+  path: "/api/users",
+  tags: ["User Profile"],
+  summary: "List Users Directory with Search & Pagination",
+  description:
+    "Retrieves a paginated list of platform users. Supports search by email or name, status filtering, and pagination.",
+  security: [{ BearerAuth: [] }],
+  request: {
+    query: UserDirectoryQuerySchema,
+  },
+  responses: {
+    200: {
+      description: "Users directory retrieved successfully",
+      content: {
+        "application/json": {
+          schema: UserDirectoryResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: "Invalid query parameters",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    401: {
+      description: "Unauthorized",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    403: {
+      description: "Forbidden: Administrative access required",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+  },
+})
+
+// Route 22: GET /api/users/{userId}
+registry.registerPath({
+  method: "get",
+  path: "/api/users/{userId}",
+  tags: ["User Profile"],
+  summary: "Retrieve User Details & Verification Status",
+  description:
+    "Retrieves full details for a single user by UUID, including linked emergency contacts count and active sessions.",
+  security: [{ BearerAuth: [] }],
+  request: {
+    params: UserIdParamSchema,
+  },
+  responses: {
+    200: {
+      description: "User details retrieved successfully",
+      content: {
+        "application/json": {
+          schema: AdminUserDetailsResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: "Invalid user ID UUID format",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    401: {
+      description: "Unauthorized",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    403: {
+      description: "Forbidden: Administrative access required",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    404: {
+      description: "User not found",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+  },
+})
+
+// Route 23: PATCH /api/users/{userId}/status
+registry.registerPath({
+  method: "patch",
+  path: "/api/users/{userId}/status",
+  tags: ["User Profile"],
+  summary: "Update User Status & Invalidate Active Sessions",
+  description:
+    "Moderation endpoint to update user status (active, blocked, deleted). If status is set to blocked or deleted, immediately purges all active database sessions and refresh tokens across all devices.",
+  security: [{ BearerAuth: [] }],
+  request: {
+    params: UserIdParamSchema,
+    body: {
+      content: {
+        "application/json": {
+          schema: UpdateUserStatusSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: "User status updated successfully",
+      content: {
+        "application/json": {
+          schema: UpdateUserStatusResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: "Validation error or invalid status transition",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    401: {
+      description: "Unauthorized",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    403: {
+      description: "Forbidden: Administrative access required",
       content: {
         "application/json": {
           schema: ErrorResponseSchema,

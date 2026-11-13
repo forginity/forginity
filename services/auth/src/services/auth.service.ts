@@ -207,7 +207,8 @@ export class AuthService {
       const accessToken = await signAccessToken({
         userId: user.id,
         email: user.email!,
-        role: user.status,
+        role: user.userType,
+        userType: user.userType,
       })
 
       const refreshToken = await signRefreshToken({

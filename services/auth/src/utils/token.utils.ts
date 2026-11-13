@@ -21,6 +21,7 @@ export async function signAccessToken(payload: {
   userId: string
   email: string
   currentProductId?: string
+  userType?: string
   role?: string
 }): Promise<string> {
   const secretKey = getJwtSecretKey()
@@ -29,7 +30,12 @@ export async function signAccessToken(payload: {
     email: payload.email,
     scope: "access",
     ...(payload.currentProductId ? { productId: payload.currentProductId } : {}),
-    ...(payload.role ? { role: payload.role } : {}),
+    ...(payload.userType ? { userType: payload.userType } : {}),
+    ...(payload.role
+      ? { role: payload.role }
+      : payload.userType
+        ? { role: payload.userType }
+        : {}),
   })
     .setProtectedHeader({ alg: "HS256" })
     .setSubject(payload.userId)

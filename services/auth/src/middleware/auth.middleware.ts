@@ -153,3 +153,25 @@ export function createOnboardingAuthMiddleware(userRepo: UserRepository = userRe
 }
 
 export const authenticateOnboarding = createOnboardingAuthMiddleware()
+
+/**
+ * Administrative Access Guard Middleware.
+ * Strictly verifies that the authenticated user possesses `userType === "admin"`.
+ * Returns 403 Forbidden with standard code "FORBIDDEN" for non-admin users.
+ */
+export function requireAdmin(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void {
+  const user = req.user
+  if (!user || user.userType !== "admin") {
+    res.status(403).json({
+      error: "Forbidden: Administrative access required",
+      code: "FORBIDDEN",
+    })
+    return
+  }
+  next()
+}
+

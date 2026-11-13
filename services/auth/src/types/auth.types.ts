@@ -19,6 +19,7 @@ export interface AccessTokenPayload extends JWTPayload {
   scope: "access"
   productId?: string
   role?: string
+  userType?: string
 }
 
 export interface RefreshTokenPayload extends JWTPayload {
@@ -52,6 +53,7 @@ export interface CreateUserInput {
   isEmailVerified?: boolean
   isPhoneVerified?: boolean
   isOnboarded?: boolean
+  userType?: string
   status?: string
   firstName?: string
   lastName?: string
@@ -288,4 +290,38 @@ export interface RestoreAccountResult {
   success: true
   message: string
   user: SanitizedUser
+}
+
+/**
+ * 10. Admin User Management Contracts
+ */
+export interface AdminUserListItem extends SanitizedUser {
+  emergencyContactsCount?: number
+}
+
+export interface UserDirectoryPagination {
+  total: number
+  limit: number
+  offset: number
+  hasMore: boolean
+}
+
+export interface UserDirectoryResult {
+  success: true
+  users: AdminUserListItem[]
+  pagination: UserDirectoryPagination
+}
+
+export interface AdminUserDetailsResult {
+  success: true
+  user: SanitizedUser
+  emergencyContacts: UserEmergencyContact[]
+  activeSessionsCount: number
+}
+
+export interface UpdateUserStatusResult {
+  success: true
+  message: string
+  user: SanitizedUser
+  revokedSessionsCount: number
 }

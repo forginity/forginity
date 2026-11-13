@@ -1,8 +1,8 @@
 import { Router } from "express"
-import { userProfileController } from "../controllers/user-profile.controller.js"
+import { userController } from "../controllers/user.controller.js"
 import { emergencyContactController } from "../controllers/emergency-contact.controller.js"
-import { userLifecycleController } from "../controllers/user-lifecycle.controller.js"
-import { authenticate } from "../middleware/auth.middleware.js"
+import { adminUserController } from "../controllers/admin-user.controller.js"
+import { authenticate, requireAdmin } from "../middleware/auth.middleware.js"
 import { validateRequest } from "../middleware/validate.middleware.js"
 import {
   UpdateUserProfileSchema,
@@ -10,6 +10,8 @@ import {
   UpdateEmergencyContactSchema,
   ContactIdParamSchema,
   UserIdParamSchema,
+  UserDirectoryQuerySchema,
+  UpdateUserStatusSchema,
 } from "../db/auth.validator.js"
 
 export const userRouter = Router()
@@ -20,15 +22,15 @@ userRouter.use(authenticate)
 /**
  * 1. User Profile & Self-Service Lifecycle Routes
  */
-userRouter.get("/me", userProfileController.getProfile)
+userRouter.get("/me", userController.getProfile)
 
 userRouter.put(
   "/me",
   validateRequest({ body: UpdateUserProfileSchema }),
-  userProfileController.updateProfile
+  userController.updateProfile
 )
 
-userRouter.delete("/me", userLifecycleController.deleteOwnAccount)
+userRouter.delete("/me", userController.deleteOwnAccount)
 
 /**
  * 2. Emergency Contacts Sub-Resource Routes (/me/emergency-contacts)
@@ -71,5 +73,32 @@ userRouter.delete(
 userRouter.post(
   "/:userId/restore",
   validateRequest({ params: UserIdParamSchema }),
-  userLifecycleController.restoreAccount
+  userController.restoreAccount
+)
+
+/**
+ * 4. Admin User Management Directory & Moderation Operations
+ */
+userRouter.get(
+  "/",
+  requireAdmin,
+  validateRequest({ query: UserDirectoryQuerySchema }),
+  adminUserController.listUsers
+)
+
+userRouter.patch(
+  "/:userId/status",
+  requireAdmin,
+  validateRequest({
+    params: UserIdParamSchema,
+    body: UpdateUserStatusSchema,
+  }),
+  adminUserController.updateUserStatus
+)
+
+userRouter.get(
+  "/:userId",
+  requireAdmin,
+  validateRequest({ params: UserIdParamSchema }),
+  adminUserController.getUserDetails
 )

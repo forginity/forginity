@@ -9,6 +9,9 @@ export type AuthProvider = z.infer<typeof AuthProviderEnum>
 export const UserStatusEnum = z.enum(["active", "blocked", "deleted"])
 export type UserStatus = z.infer<typeof UserStatusEnum>
 
+export const UserTypeEnum = z.enum(["user", "admin"])
+export type UserType = z.infer<typeof UserTypeEnum>
+
 export const GenderEnum = z.enum(["male", "female", "other", "prefer_not_to_say"])
 export type Gender = z.infer<typeof GenderEnum>
 
@@ -83,6 +86,7 @@ export const CreateUserSchema = z.object({
   gender: GenderEnum.optional(),
   country: z.string().regex(IsoCountryCodeRegex).optional(),
   avatarUrl: z.string().url().optional(),
+  userType: UserTypeEnum.default("user"),
   status: UserStatusEnum.default("active"),
 })
 export type CreateUserInput = z.infer<typeof CreateUserSchema>
@@ -216,3 +220,23 @@ export const UserIdParamSchema = z.object({
   userId: z.string().uuid("Invalid user ID UUID format"),
 })
 export type UserIdParam = z.infer<typeof UserIdParamSchema>
+
+/**
+ * Admin User Management Schemas
+ */
+export const UserDirectoryQuerySchema = z.object({
+  search: z.string().trim().max(100).optional(),
+  status: UserStatusEnum.optional(),
+  userType: UserTypeEnum.optional(),
+  authProvider: AuthProviderEnum.optional(),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+  offset: z.coerce.number().int().min(0).default(0),
+})
+export type UserDirectoryQueryInput = z.infer<typeof UserDirectoryQuerySchema>
+
+export const UpdateUserStatusSchema = z.object({
+  status: UserStatusEnum,
+  reason: z.string().trim().max(255).optional(),
+})
+export type UpdateUserStatusInput = z.infer<typeof UpdateUserStatusSchema>
+

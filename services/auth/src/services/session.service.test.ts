@@ -50,6 +50,7 @@ describe("SessionService Unit Tests", () => {
       isEmailVerified: true,
       isPhoneVerified: false,
       isOnboarded: true,
+      userType: "user",
       status: "active",
       createdAt: new Date(),
       updatedAt: new Date(),

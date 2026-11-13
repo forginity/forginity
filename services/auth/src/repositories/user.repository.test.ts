@@ -68,12 +68,30 @@ describe("UserRepository Database Operations", () => {
     expect(updated?.lastName).toBe("Rider")
     expect(updated?.isOnboarded).toBe(true)
 
-    // 5. Clean up
+    // 5. Test findUsersWithPagination & countUsers
+    const paginatedUsers = await userRepository.findUsersWithPagination({
+      search: "rider",
+      limit: 10,
+      offset: 0,
+    })
+    expect(paginatedUsers.length).toBeGreaterThanOrEqual(1)
+    expect(paginatedUsers.some((u) => u.id === created.id)).toBe(true)
+
+    const userCount = await userRepository.countUsers({
+      search: "rider",
+    })
+    expect(userCount).toBeGreaterThanOrEqual(1)
+
+    // 6. Test updateUserStatusById
+    const blocked = await userRepository.updateUserStatusById(created.id, "blocked")
+    expect(blocked?.status).toBe("blocked")
+
+    // 7. Clean up
     const deleted = await userRepository.deleteUserById(created.id)
     expect(deleted).toBe(true)
     createdUserId = null
 
-    // 6. Confirm deleted
+    // 8. Confirm deleted
     const missing = await userRepository.findUserById(created.id)
     expect(missing).toBeNull()
   })
