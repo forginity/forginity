@@ -6,29 +6,29 @@ import type {
 export function generateOtpEmailTemplate(
   options: GenerateOtpEmailOptions
 ): GeneratedEmail {
-  const { otp, purpose = "verification", expiresInMinutes = 10 } = options
+  const { otp, expiresInMinutes = 10 } = options
 
-  const formattedPurpose =
-    purpose === "authentication"
-      ? "Login & Verification"
-      : purpose === "sign_up"
-        ? "Sign Up Verification"
-        : purpose === "sign_in"
-          ? "Sign In Verification"
-          : "Verification Code"
+  const resolvedProductName = (
+    options.productName ||
+    process.env.PRODUCT_NAME ||
+    process.env.APP_NAME ||
+    "Forginity"
+  ).trim()
 
-  const subject = `Welcome to Forginity`
+  const subject = `Your One-Time Password (OTP) for Verification (${resolvedProductName})`
+  const currentYear = new Date().getFullYear()
 
   const text = `
-FORGINITY
+${resolvedProductName.toUpperCase()}
 
-${formattedPurpose}
-Your 6-digit verification code is: ${otp}
+Your One-Time Password (OTP) for Verification
 
-This code will expire in ${expiresInMinutes} minutes.
-If you did not request this verification code, you can safely ignore this email.
+Your verification code is: ${otp}
 
-— The Forginity Team
+This code expires in ${expiresInMinutes} minutes and can only be used once.
+If you did not request this verification code, please ignore this email.
+
+— The ${resolvedProductName} Team
 `.trim()
 
   const html = `
@@ -37,90 +37,121 @@ If you did not request this verification code, you can safely ignore this email.
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="x-apple-disable-message-reformatting">
+  <meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
   <title>${subject}</title>
+  <!--[if mso]>
+  <style type="text/css">
+    body, table, td {font-family: Arial, Helvetica, sans-serif !important;}
+  </style>
+  <![endif]-->
+  <style>
+    body {
+      margin: 0 !important;
+      padding: 0 !important;
+      background-color: #09090b !important;
+      -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+    }
+    table, td {
+      mso-table-lspace: 0pt;
+      mso-table-rspace: 0pt;
+      border-collapse: collapse;
+    }
+    img {
+      border: 0;
+      height: auto;
+      line-height: 100%;
+      outline: none;
+      text-decoration: none;
+    }
+    @media only screen and (max-width: 480px) {
+      .email-wrapper {
+        padding: 20px 12px !important;
+      }
+      .email-card {
+        padding: 24px 18px !important;
+      }
+      .brand-title {
+        font-size: 15px !important;
+      }
+      .heading-title {
+        font-size: 20px !important;
+      }
+      .otp-code {
+        font-size: 26px !important;
+        letter-spacing: 4px !important;
+      }
+    }
+  </style>
 </head>
-<body style="margin: 0; padding: 0; background-color: #0c0a09; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: #fafafa;">
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #0c0a09; padding: 40px 16px;">
+<body style="margin: 0; padding: 0; background-color: #09090b; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #f4f4f5;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" class="email-wrapper" style="width: 100%; background-color: #09090b; padding: 36px 16px; margin: 0;">
     <tr>
       <td align="center">
-        <!-- Main Container Card -->
-        <table role="presentation" width="100%" style="max-width: 480px; background-color: #18181b; border: 1px solid #27272a; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);" cellspacing="0" cellpadding="0" border="0">
+        <!--[if (gte mso 9)|(IE)]>
+        <table role="presentation" width="440" align="center" style="width: 440px;">
+        <tr>
+        <td>
+        <![endif]-->
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" class="email-card" style="max-width: 440px; width: 100%; background-color: #18181b; border: 1px solid #27272a; border-radius: 12px; padding: 32px 28px; box-sizing: border-box; text-align: left;">
           
-          <!-- Top Coral Accent Bar -->
+          <!-- Header / Brand -->
           <tr>
-            <td style="height: 4px; background: linear-gradient(90deg, #f97316 0%, #fb923c 50%, #f97316 100%);"></td>
-          </tr>
-
-          <!-- Header / Brand Section -->
-          <tr>
-            <td style="padding: 32px 32px 20px 32px; text-align: left;">
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
-                <tr>
-                  <td>
-                    <span style="font-size: 18px; font-weight: 800; letter-spacing: 0.1em; color: #fafafa; text-transform: uppercase;">
-                      FORGINITY
-                    </span>
-                    <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background-color: #f97316; margin-left: 4px; vertical-align: middle;"></span>
-                  </td>
-                  <td align="right">
-                    <span style="display: inline-block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 4px 8px; border-radius: 9999px; background-color: rgba(249, 115, 22, 0.15); color: #fb923c; border: 1px solid rgba(249, 115, 22, 0.3);">
-                      ${formattedPurpose}
-                    </span>
-                  </td>
-                </tr>
-              </table>
+            <td style="padding: 0 0 20px 0; border-bottom: 1px solid #27272a;">
+              <span class="brand-title" style="font-size: 16px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #fafafa;">
+                ${resolvedProductName}
+              </span>
             </td>
           </tr>
 
-          <!-- Content Section -->
+          <!-- Main Body -->
           <tr>
-            <td style="padding: 0 32px 32px 32px;">
-              <h1 style="margin: 0 0 12px 0; font-size: 22px; font-weight: 700; color: #fafafa; line-height: 1.3;">
-                Your Verification Code
+            <td style="padding: 24px 0 0 0;">
+              <h1 class="heading-title" style="margin: 0 0 10px 0; font-size: 22px; font-weight: 600; color: #fafafa; line-height: 1.3;">
+                Verification Code
               </h1>
-              <p style="margin: 0 0 24px 0; font-size: 14px; line-height: 1.6; color: #a1a1aa;">
-                Use the one-time verification code below to complete your authentication on the Forginity platform:
+              <p style="margin: 0 0 22px 0; font-size: 14px; line-height: 1.5; color: #a1a1aa;">
+                Use this one-time code to complete your verification for <strong style="color: #e4e4e7;">${resolvedProductName}</strong>:
               </p>
 
-              <!-- Prominent OTP Code Container -->
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 0 0 24px 0;">
+              <!-- OTP Code Box -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 0 0 22px 0;">
                 <tr>
-                  <td align="center" style="background-color: #09090b; border: 1px solid #27272a; border-radius: 8px; padding: 20px 16px;">
-                    <span style="font-family: 'SF Mono', Consolas, Monaco, 'Liberation Mono', Menlo, Courier, monospace; font-size: 32px; font-weight: 800; letter-spacing: 10px; color: #fb923c; display: inline-block; padding-left: 10px;">
+                  <td align="center" style="background-color: #09090b; border: 1px solid #27272a; border-radius: 8px; padding: 18px 12px;">
+                    <span class="otp-code" style="font-family: ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, 'Liberation Mono', monospace; font-size: 30px; font-weight: 700; letter-spacing: 6px; color: #f97316; display: inline-block;">
                       ${otp}
                     </span>
                   </td>
                 </tr>
               </table>
 
-              <!-- Expiry Alert -->
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 0 0 24px 0;">
-                <tr>
-                  <td style="background-color: rgba(39, 39, 42, 0.5); border-left: 3px solid #f97316; border-radius: 4px; padding: 10px 14px;">
-                    <p style="margin: 0; font-size: 12px; line-height: 1.5; color: #d4d4d8;">
-                      ⏳ This code is valid for <strong>${expiresInMinutes} minutes</strong> and can only be used once.
-                    </p>
-                  </td>
-                </tr>
-              </table>
-
-              <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #71717a;">
-                If you did not request this verification code, please ignore this email. Never share this code with anyone.
+              <!-- Expiry & Security Info -->
+              <p style="margin: 0 0 8px 0; font-size: 13px; line-height: 1.5; color: #d4d4d8;">
+                This code expires in <strong>${expiresInMinutes} minutes</strong> and can only be used once.
+              </p>
+              <p style="margin: 0; font-size: 12px; line-height: 1.5; color: #71717a;">
+                If you did not request this verification code, please ignore this email.
               </p>
             </td>
           </tr>
 
-          <!-- Footer Section -->
+          <!-- Minimal Footer -->
           <tr>
-            <td style="padding: 20px 32px; background-color: #121214; border-top: 1px solid #27272a; text-align: center;">
-              <p style="margin: 0; font-size: 11px; line-height: 1.6; color: #52525b;">
-                &copy; ${new Date().getFullYear()} Forginity Platform. All rights reserved.<br>
-                Secure Identity & Authentication Infrastructure.
+            <td style="padding: 24px 0 0 0; margin-top: 24px; border-top: 1px solid #27272a; text-align: center;">
+              <p style="margin: 0; font-size: 11px; line-height: 1.5; color: #52525b;">
+                &copy; ${currentYear} ${resolvedProductName}. All rights reserved.
               </p>
             </td>
           </tr>
 
         </table>
+        <!--[if (gte mso 9)|(IE)]>
+        </td>
+        </tr>
+        </table>
+        <![endif]-->
       </td>
     </tr>
   </table>

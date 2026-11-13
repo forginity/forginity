@@ -7,11 +7,11 @@
 
 ## 1. LAST UPDATE
 
-- **Timestamp:** `2026-11-12 21:00`
+- **Timestamp:** `2026-11-13 18:45`
 - **Component / Service:** `services/auth` / `service_auth`
-- **Task:** `TASK-07: Social Authentication (Google OAuth 2.0 / OIDC)`
+- **Task:** `TASK-09: User Lifecycle & Self-Service Account Deletion API`
 - **Summary:**
-  Implemented Google OAuth 2.0 / OIDC social authentication (`POST /api/auth/google`) in `services/auth`. Features remote JWKS verification using `jose` against Google's public certificates, deterministic identity resolution and account linking, moderation enforcement, smart session and onboarding routing, full OpenAPI/Swagger documentation, and 133 passing tests.
+  Implemented self-service account soft deletion (`DELETE /api/users/me`) and account recovery/restore (`POST /api/users/:userId/restore`) in `services/auth`. Features immediate cross-device and cross-product session purging upon account deletion via `sessionRepository.deleteSessionsByUserId`, state machine integrity, full Swagger/OpenAPI documentation, and 171 passing tests.
 
 ---
 
@@ -43,3 +43,5 @@
 | 22 | [`service_auth`](./service_auth/TASK_LIST.md) | `TASK-05` | User Session Management & Token Engine | [`TASK_05_IMPLEMENTATION_GUIDE.md`](./service_auth/TASK_05_IMPLEMENTATION_GUIDE.md) | 2026-11-10 | Vitest (98 tests) + PostgreSQL + TypeScript |
 | 23 | [`service_auth`](./service_auth/TASK_LIST.md) | `TASK-06` | Mandatory Profile Onboarding API | [`TASK_06_IMPLEMENTATION_GUIDE.md`](./service_auth/TASK_06_IMPLEMENTATION_GUIDE.md) | 2026-11-11 | Vitest (109 tests) + PostgreSQL + TypeScript |
 | 24 | [`service_auth`](./service_auth/TASK_LIST.md) | `TASK-07` | Social Authentication (Google OAuth 2.0 / OIDC) | [`TASK_07_IMPLEMENTATION_GUIDE.md`](./service_auth/TASK_07_IMPLEMENTATION_GUIDE.md) | 2026-11-12 | Vitest (133 tests) + PostgreSQL + TypeScript |
+| 25 | [`service_auth`](./service_auth/TASK_LIST.md) | `TASK-08` | User Profile & Emergency Contacts API | [`TASK_08_IMPLEMENTATION_GUIDE.md`](./service_auth/TASK_08_IMPLEMENTATION_GUIDE.md) | 2026-11-12 | Vitest (159 tests) + PostgreSQL + TypeScript |
+| 26 | [`service_auth`](./service_auth/TASK_LIST.md) | `TASK-09` | User Lifecycle & Self-Service Account Deletion API | [`TASK_09_IMPLEMENTATION_GUIDE.md`](./service_auth/TASK_09_IMPLEMENTATION_GUIDE.md) | 2026-11-13 | Vitest (171 tests) + PostgreSQL + TypeScript |

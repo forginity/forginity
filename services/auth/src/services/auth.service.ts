@@ -99,6 +99,7 @@ export class AuthService {
       identifier: normalizedEmail,
       identifierType: "email",
       purpose: "authentication",
+      ...(input.productName ? { productName: input.productName } : {}),
     })
 
     return {

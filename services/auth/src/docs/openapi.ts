@@ -14,6 +14,11 @@ import {
   SwitchProductSchema,
   RevokeSessionSchema,
   OnboardingProfileSchema,
+  UpdateUserProfileSchema,
+  CreateEmergencyContactSchema,
+  UpdateEmergencyContactSchema,
+  ContactIdParamSchema,
+  UserIdParamSchema,
 } from "../db/auth.validator.js"
 
 // Patch Zod with OpenAPI methods
@@ -217,6 +222,7 @@ registry.registerPath({
             identifier: "rider@forginity.com",
             identifierType: "email",
             purpose: "authentication",
+            productName: "TrackRide",
           },
         },
       },
@@ -306,6 +312,7 @@ registry.registerPath({
           schema: InitiateEmailAuthSchema,
           example: {
             email: "rider@forginity.com",
+            productName: "TrackRide",
           },
         },
       },
@@ -789,6 +796,467 @@ registry.registerPath({
     },
     403: {
       description: "Account is blocked or deleted",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+  },
+})
+
+export const UserProfileResponseSchema = z
+  .object({
+    success: z.boolean().openapi({ example: true }),
+    user: UserResponseSchema,
+  })
+  .openapi("UserProfileResponse", {
+    description: "User profile response",
+  })
+
+export const EmergencyContactSchema = z
+  .object({
+    id: z.string().uuid().openapi({ example: "550e8400-e29b-41d4-a716-446655440001" }),
+    userId: z.string().uuid().openapi({ example: "550e8400-e29b-41d4-a716-446655440000" }),
+    contactName: z.string().openapi({ example: "Sarah Connor" }),
+    contactPhone: z.string().openapi({ example: "+14155552671" }),
+    relationship: z.string().nullable().optional().openapi({ example: "Spouse" }),
+    isPrimary: z.boolean().openapi({ example: true }),
+    createdAt: z.date().or(z.string()).openapi({ example: "2026-11-12T20:00:00.000Z" }),
+    updatedAt: z.date().or(z.string()).openapi({ example: "2026-11-12T20:00:00.000Z" }),
+  })
+  .openapi("EmergencyContact", {
+    description: "Emergency contact record",
+  })
+
+export const EmergencyContactResponseSchema = z
+  .object({
+    success: z.boolean().openapi({ example: true }),
+    contact: EmergencyContactSchema,
+  })
+  .openapi("EmergencyContactResponse", {
+    description: "Single emergency contact response",
+  })
+
+export const EmergencyContactsListResponseSchema = z
+  .object({
+    success: z.boolean().openapi({ example: true }),
+    contacts: z.array(EmergencyContactSchema),
+  })
+  .openapi("EmergencyContactsListResponse", {
+    description: "List of user emergency contacts",
+  })
+
+export const DeleteEmergencyContactResponseSchema = z
+  .object({
+    success: z.boolean().openapi({ example: true }),
+    message: z.string().openapi({ example: "Emergency contact deleted successfully" }),
+  })
+  .openapi("DeleteEmergencyContactResponse", {
+    description: "Confirmation of emergency contact deletion",
+  })
+
+// 12. Get User Profile Route
+registry.registerPath({
+  method: "get",
+  path: "/api/users/me",
+  tags: ["User Profile"],
+  summary: "Get Authenticated User Profile",
+  description: "Retrieves the sanitized user profile for the authenticated session.",
+  security: [{ BearerAuth: [] }],
+  responses: {
+    200: {
+      description: "User profile retrieved successfully",
+      content: {
+        "application/json": {
+          schema: UserProfileResponseSchema,
+        },
+      },
+    },
+    401: {
+      description: "Unauthorized: Missing, invalid, or expired access token",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    403: {
+      description: "Account is blocked or deleted",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+  },
+})
+
+// 13. Update User Profile Route
+registry.registerPath({
+  method: "put",
+  path: "/api/users/me",
+  tags: ["User Profile"],
+  summary: "Update Authenticated User Profile",
+  description: "Updates user profile fields (firstName, lastName, gender, country, avatarUrl).",
+  security: [{ BearerAuth: [] }],
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: UpdateUserProfileSchema,
+          example: {
+            firstName: "Alex",
+            lastName: "Rider",
+            gender: "male",
+            country: "US",
+            avatarUrl: "https://lh3.googleusercontent.com/avatar",
+          },
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: "User profile updated successfully",
+      content: {
+        "application/json": {
+          schema: UserProfileResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: "Validation error in request payload",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    401: {
+      description: "Unauthorized: Missing, invalid, or expired access token",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    403: {
+      description: "Account is blocked or deleted",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+  },
+})
+
+// 14. List Emergency Contacts Route
+registry.registerPath({
+  method: "get",
+  path: "/api/users/me/emergency-contacts",
+  tags: ["Emergency Contacts"],
+  summary: "List User Emergency Contacts",
+  description: "Lists all emergency contacts configured by the user, ordered by primary contact first.",
+  security: [{ BearerAuth: [] }],
+  responses: {
+    200: {
+      description: "List of emergency contacts retrieved successfully",
+      content: {
+        "application/json": {
+          schema: EmergencyContactsListResponseSchema,
+        },
+      },
+    },
+    401: {
+      description: "Unauthorized",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+  },
+})
+
+// 15. Create Emergency Contact Route
+registry.registerPath({
+  method: "post",
+  path: "/api/users/me/emergency-contacts",
+  tags: ["Emergency Contacts"],
+  summary: "Add New Emergency Contact",
+  description: "Creates an emergency contact for the user. If isPrimary is true, other contacts are demoted.",
+  security: [{ BearerAuth: [] }],
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: CreateEmergencyContactSchema,
+          example: {
+            contactName: "Sarah Connor",
+            contactPhone: "+14155552671",
+            relationship: "Spouse",
+            isPrimary: true,
+          },
+        },
+      },
+    },
+  },
+  responses: {
+    201: {
+      description: "Emergency contact created successfully",
+      content: {
+        "application/json": {
+          schema: EmergencyContactResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: "Validation error in contact details",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    401: {
+      description: "Unauthorized",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+  },
+})
+
+// 16. Get Emergency Contact By ID Route
+registry.registerPath({
+  method: "get",
+  path: "/api/users/me/emergency-contacts/{contactId}",
+  tags: ["Emergency Contacts"],
+  summary: "Get Emergency Contact By ID",
+  description: "Fetches a single emergency contact by ID strictly isolated to the authenticated user.",
+  security: [{ BearerAuth: [] }],
+  request: {
+    params: ContactIdParamSchema,
+  },
+  responses: {
+    200: {
+      description: "Emergency contact retrieved successfully",
+      content: {
+        "application/json": {
+          schema: EmergencyContactResponseSchema,
+        },
+      },
+    },
+    401: {
+      description: "Unauthorized",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    404: {
+      description: "Contact not found",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+  },
+})
+
+// 17. Update Emergency Contact Route
+registry.registerPath({
+  method: "put",
+  path: "/api/users/me/emergency-contacts/{contactId}",
+  tags: ["Emergency Contacts"],
+  summary: "Update Emergency Contact",
+  description: "Updates an existing emergency contact. If isPrimary is updated to true, demotes others.",
+  security: [{ BearerAuth: [] }],
+  request: {
+    params: ContactIdParamSchema,
+    body: {
+      content: {
+        "application/json": {
+          schema: UpdateEmergencyContactSchema,
+          example: {
+            contactName: "Sarah Connor",
+            contactPhone: "+14155552671",
+            relationship: "Partner",
+            isPrimary: true,
+          },
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: "Emergency contact updated successfully",
+      content: {
+        "application/json": {
+          schema: EmergencyContactResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: "Validation error",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    401: {
+      description: "Unauthorized",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    404: {
+      description: "Contact not found",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+  },
+})
+
+// 18. Delete Emergency Contact Route
+registry.registerPath({
+  method: "delete",
+  path: "/api/users/me/emergency-contacts/{contactId}",
+  tags: ["Emergency Contacts"],
+  summary: "Delete Emergency Contact",
+  description: "Removes an emergency contact strictly isolated to the authenticated user.",
+  security: [{ BearerAuth: [] }],
+  request: {
+    params: ContactIdParamSchema,
+  },
+  responses: {
+    200: {
+      description: "Emergency contact deleted successfully",
+      content: {
+        "application/json": {
+          schema: DeleteEmergencyContactResponseSchema,
+        },
+      },
+    },
+    401: {
+      description: "Unauthorized",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    404: {
+      description: "Contact not found",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+  },
+})
+
+export const DeleteAccountResponseSchema = z
+  .object({
+    success: z.boolean().openapi({ example: true }),
+    message: z.string().openapi({
+      example: "Account has been deleted successfully and all active sessions revoked.",
+    }),
+  })
+  .openapi("DeleteAccountResponse", {
+    description: "Response confirming account soft deletion and session revocation",
+  })
+
+export const RestoreAccountResponseSchema = z
+  .object({
+    success: z.boolean().openapi({ example: true }),
+    message: z.string().openapi({ example: "Account has been restored successfully." }),
+    user: UserResponseSchema,
+  })
+  .openapi("RestoreAccountResponse", {
+    description: "Response confirming account recovery",
+  })
+
+// 19. Self-Service Account Deletion Route
+registry.registerPath({
+  method: "delete",
+  path: "/api/users/me",
+  tags: ["User Profile"],
+  summary: "Self-Service Soft Delete User Account",
+  description:
+    "Soft-deletes the authenticated user account and immediately revokes all active database sessions across all devices.",
+  security: [{ BearerAuth: [] }],
+  responses: {
+    200: {
+      description: "Account soft-deleted and all sessions revoked",
+      content: {
+        "application/json": {
+          schema: DeleteAccountResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: "Account has already been deleted",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    401: {
+      description: "Unauthorized",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+  },
+})
+
+// 20. Restore User Account Route
+registry.registerPath({
+  method: "post",
+  path: "/api/users/{userId}/restore",
+  tags: ["User Profile"],
+  summary: "Restore Soft-Deleted User Account",
+  description: "Restores a soft-deleted or blocked user account back to active status.",
+  security: [{ BearerAuth: [] }],
+  request: {
+    params: UserIdParamSchema,
+  },
+  responses: {
+    200: {
+      description: "Account restored successfully",
+      content: {
+        "application/json": {
+          schema: RestoreAccountResponseSchema,
+        },
+      },
+    },
+    401: {
+      description: "Unauthorized",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    404: {
+      description: "User not found",
       content: {
         "application/json": {
           schema: ErrorResponseSchema,

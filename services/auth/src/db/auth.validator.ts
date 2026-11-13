@@ -95,6 +95,7 @@ export const SendOtpSchema = z
     identifier: z.string().trim().min(1, "Identifier is required").max(255),
     identifierType: OtpIdentifierTypeEnum.default("email"),
     purpose: OtpPurposeEnum.default("authentication"),
+    productName: z.string().trim().max(100).optional(),
   })
   .refine(
     (data) => {
@@ -134,6 +135,7 @@ export const InitiateEmailAuthSchema = z.object({
     .max(255)
     .email("Invalid email address format")
     .transform((val) => val.toLowerCase()),
+  productName: z.string().trim().max(100).optional(),
 })
 export type InitiateEmailAuthInput = z.infer<typeof InitiateEmailAuthSchema>
 
@@ -198,9 +200,19 @@ export const CreateEmergencyContactSchema = z.object({
   contactName: z.string().trim().min(1, "Contact name is required").max(255),
   contactPhone: z.string().trim().regex(E164PhoneRegex, "Contact phone must be in E.164 format (e.g. +14155552671)"),
   relationship: z.string().trim().max(50).optional(),
-  isPrimary: z.boolean().default(true),
+  isPrimary: z.boolean().optional().default(true),
 })
-export type CreateEmergencyContactInput = z.infer<typeof CreateEmergencyContactSchema>
+export type CreateEmergencyContactInput = z.input<typeof CreateEmergencyContactSchema>
 
 export const UpdateEmergencyContactSchema = CreateEmergencyContactSchema.partial()
-export type UpdateEmergencyContactInput = z.infer<typeof UpdateEmergencyContactSchema>
+export type UpdateEmergencyContactInput = z.input<typeof UpdateEmergencyContactSchema>
+
+export const ContactIdParamSchema = z.object({
+  contactId: z.string().uuid("Invalid emergency contact ID UUID format"),
+})
+export type ContactIdParam = z.infer<typeof ContactIdParamSchema>
+
+export const UserIdParamSchema = z.object({
+  userId: z.string().uuid("Invalid user ID UUID format"),
+})
+export type UserIdParam = z.infer<typeof UserIdParamSchema>

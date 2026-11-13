@@ -143,6 +143,7 @@ export class OtpService {
       otp: rawOtp,
       purpose,
       expiresInSeconds,
+      ...(options.productName ? { productName: options.productName } : {}),
     })
 
     if (!dispatchResult.success) {

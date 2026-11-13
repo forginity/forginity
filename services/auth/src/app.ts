@@ -9,6 +9,7 @@ import cors from "cors"
 import swaggerUi from "swagger-ui-express"
 import { apiRouter } from "./routes/api.router.js"
 import { healthRouter } from "./routes/health.route.js"
+import { userRouter } from "./routes/user.route.js"
 import { openApiDocument } from "./docs/openapi.js"
 
 const app: Express = express()
@@ -41,6 +42,9 @@ app.get("/api/docs.json", (_req: Request, res: Response) => {
 
 // Application routes (prefixed with /api/auth)
 app.use("/api/auth", apiRouter)
+
+// Direct user profile & emergency contacts route alias
+app.use("/api/users", userRouter)
 
 // Direct health check route alias
 app.use("/api/health", healthRouter)

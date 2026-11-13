@@ -17,6 +17,7 @@ export class ConsoleOtpTransport implements OtpTransport {
       otp: options.otp,
       purpose: options.purpose,
       timestamp: new Date(),
+      ...(options.productName ? { productName: options.productName } : {}),
     }
 
     this.lastSentOtp = record

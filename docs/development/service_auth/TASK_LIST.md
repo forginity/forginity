@@ -35,8 +35,9 @@
 | `TASK-05` | User Session Management & Token Engine          | `POST /api/auth/session` (15m Access JWT, 30d Refresh token, `auth_db.sessions`, revocation) | [`TASK_05_IMPLEMENTATION_GUIDE.md`](./TASK_05_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
 | `TASK-06` | Mandatory Profile Onboarding API                | `POST /api/auth/onboarding` (Name, Gender, Country per Figma `179:509`), session upgrade     | [`TASK_06_IMPLEMENTATION_GUIDE.md`](./TASK_06_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
 | `TASK-07` | Social Authentication (Google OAuth 2.0 / OIDC) | Google ID token verification, account linking, routes to session or onboarding (Target: Nov 12) | [`TASK_07_IMPLEMENTATION_GUIDE.md`](./TASK_07_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
-| `TASK-08` | User Profile & Emergency Contacts API           | `GET/PUT /api/users/me` profile manager, emergency contact CRUD sub-resources (Target: Nov 13) | [`TASK_08_IMPLEMENTATION_GUIDE.md`](./TASK_08_IMPLEMENTATION_GUIDE.md) | `PENDING`   |
-| `TASK-09` | User Lifecycle & Account Moderation CRUD API     | Soft deletion, admin block/unblock, restore, and instant session revocation. RBAC in V2 (Target: Nov 14) | [`TASK_09_IMPLEMENTATION_GUIDE.md`](./TASK_09_IMPLEMENTATION_GUIDE.md) | `PENDING`   |
+| `TASK-08` | User Profile & Emergency Contacts API           | `GET/PUT /api/users/me` profile manager, emergency contact CRUD sub-resources (Target: Nov 13) | [`TASK_08_IMPLEMENTATION_GUIDE.md`](./TASK_08_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
+| `TASK-09` | User Lifecycle & Self-Service Account Deletion API | `DELETE /api/users/me` soft deletion, recovery, and instant session purge (Target: Nov 13) | [`TASK_09_IMPLEMENTATION_GUIDE.md`](./TASK_09_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
+| `TASK-10` | Admin User Management Suite (API & Admin UI) | User directory, detail view, block/unblock API & Next.js Admin UI at `/users` (Target: Nov 14) | [`TASK_10_IMPLEMENTATION_GUIDE.md`](./TASK_10_IMPLEMENTATION_GUIDE.md) | `PENDING`   |
 
 ---
 
@@ -94,12 +95,25 @@
 - **Description:** Implement `/api/users/me` profile update endpoint and emergency contact CRUD endpoints with authorization middleware.
 - **Guide:** [`TASK_08_IMPLEMENTATION_GUIDE.md`](./TASK_08_IMPLEMENTATION_GUIDE.md)
 
-### `TASK-09`: User Lifecycle & Account Moderation CRUD API
+### `TASK-09`: User Lifecycle & Self-Service Account Deletion API
+
+- **Target Completion Date:** 2026-11-13 (Today)
+- **Description:** Implement self-service account deletion and reactivation lifecycle:
+  - `DELETE /api/users/me`: Soft-deletes user account (`status: "deleted"`) and instantly revokes all active database sessions across all devices.
+  - `POST /api/users/:userId/restore`: Restores soft-deleted account back to `status: "active"`.
+  - Instant cross-service session purging engine.
+- **Guide:** [`TASK_09_IMPLEMENTATION_GUIDE.md`](./TASK_09_IMPLEMENTATION_GUIDE.md)
+
+### `TASK-10`: Admin User Management Suite (API & Admin UI)
 
 - **Target Completion Date:** 2026-11-14 (Full `services/auth` microservice completion)
-- **Description:** Implement administrative and self-service account management endpoints:
-  - Account soft deletion (`status: "deleted"`) with immediate session revocation.
-  - Administrative block/unblock (`status: "blocked"` / `"active"`) with instant cross-service session revocation.
-  - Account restore / recovery and user status filtering CRUD.
-  - *Note:* Role-Based Access Control (RBAC) authorization guards (restricting moderation strictly to designated Admin/Moderator roles) are deferred to V2 (`docs/development/v2_vision/TASK_LIST.md#task-06`). V1 provides full domain CRUD, status state machines, and session revocation mechanics.
-- **Guide:** [`TASK_09_IMPLEMENTATION_GUIDE.md`](./TASK_09_IMPLEMENTATION_GUIDE.md)
+- **Description:** Implement comprehensive administration capabilities across API and UI:
+  - **Backend APIs (`services/auth`):**
+    - `GET /api/users`: List users with search by name/email, status filtering (`?status=active|blocked|deleted`), and pagination (`limit`, `offset`).
+    - `GET /api/users/:userId`: View single user detail with joined auth providers, products, and contact statistics.
+    - `PATCH /api/users/:userId/status`: Block, unblock, or suspend user accounts with immediate cross-service session invalidation.
+  - **Admin UI (`apps/admin`):**
+    - User directory data table view at `/users`.
+    - User detail view/drawer.
+    - Block / Unblock action triggers with confirmation modal dialogs.
+- **Guide:** [`TASK_10_IMPLEMENTATION_GUIDE.md`](./TASK_10_IMPLEMENTATION_GUIDE.md)

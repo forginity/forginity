@@ -13,6 +13,7 @@ export interface SendOtpOptions {
   identifierType: OtpIdentifierType
   purpose?: string
   expiresInSeconds?: number
+  productName?: string
 }
 
 export type VerifyOtpOptions = VerifyOtpRequestInput
@@ -72,6 +73,7 @@ export interface OtpDeliveryOptions {
   otp: string
   purpose: string
   expiresInSeconds: number
+  productName?: string
 }
 
 export interface OtpDeliveryResult {
@@ -86,6 +88,7 @@ export interface SentOtpRecord {
   otp: string
   purpose: string
   timestamp: Date
+  productName?: string
 }
 
 export interface OtpTransport {
@@ -109,6 +112,7 @@ export interface GenerateOtpEmailOptions {
   otp: string
   purpose?: string
   expiresInMinutes?: number
+  productName?: string
 }
 
 export interface GeneratedEmail {

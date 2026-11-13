@@ -1,5 +1,5 @@
 import type { JWTPayload } from "jose"
-import type { User, Session, NewUser } from "../db/auth.schema.js"
+import type { User, Session, NewUser, UserEmergencyContact } from "../db/auth.schema.js"
 import type {
   InitiateEmailAuthInput,
   VerifyEmailAuthInput,
@@ -180,6 +180,7 @@ export type AuthErrorCode =
   | "UNAUTHORIZED"
   | "FORBIDDEN"
   | "ALREADY_ONBOARDED"
+  | "CONTACT_NOT_FOUND"
 
 export interface AuthErrorDetails {
   code: AuthErrorCode
@@ -250,4 +251,41 @@ export interface OnboardingResult {
     refreshToken: string
     expiresIn: number
   }
+}
+
+/**
+ * 8. User Profile & Emergency Contact Contracts
+ */
+export interface UserProfileResult {
+  success: true
+  user: SanitizedUser
+}
+
+export interface EmergencyContactResult {
+  success: true
+  contact: UserEmergencyContact
+}
+
+export interface EmergencyContactsListResult {
+  success: true
+  contacts: UserEmergencyContact[]
+}
+
+export interface DeleteEmergencyContactResult {
+  success: true
+  message: string
+}
+
+/**
+ * 9. User Lifecycle Contracts
+ */
+export interface DeleteAccountResult {
+  success: true
+  message: string
+}
+
+export interface RestoreAccountResult {
+  success: true
+  message: string
+  user: SanitizedUser
 }

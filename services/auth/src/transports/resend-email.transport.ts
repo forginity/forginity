@@ -62,6 +62,7 @@ export class ResendEmailTransport implements OtpTransport {
       otp: options.otp,
       purpose: options.purpose,
       expiresInMinutes: Math.ceil(options.expiresInSeconds / 60),
+      ...(options.productName ? { productName: options.productName } : {}),
     })
 
     try {

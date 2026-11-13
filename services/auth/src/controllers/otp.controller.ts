@@ -18,7 +18,7 @@ export class OtpController {
     next: NextFunction
   ): Promise<void> => {
     try {
-      const { identifier, identifierType, purpose } = req.body
+      const { identifier, identifierType, purpose, productName } = req.body
 
       if (identifierType !== "email") {
         res.status(400).json({
@@ -33,6 +33,7 @@ export class OtpController {
         identifier,
         identifierType,
         purpose,
+        ...(productName ? { productName } : {}),
       })
 
       res.status(200).json(result)
