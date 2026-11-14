@@ -98,12 +98,21 @@ export class EmergencyContactService {
 
   /**
    * Creates a new emergency contact. If isPrimary is true, demotes existing primary contacts.
+   * Enforces a maximum limit of 10 emergency contacts per user to prevent resource exhaustion.
    */
   async createContact(
     userId: string,
     input: CreateEmergencyContactInput
   ): Promise<UserEmergencyContact> {
     await this.verifyUserStanding(userId)
+    const existing = await this.emergencyRepo.findContactsByUserId(userId)
+    if (existing.length >= 10) {
+      throw new EmergencyContactServiceError(
+        "Maximum emergency contacts limit reached (maximum 10 contacts allowed).",
+        400,
+        { code: "LIMIT_EXCEEDED" }
+      )
+    }
     return this.emergencyRepo.createContact(userId, input)
   }
 

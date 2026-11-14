@@ -1493,9 +1493,10 @@ registry.registerPath({
 registry.registerPath({
   method: "post",
   path: "/api/users/{userId}/restore",
-  tags: ["User Profile"],
-  summary: "Restore Soft-Deleted User Account",
-  description: "Restores a soft-deleted or blocked user account back to active status.",
+  tags: ["Admin User Management"],
+  summary: "Restore User Account (Admin Only)",
+  description:
+    "Restores a soft-deleted or blocked user account back to active status. Restricted strictly to users with userType === 'admin'.",
   security: [{ BearerAuth: [] }],
   request: {
     params: UserIdParamSchema,
@@ -1518,7 +1519,8 @@ registry.registerPath({
       },
     },
     403: {
-      description: "Forbidden: Account is blocked or deleted",
+      description:
+        "Forbidden: Administrative access required (userType must be admin)",
       content: {
         "application/json": {
           schema: ErrorResponseSchema,

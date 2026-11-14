@@ -56,11 +56,18 @@ describe("OtpService Unit Tests", () => {
       },
       async markOtpVerified(requestId: string) {
         const record = mockOtps.get(requestId)
-        if (record) {
+        if (record && !record.verifiedAt) {
           record.verifiedAt = new Date()
           return { ...record }
         }
         return null
+      },
+      async countRecentOtpsByIdentifier(identifier: string, since: Date) {
+        return Array.from(mockOtps.values()).filter(
+          (o) =>
+            o.identifier === identifier.toLowerCase() &&
+            new Date(o.createdAt).getTime() >= since.getTime()
+        ).length
       },
     } as unknown as OtpRepository
 
@@ -100,6 +107,34 @@ describe("OtpService Unit Tests", () => {
           purpose: "authentication",
         })
       ).rejects.toThrow(/Please wait \d+ seconds before requesting another verification code/)
+    })
+
+    it("should enforce an hourly sliding-window limit of max 5 OTP requests per identifier", async () => {
+      const email = "hourlylimit@forginity.com"
+      // Seed 5 existing requests created within the last hour
+      for (let i = 0; i < 5; i++) {
+        const id = `550e8400-e29b-41d4-a716-hourly${i.toString().padStart(6, "0")}`
+        mockOtps.set(id, {
+          id,
+          identifier: email,
+          identifierType: "email",
+          otpHash: "mockhash",
+          purpose: "authentication",
+          expiresAt: new Date(Date.now() + 600000),
+          attempts: 0,
+          maxAttempts: 3,
+          verifiedAt: new Date(), // verified so cooldown check passes
+          createdAt: new Date(Date.now() - (i + 1) * 120000), // > 60s ago
+        })
+      }
+
+      await expect(
+        otpService.sendOtp({
+          identifier: email,
+          identifierType: "email",
+          purpose: "authentication",
+        })
+      ).rejects.toThrow(/Too many verification requests/)
     })
   })
 

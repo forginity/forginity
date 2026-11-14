@@ -193,6 +193,34 @@ describe("EmergencyContactService Unit Tests", () => {
     ).rejects.toThrowError(EmergencyContactServiceError)
   })
 
+  it("should throw 400 LIMIT_EXCEEDED when user attempts to exceed 10 emergency contacts", async () => {
+    // Populate 10 existing contacts
+    for (let i = 1; i <= 10; i++) {
+      await emergencyService.createContact(testUserId, {
+        contactName: `Contact ${i}`,
+        contactPhone: `+1415555260${i}`,
+      })
+    }
+
+    await expect(
+      emergencyService.createContact(testUserId, {
+        contactName: "11th Contact",
+        contactPhone: "+14155552611",
+      })
+    ).rejects.toThrowError(EmergencyContactServiceError)
+
+    try {
+      await emergencyService.createContact(testUserId, {
+        contactName: "11th Contact",
+        contactPhone: "+14155552611",
+      })
+    } catch (err: any) {
+      expect(err.statusCode).toBe(400)
+      expect(err.details?.code).toBe("LIMIT_EXCEEDED")
+      expect(err.message).toContain("Maximum emergency contacts limit reached")
+    }
+  })
+
   it("should throw 403 when user is blocked", async () => {
     mockUsers.set(testUserId, {
       ...mockUsers.get(testUserId)!,

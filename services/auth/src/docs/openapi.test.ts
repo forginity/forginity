@@ -29,7 +29,7 @@ describe("Auth OpenAPI / Swagger Integration", () => {
     expect(res.body.paths["/api/users/me"].delete).toBeDefined()
     expect(res.body.paths["/api/users/me/emergency-contacts"].get).toBeDefined()
     expect(res.body.paths["/api/users/me/emergency-contacts"].post).toBeDefined()
-    expect(res.body.paths["/api/users/{userId}/restore"].post).toBeDefined()
+    expect(res.body.paths["/api/users/{userId}/restore"].post.tags).toContain("Admin User Management")
     expect(res.body.paths["/api/users"].get.tags).toContain("Admin User Management")
     expect(res.body.paths["/api/users/{userId}"].get.tags).toContain("Admin User Management")
     expect(res.body.paths["/api/users/{userId}/status"].patch.tags).toContain("Admin User Management")

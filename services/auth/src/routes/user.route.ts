@@ -68,10 +68,11 @@ userRouter.delete(
 )
 
 /**
- * 3. Parameterized User Account Operations
+ * 3. Parameterized User Account Operations (Admin Only)
  */
 userRouter.post(
   "/:userId/restore",
+  requireAdmin,
   validateRequest({ params: UserIdParamSchema }),
   userController.restoreAccount
 )

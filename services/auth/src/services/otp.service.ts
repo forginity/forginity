@@ -121,6 +121,20 @@ export class OtpService {
       }
     }
 
+    // 1b. Rate limiting: Hourly sliding window cap (5 requests per hour)
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000)
+    const recentCount = await this.repository.countRecentOtpsByIdentifier(
+      normalizedIdentifier,
+      oneHourAgo
+    )
+    if (recentCount >= 5) {
+      throw new OtpServiceError(
+        "Too many verification requests. Please wait before requesting another code.",
+        429,
+        { code: "RATE_LIMITED" }
+      )
+    }
+
     // 2. Generate 6-digit numeric OTP and hash it
     const rawOtp = generateNumericOtp()
     const otpHash = hashOtpCode(rawOtp, normalizedIdentifier)
@@ -246,8 +260,15 @@ export class OtpService {
       })
     }
 
-    // 3. Mark OTP as verified
-    await this.repository.markOtpVerified(record.id)
+    // 3. Atomically mark OTP as verified (mitigates double-verification race condition)
+    const updated = await this.repository.markOtpVerified(record.id)
+    if (!updated) {
+      throw new OtpServiceError(
+        "This verification code has already been used.",
+        400,
+        { code: "ALREADY_VERIFIED" }
+      )
+    }
 
     return {
       verified: true,

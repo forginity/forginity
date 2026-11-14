@@ -183,6 +183,7 @@ export type AuthErrorCode =
   | "FORBIDDEN"
   | "ALREADY_ONBOARDED"
   | "CONTACT_NOT_FOUND"
+  | "LIMIT_EXCEEDED"
 
 export interface AuthErrorDetails {
   code: AuthErrorCode

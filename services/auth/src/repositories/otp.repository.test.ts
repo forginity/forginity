@@ -79,5 +79,16 @@ describe("OtpRepository Real Database Operations", () => {
     // 5. Mark Verified
     const verified = await otpRepository.markOtpVerified(createdOtp.id)
     expect(verified?.verifiedAt).not.toBeNull()
+
+    // 6. Atomic Double Verification should return null (already verified)
+    const secondVerified = await otpRepository.markOtpVerified(createdOtp.id)
+    expect(secondVerified).toBeNull()
+
+    // 7. Count recent OTPs
+    const count = await otpRepository.countRecentOtpsByIdentifier(
+      testEmail,
+      new Date(Date.now() - 3600000)
+    )
+    expect(count).toBeGreaterThanOrEqual(1)
   })
 })

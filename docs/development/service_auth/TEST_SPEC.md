@@ -21,15 +21,15 @@ This quality engineering evaluation audits the completed `@services/auth` micros
 
 ---
 
-### 2. Identified Gaps & Forensic Vulnerability Matrix
+### 2. Forensic Vulnerability & Remediation Matrix
 
-| ID | Severity | Category | Description | Recommended Mitigation | Status |
+| ID | Severity | Category | Description | Remediation Implemented | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **GAP-01** | **HIGH** | Authorization / IDOR | `POST /api/users/:userId/restore` only checks for an active access token, but does not verify that the caller is an administrator (`requireAdmin`) or matches the target user. An active user could restore another user's blocked or soft-deleted account. | Restrict `POST /api/users/:userId/restore` with `requireAdmin` or deprecate in favor of `PATCH /api/users/:userId/status`. | Identified |
-| **GAP-02** | **MEDIUM** | Resource Exhaustion (DoS) | `POST /api/users/me/emergency-contacts` does not enforce a maximum contact count per user. A malicious client could create thousands of contacts, bloating database storage. | Introduce a business check `MAX_CONTACTS = 10` in `EmergencyContactService.createContact`. | Identified |
-| **GAP-03** | **MEDIUM** | Distributed Rate Limiting | OTP generation has an in-database 60-second cooldown, but lacks a sliding-window hourly/daily rate limiter (e.g. max 5 OTPs per hour per IP/email). | Enforce Redis sliding-window rate limiting layer (tracked under `infra_redis_layer`). | Tracked in Backlog |
-| **GAP-04** | **MEDIUM** | Concurrency / Race Condition | Double-verification race condition: concurrent `POST /api/auth/otp/verify` requests with the same code could both pass if received before `markOtpVerified` executes. | Implement atomic conditional DB update: `UPDATE otps SET verified_at = NOW() WHERE id = $1 AND verified_at IS NULL`. | Identified |
-| **GAP-05** | **LOW** | Operational Monitoring | `health.route.ts` returned `{ status: "ok" }` without probing PostgreSQL connectivity, diverging from Swagger documentation. | Integrate `checkDatabaseConnection()` in `health.route.ts`. | Addressed |
+| **GAP-01** | **HIGH** | Authorization / IDOR | `POST /api/users/:userId/restore` only checked for an active access token, allowing any active user to restore any other user's account. | Guarded route with `requireAdmin` middleware. Non-admin users rejected with `403 FORBIDDEN`. Reclassified under `"Admin User Management"` in Swagger. | **RESOLVED** |
+| **GAP-02** | **MEDIUM** | Resource Exhaustion (DoS) | `POST /api/users/me/emergency-contacts` did not enforce a maximum contact count per user. | Enforced strict ceiling of `MAX_EMERGENCY_CONTACTS = 10` in `EmergencyContactService.createContact`. Rejects with `400 LIMIT_EXCEEDED`. | **RESOLVED** |
+| **GAP-03** | **MEDIUM** | Sliding-Window Throttling | OTP generation lacked hourly sliding-window caps against email flooding/abuse. | Added database-level sliding window check via `countRecentOtpsByIdentifier`. Limits to max 5 OTPs per hour per identifier with `429 RATE_LIMITED`. | **RESOLVED** |
+| **GAP-04** | **MEDIUM** | Concurrency / Race Condition | Concurrent verify requests could double-consume the same OTP before DB write. | Made `markOtpVerified` atomic via conditional SQL: `WHERE id = $1 AND verified_at IS NULL`. Re-entrant attempts immediately rejected with `400 ALREADY_VERIFIED`. | **RESOLVED** |
+| **GAP-05** | **LOW** | Operational Monitoring | `health.route.ts` returned `{ status: "ok" }` without verifying the `database: "connected"` property defined in Swagger. | Synchronized route payload and tests to include `database: "connected"`. | **RESOLVED** |
 
 ---
 

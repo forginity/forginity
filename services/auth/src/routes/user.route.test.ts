@@ -282,16 +282,47 @@ describe("User Profile & Emergency Contact Routes", () => {
   })
 
   describe("POST /api/users/:userId/restore", () => {
+    it("should return 403 Forbidden when called by a non-admin user", async () => {
+      const res = await request(app)
+        .post(`/api/users/${mockUserId}/restore`)
+        .set("Authorization", `Bearer ${validAccessToken}`)
+
+      expect(res.status).toBe(403)
+      expect(res.body.code).toBe("FORBIDDEN")
+    })
+
     it("should return 400 Bad Request when userId is not a valid UUID", async () => {
+      const adminToken = await signAccessToken({
+        userId: "550e8400-e29b-41d4-a716-446655440099",
+        email: "admin@forginity.com",
+        userType: "admin",
+      })
+      vi.spyOn(userRepository, "findUserById").mockResolvedValueOnce({
+        ...mockUser,
+        id: "550e8400-e29b-41d4-a716-446655440099",
+        userType: "admin",
+      })
+
       const res = await request(app)
         .post("/api/users/not-a-uuid/restore")
-        .set("Authorization", `Bearer ${validAccessToken}`)
+        .set("Authorization", `Bearer ${adminToken}`)
 
       expect(res.status).toBe(400)
       expect(res.body.error).toBe("Validation Error")
     })
 
-    it("should return 200 OK when user is restored", async () => {
+    it("should return 200 OK when user is restored by an admin", async () => {
+      const adminToken = await signAccessToken({
+        userId: "550e8400-e29b-41d4-a716-446655440099",
+        email: "admin@forginity.com",
+        userType: "admin",
+      })
+      vi.spyOn(userRepository, "findUserById").mockResolvedValueOnce({
+        ...mockUser,
+        id: "550e8400-e29b-41d4-a716-446655440099",
+        userType: "admin",
+      })
+
       vi.spyOn(userService, "restoreAccount").mockResolvedValueOnce({
         success: true,
         message: "Account has been restored successfully.",
@@ -300,7 +331,7 @@ describe("User Profile & Emergency Contact Routes", () => {
 
       const res = await request(app)
         .post(`/api/users/${mockUserId}/restore`)
-        .set("Authorization", `Bearer ${validAccessToken}`)
+        .set("Authorization", `Bearer ${adminToken}`)
 
       expect(res.status).toBe(200)
       expect(res.body.success).toBe(true)
@@ -309,6 +340,17 @@ describe("User Profile & Emergency Contact Routes", () => {
     })
 
     it("should return 404 Not Found when user does not exist", async () => {
+      const adminToken = await signAccessToken({
+        userId: "550e8400-e29b-41d4-a716-446655440099",
+        email: "admin@forginity.com",
+        userType: "admin",
+      })
+      vi.spyOn(userRepository, "findUserById").mockResolvedValueOnce({
+        ...mockUser,
+        id: "550e8400-e29b-41d4-a716-446655440099",
+        userType: "admin",
+      })
+
       vi.spyOn(userService, "restoreAccount").mockRejectedValueOnce(
         new UserServiceError("User account not found.", 404, {
           code: "USER_NOT_FOUND",
@@ -317,7 +359,7 @@ describe("User Profile & Emergency Contact Routes", () => {
 
       const res = await request(app)
         .post(`/api/users/${mockUserId}/restore`)
-        .set("Authorization", `Bearer ${validAccessToken}`)
+        .set("Authorization", `Bearer ${adminToken}`)
 
       expect(res.status).toBe(404)
       expect(res.body.code).toBe("USER_NOT_FOUND")

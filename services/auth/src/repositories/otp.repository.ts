@@ -80,10 +80,25 @@ export class OtpRepository {
       .set({
         verifiedAt: new Date(),
       })
-      .where(eq(otps.id, requestId))
+      .where(and(eq(otps.id, requestId), sql`${otps.verifiedAt} IS NULL`))
       .returning()
 
     return updated || null
+  }
+
+  async countRecentOtpsByIdentifier(identifier: string, since: Date): Promise<number> {
+    const normalized = identifier.toLowerCase().trim()
+    const result = await this.client
+      .select({ count: sql<number>`count(*)` })
+      .from(otps)
+      .where(
+        and(
+          eq(otps.identifier, normalized),
+          sql`${otps.createdAt} >= ${since}`
+        )
+      )
+
+    return Number(result[0]?.count || 0)
   }
 
   async deleteOtpById(requestId: string) {
