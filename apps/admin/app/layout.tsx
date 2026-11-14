@@ -1,15 +1,21 @@
-import { Geist, Geist_Mono } from "next/font/google"
+import type { Metadata } from "next"
+import { Lexend } from "next/font/google"
+import "@workspace/ui/globals.css"
+import { ThemeProvider } from "@workspace/ui/components/theme-provider"
+import { TooltipProvider } from "@workspace/ui/components/tooltip"
+import { QueryProvider } from "@/providers/query-provider"
+import { cn } from "@workspace/ui/lib/utils"
 
-import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
-import { cn } from "@/lib/utils";
-
-const geist = Geist({subsets:['latin'],variable:'--font-sans'})
-
-const fontMono = Geist_Mono({
+const lexend = Lexend({
   subsets: ["latin"],
-  variable: "--font-mono",
+  weight: ["300", "400", "500", "600"],
+  variable: "--font-sans",
 })
+
+export const metadata: Metadata = {
+  title: "Forginity Console",
+  description: "Unified administration console for Forginity ecosystem",
+}
 
 export default function RootLayout({
   children,
@@ -20,10 +26,14 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={cn("antialiased", fontMono.variable, "font-sans", geist.variable)}
+      className={cn("dark antialiased font-sans font-light", lexend.variable)}
     >
-      <body>
-        <ThemeProvider>{children}</ThemeProvider>
+      <body className="h-screen max-h-screen overflow-hidden bg-background text-foreground">
+        <ThemeProvider defaultTheme="dark">
+          <TooltipProvider>
+            <QueryProvider>{children}</QueryProvider>
+          </TooltipProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button"
+import { Button } from "@workspace/ui/components/button"
 
 export default function Page() {
   return <div className="flex min-h-svh p-6">data base flow chart</div>

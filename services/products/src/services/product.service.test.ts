@@ -45,11 +45,11 @@ describe("ProductService", () => {
     })
   })
 
-  describe("getProductByIdOrSlug", () => {
-    it("should query by UUID when identifier matches UUID format", async () => {
-      const uuid = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+  describe("getProductById", () => {
+    it("should query by UUID id", async () => {
+      const id = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
       const mockProduct = {
-        id: uuid,
+        id,
         slug: "raksha",
         name: "Raksha",
         status: "active",
@@ -59,16 +59,38 @@ describe("ProductService", () => {
       const findByIdSpy = vi
         .spyOn(ProductRepository, "findById")
         .mockResolvedValueOnce(mockProduct)
-      const findBySlugSpy = vi.spyOn(ProductRepository, "findBySlug")
 
-      const product = await ProductService.getProductByIdOrSlug(uuid)
+      const product = await ProductService.getProductById(id)
 
-      expect(findByIdSpy).toHaveBeenCalledWith(uuid)
-      expect(findBySlugSpy).not.toHaveBeenCalled()
+      expect(findByIdSpy).toHaveBeenCalledWith(id)
       expect(product).toEqual(mockProduct)
     })
 
-    it("should query by slug when identifier is a slug string", async () => {
+    it("should call findByIdWithRelations when includeRelations is true", async () => {
+      const id = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+      const mockWithRelations = {
+        id,
+        slug: "raksha",
+        name: "Raksha",
+        status: "active",
+        createdAt: new Date(),
+        maintenance: [],
+        versions: [],
+      }
+
+      const spy = vi
+        .spyOn(ProductRepository, "findByIdWithRelations")
+        .mockResolvedValueOnce(mockWithRelations as any)
+
+      const result = await ProductService.getProductById(id, true)
+
+      expect(spy).toHaveBeenCalledWith(id)
+      expect(result).toEqual(mockWithRelations)
+    })
+  })
+
+  describe("getProductBySlug", () => {
+    it("should query by slug string", async () => {
       const slug = "trackride"
       const mockProduct = {
         id: "11111111-1111-1111-1111-111111111111",
@@ -81,36 +103,11 @@ describe("ProductService", () => {
       const findBySlugSpy = vi
         .spyOn(ProductRepository, "findBySlug")
         .mockResolvedValueOnce(mockProduct)
-      const findByIdSpy = vi.spyOn(ProductRepository, "findById")
 
-      const product = await ProductService.getProductByIdOrSlug(slug)
+      const product = await ProductService.getProductBySlug(slug)
 
       expect(findBySlugSpy).toHaveBeenCalledWith(slug)
-      expect(findByIdSpy).not.toHaveBeenCalled()
       expect(product).toEqual(mockProduct)
-    })
-
-    it("should call findByIdWithRelations when includeRelations is true for UUID", async () => {
-      const uuid = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
-      const mockWithRelations = {
-        id: uuid,
-        slug: "raksha",
-        name: "Raksha",
-        status: "active",
-        createdAt: new Date(),
-        features: [],
-        maintenance: [],
-        versions: [],
-      }
-
-      const spy = vi
-        .spyOn(ProductRepository, "findByIdWithRelations")
-        .mockResolvedValueOnce(mockWithRelations as any)
-
-      const result = await ProductService.getProductByIdOrSlug(uuid, true)
-
-      expect(spy).toHaveBeenCalledWith(uuid)
-      expect(result).toEqual(mockWithRelations)
     })
   })
 
@@ -161,11 +158,12 @@ describe("ProductService", () => {
 
   describe("updateProduct", () => {
     it("should return null if product does not exist", async () => {
-      vi.spyOn(ProductRepository, "findBySlug").mockResolvedValueOnce(null)
+      vi.spyOn(ProductRepository, "findById").mockResolvedValueOnce(null)
 
-      const result = await ProductService.updateProduct("nonexistent", {
-        name: "Updated Name",
-      })
+      const result = await ProductService.updateProduct(
+        "11111111-1111-1111-1111-111111111111",
+        { name: "Updated Name" }
+      )
 
       expect(result).toBeNull()
     })
@@ -179,73 +177,34 @@ describe("ProductService", () => {
         createdAt: new Date(),
       }
 
-      vi.spyOn(ProductRepository, "findBySlug")
-        .mockResolvedValueOnce(existingProduct) // Initial lookup
-        .mockResolvedValueOnce({
-          // Slug conflict check
-          id: "99999999-9999-9999-9999-999999999999",
-          slug: "taken-slug",
-          name: "Taken Product",
-          status: "active",
-          createdAt: new Date(),
-        })
+      vi.spyOn(ProductRepository, "findById").mockResolvedValueOnce(existingProduct)
+      vi.spyOn(ProductRepository, "findBySlug").mockResolvedValueOnce({
+        id: "99999999-9999-9999-9999-999999999999",
+        slug: "taken-slug",
+        name: "Taken Product",
+        status: "active",
+        createdAt: new Date(),
+      })
 
       await expect(
-        ProductService.updateProduct("trackride", {
+        ProductService.updateProduct("11111111-1111-1111-1111-111111111111", {
           slug: "taken-slug",
         })
       ).rejects.toThrow("Product with slug 'taken-slug' already exists")
     })
   })
 
-  describe("createFeature", () => {
-    it("should throw an error when parent product does not exist", async () => {
-      vi.spyOn(ProductRepository, "findById").mockResolvedValueOnce(null)
+  describe("deleteProduct", () => {
+    it("should delete product by id", async () => {
+      vi.spyOn(ProductRepository, "delete").mockResolvedValueOnce(true)
 
-      await expect(
-        ProductService.createFeature("unknown-id", {
-          key: "gps_tracking",
-          name: "GPS Tracking",
-          status: "enabled",
-        })
-      ).rejects.toThrow("Product with ID 'unknown-id' not found")
-    })
-
-    it("should delegate creation to repository when product exists", async () => {
-      const productId = "11111111-1111-1111-1111-111111111111"
-      vi.spyOn(ProductRepository, "findById").mockResolvedValueOnce({
-        id: productId,
-        slug: "trackride",
-        name: "TrackRide",
-        status: "active",
-        createdAt: new Date(),
-      })
-
-      const mockFeature = {
-        id: "feat-1",
-        productId,
-        key: "gps_tracking",
-        name: "GPS Tracking",
-        status: "enabled",
-      }
-
-      const createSpy = vi
-        .spyOn(ProductRepository, "createFeature")
-        .mockResolvedValueOnce(mockFeature)
-
-      const result = await ProductService.createFeature(productId, {
-        key: "gps_tracking",
-        name: "GPS Tracking",
-        status: "enabled",
-      })
-
-      expect(createSpy).toHaveBeenCalledWith({
-        productId,
-        key: "gps_tracking",
-        name: "GPS Tracking",
-        status: "enabled",
-      })
-      expect(result).toEqual(mockFeature)
+      const result = await ProductService.deleteProduct(
+        "11111111-1111-1111-1111-111111111111"
+      )
+      expect(result).toBe(true)
+      expect(ProductRepository.delete).toHaveBeenCalledWith(
+        "11111111-1111-1111-1111-111111111111"
+      )
     })
   })
 })

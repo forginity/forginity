@@ -1,6 +1,6 @@
 FROM postgres:18-alpine
 
-LABEL maintainer="Forginity Engineering <dev@forginity.com>"
+LABEL maintainer="Forginity Database"
 LABEL description="Multi-database PostgreSQL container for Forginity Monorepo"
 
 # Copy initialization scripts into postgres entrypoint directory

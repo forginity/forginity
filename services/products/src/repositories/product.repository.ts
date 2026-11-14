@@ -1,14 +1,12 @@
 import { eq, ilike, or, and, sql } from "drizzle-orm"
 import { db } from "../index.js"
+import { checkDatabaseConnection } from "../db/connection.js"
 import {
   products,
-  productFeatures,
   productMaintenance,
   productVersions,
   type Product,
   type NewProduct,
-  type ProductFeature,
-  type NewProductFeature,
   type ProductMaintenance,
   type NewProductMaintenance,
   type ProductVersion,
@@ -23,6 +21,13 @@ export interface ListProductsFilter {
 }
 
 export class ProductRepository {
+  /**
+   * Asserts that database connectivity is active, throwing an error if unreachable.
+   */
+  static async checkConnection(customDb = db): Promise<boolean> {
+    return checkDatabaseConnection(customDb)
+  }
+
   // Products Repository Methods
 
   static async findMany(filter: ListProductsFilter) {
@@ -85,7 +90,6 @@ export class ProductRepository {
     const result = await db.query.products.findFirst({
       where: { id },
       with: {
-        features: true,
         maintenance: true,
         versions: true,
       },
@@ -97,7 +101,6 @@ export class ProductRepository {
     const result = await db.query.products.findFirst({
       where: { slug },
       with: {
-        features: true,
         maintenance: true,
         versions: true,
       },
@@ -127,41 +130,26 @@ export class ProductRepository {
     return result.length > 0
   }
 
-  // Product Features Repository Methods
+  // Product Maintenance Repository Methods
 
-  static async findFeaturesByProductId(productId: string): Promise<ProductFeature[]> {
-    return db
-      .select()
-      .from(productFeatures)
-      .where(eq(productFeatures.productId, productId))
-  }
-
-  static async createFeature(data: NewProductFeature): Promise<ProductFeature> {
-    const result = await db.insert(productFeatures).values(data).returning()
-    return result[0]
-  }
-
-  static async updateFeature(
-    featureId: string,
-    data: Partial<NewProductFeature>
-  ): Promise<ProductFeature | null> {
+  static async findMaintenanceById(
+    maintenanceId: string
+  ): Promise<ProductMaintenance | null> {
     const result = await db
-      .update(productFeatures)
-      .set(data)
-      .where(eq(productFeatures.id, featureId))
-      .returning()
+      .select()
+      .from(productMaintenance)
+      .where(eq(productMaintenance.id, maintenanceId))
+      .limit(1)
     return result[0] || null
   }
 
-  static async deleteFeature(featureId: string): Promise<boolean> {
-    const result = await db
-      .delete(productFeatures)
-      .where(eq(productFeatures.id, featureId))
-      .returning({ id: productFeatures.id })
-    return result.length > 0
+  static async findActiveMaintenance(): Promise<ProductMaintenance[]> {
+    return db
+      .select()
+      .from(productMaintenance)
+      .where(eq(productMaintenance.status, "active"))
+      .orderBy(productMaintenance.startsAt)
   }
-
-  // Product Maintenance Repository Methods
 
   static async findMaintenanceByProductId(
     productId: string
@@ -201,6 +189,17 @@ export class ProductRepository {
   }
 
   // Product Versions Repository Methods
+
+  static async findVersionById(
+    versionId: string
+  ): Promise<ProductVersion | null> {
+    const result = await db
+      .select()
+      .from(productVersions)
+      .where(eq(productVersions.id, versionId))
+      .limit(1)
+    return result[0] || null
+  }
 
   static async findVersionsByProductId(productId: string): Promise<ProductVersion[]> {
     return db
