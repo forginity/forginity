@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { Inter, Lexend } from "next/font/google"
+import { Lexend } from "next/font/google"
 import "@workspace/ui/globals.css"
 import { ThemeProvider } from "@workspace/ui/components/theme-provider"
 import { TooltipProvider } from "@workspace/ui/components/tooltip"
@@ -9,14 +9,9 @@ import { cn } from "@workspace/ui/lib/utils"
 
 const lexend = Lexend({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
+  weight: ["300", "400", "500", "600", "700"],
   variable: "--font-sans",
-})
-
-const inter = Inter({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-inter",
+  display: "swap",
 })
 
 export const metadata: Metadata = {
@@ -35,11 +30,13 @@ export default function RootLayout({
       suppressHydrationWarning
       className={cn(
         "dark antialiased font-sans font-light",
-        lexend.variable,
-        inter.variable
+        lexend.variable
       )}
+      style={{
+        fontFamily: "var(--font-sans), sans-serif",
+      }}
     >
-      <body className="h-screen max-h-screen overflow-hidden bg-background text-foreground">
+      <body className="h-screen max-h-screen overflow-hidden bg-background text-foreground font-sans">
         <ThemeProvider defaultTheme="dark">
           <TooltipProvider>
             <ReduxProvider>

@@ -198,10 +198,10 @@ export default function AdminUsersPage() {
         {/* Page Header (Matching Figma Node 310:350 - 310:353) */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="font-['Lexend'] text-2xl sm:text-3xl font-light text-[#f6f6f6] tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-light text-[#f6f6f6] tracking-tight">
               Users
             </h1>
-            <p className="text-xs sm:text-sm text-[#929292] mt-1 font-['Inter']">
+            <p className="text-xs sm:text-sm text-[#929292] mt-1">
               Monitor accounts, verification and onboarding in one place.
             </p>
           </div>
@@ -223,68 +223,68 @@ export default function AdminUsersPage() {
         <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
           {/* Card 1: Total Users */}
           <div className="h-[120px] rounded-[10px] bg-[#141414] border border-[#292929]/50 p-[18px] flex flex-col justify-between transition-colors">
-            <span className="text-xs font-normal text-[#b9b9b9] font-['Inter']">
+            <span className="text-xs font-normal text-[#b9b9b9]">
               Total users
             </span>
-            <span className="font-['Lexend'] text-2xl sm:text-[30px] font-light text-[#f6f6f6] leading-none">
+            <span className="text-2xl sm:text-[30px] font-light text-[#f6f6f6] leading-none">
               {isLoading ? (
                 <span className="inline-block h-8 w-24 bg-[#252525] animate-pulse rounded" />
               ) : (
                 totalCount.toLocaleString()
               )}
             </span>
-            <span className="text-xs text-[#929292] font-['Inter']">
+            <span className="text-xs text-[#929292]">
               All registered accounts
             </span>
           </div>
 
           {/* Card 2: Active Users */}
           <div className="h-[120px] rounded-[10px] bg-[#141414] border border-[#292929]/50 p-[18px] flex flex-col justify-between transition-colors">
-            <span className="text-xs font-normal text-[#b9b9b9] font-['Inter']">
+            <span className="text-xs font-normal text-[#b9b9b9]">
               Active users
             </span>
-            <span className="font-['Lexend'] text-2xl sm:text-[30px] font-light text-[#f6f6f6] leading-none">
+            <span className="text-2xl sm:text-[30px] font-light text-[#f6f6f6] leading-none">
               {isLoading ? (
                 <span className="inline-block h-8 w-24 bg-[#252525] animate-pulse rounded" />
               ) : (
                 activeCount.toLocaleString()
               )}
             </span>
-            <span className="text-xs text-[#a2c7ad] font-['Inter'] font-medium">
+            <span className="text-xs text-[#a2c7ad] font-medium">
               {activePercent}% of directory
             </span>
           </div>
 
           {/* Card 3: Verified Users */}
           <div className="h-[120px] rounded-[10px] bg-[#141414] border border-[#292929]/50 p-[18px] flex flex-col justify-between transition-colors">
-            <span className="text-xs font-normal text-[#b9b9b9] font-['Inter']">
+            <span className="text-xs font-normal text-[#b9b9b9]">
               Verified users
             </span>
-            <span className="font-['Lexend'] text-2xl sm:text-[30px] font-light text-[#f6f6f6] leading-none">
+            <span className="text-2xl sm:text-[30px] font-light text-[#f6f6f6] leading-none">
               {isLoading ? (
                 <span className="inline-block h-8 w-24 bg-[#252525] animate-pulse rounded" />
               ) : (
                 verifiedCount.toLocaleString()
               )}
             </span>
-            <span className="text-xs text-[#a2c7ad] font-['Inter'] font-medium">
+            <span className="text-xs text-[#a2c7ad] font-medium">
               {verifiedPercent}% verification rate
             </span>
           </div>
 
           {/* Card 4: Pending Onboarding */}
           <div className="h-[120px] rounded-[10px] bg-[#141414] border border-[#292929]/50 p-[18px] flex flex-col justify-between transition-colors">
-            <span className="text-xs font-normal text-[#b9b9b9] font-['Inter']">
+            <span className="text-xs font-normal text-[#b9b9b9]">
               Pending onboarding
             </span>
-            <span className="font-['Lexend'] text-2xl sm:text-[30px] font-light text-[#f6f6f6] leading-none">
+            <span className="text-2xl sm:text-[30px] font-light text-[#f6f6f6] leading-none">
               {isLoading ? (
                 <span className="inline-block h-8 w-24 bg-[#252525] animate-pulse rounded" />
               ) : (
                 pendingOnboardCount.toLocaleString()
               )}
             </span>
-            <span className="text-xs text-[#dfc38c] font-['Inter'] font-medium">
+            <span className="text-xs text-[#dfc38c] font-medium">
               {pendingPercent}% need to complete setup
             </span>
           </div>
@@ -295,11 +295,11 @@ export default function AdminUsersPage() {
           {/* Card Top Title Bar */}
           <div className="flex items-center justify-between px-5 py-4 border-b border-[#292929]">
             <div className="flex items-center gap-3">
-              <h2 className="font-['Lexend'] text-base font-light text-[#f6f6f6]">
+              <h2 className="text-base font-light text-[#f6f6f6]">
                 All users
               </h2>
             </div>
-            <span className="text-xs text-[#929292] font-['Inter'] hidden sm:inline-block">
+            <span className="text-xs text-[#929292] hidden sm:inline-block">
               Account directory
             </span>
           </div>
@@ -314,7 +314,7 @@ export default function AdminUsersPage() {
                 placeholder="Search by name, email or phone"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                className="h-[36px] w-full rounded-lg border border-[#292929] bg-[#090909] pl-9 pr-8 text-xs text-[#f6f6f6] placeholder:text-[#929292] outline-none transition-colors focus:border-[#ff6347]/60 font-['Inter']"
+                className="h-[36px] w-full rounded-lg border border-[#292929] bg-[#090909] pl-9 pr-8 text-xs text-[#f6f6f6] placeholder:text-[#929292] outline-none transition-colors focus:border-[#ff6347]/60"
               />
               {searchInput && (
                 <button
@@ -387,7 +387,7 @@ export default function AdminUsersPage() {
               </div>
 
               {/* Active Records Indicator */}
-              <span className="text-xs text-[#929292] font-['Inter'] pl-1">
+              <span className="text-xs text-[#929292] pl-1">
                 {displayedUsers.length} shown
               </span>
             </div>
@@ -398,7 +398,7 @@ export default function AdminUsersPage() {
             <table className="w-full min-w-[950px] border-collapse text-left text-xs">
               {/* Table Header (Matching Figma Node 310:387 - 310:396) */}
               <thead>
-                <tr className="h-[40px] border-b border-[#292929] bg-[#191919] text-[12px] font-normal text-[#b9b9b9] font-['Inter']">
+                <tr className="h-[40px] border-b border-[#292929] bg-[#191919] text-[12px] font-normal text-[#b9b9b9]">
                   <th className="py-2 px-4 w-[240px]">User</th>
                   <th className="py-2 px-4 w-[140px]">Phone</th>
                   <th className="py-2 px-4 w-[70px]">Country</th>
@@ -412,7 +412,7 @@ export default function AdminUsersPage() {
               </thead>
 
               {/* Table Body */}
-              <tbody className="divide-y divide-[#292929]/70 font-['Inter']">
+              <tbody className="divide-y divide-[#292929]/70">
                 {isLoading ? (
                   // Zero-CLS Loading Skeletons: Exact row height 72px
                   Array.from({ length: pageSize }).map((_, idx) => (
@@ -628,7 +628,7 @@ export default function AdminUsersPage() {
           </div>
 
           {/* Table Footer & Pagination (Matching Figma Node 310:493 - 310:505) */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-5 py-4 border-t border-[#292929] bg-[#141414] text-xs font-['Inter']">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-5 py-4 border-t border-[#292929] bg-[#141414] text-xs">
             {/* Showing Count */}
             <p className="text-[#929292]">
               Showing {startRecord}–{endRecord} of {totalCount.toLocaleString()} users

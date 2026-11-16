@@ -166,7 +166,7 @@ export default function UserDetailPage() {
           <div className="space-y-6">
             <Link
               href="/users"
-              className="inline-flex items-center gap-1.5 text-xs text-[#b9b9b9] hover:text-[#f6f6f6] transition-colors font-['Inter']"
+              className="inline-flex items-center gap-1.5 text-xs text-[#b9b9b9] hover:text-[#f6f6f6] transition-colors"
             >
               <ArrowLeft className="size-3.5" />
               <span>All users</span>
@@ -182,7 +182,7 @@ export default function UserDetailPage() {
           <div className="space-y-6">
             <Link
               href="/users"
-              className="inline-flex items-center gap-1.5 text-xs text-[#b9b9b9] hover:text-[#f6f6f6] transition-colors font-['Inter']"
+              className="inline-flex items-center gap-1.5 text-xs text-[#b9b9b9] hover:text-[#f6f6f6] transition-colors"
             >
               <ArrowLeft className="size-3.5" />
               <span>All users</span>
@@ -207,7 +207,7 @@ export default function UserDetailPage() {
             <div>
               <Link
                 href="/users"
-                className="inline-flex items-center gap-1.5 text-xs text-[#b9b9b9] hover:text-[#f6f6f6] transition-colors font-['Inter'] group"
+                className="inline-flex items-center gap-1.5 text-xs text-[#b9b9b9] hover:text-[#f6f6f6] transition-colors group"
               >
                 <ArrowLeft className="size-3.5 transition-transform group-hover:-translate-x-0.5" />
                 <span>All users</span>
@@ -217,10 +217,10 @@ export default function UserDetailPage() {
             {/* Page Title & Utility Actions Bar (Figma Node 310:507 - 310:510) */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h1 className="font-['Lexend'] text-[28px] sm:text-[30px] font-light leading-tight text-[#f6f6f6] tracking-tight">
+                <h1 className="text-[28px] sm:text-[30px] font-light leading-tight text-[#f6f6f6] tracking-tight">
                   User details
                 </h1>
-                <p className="text-xs sm:text-sm text-[#929292] font-['Inter'] mt-1">
+                <p className="text-xs sm:text-sm text-[#929292] mt-1">
                   View profile information, sign-in method and account verification.
                 </p>
               </div>
@@ -228,7 +228,7 @@ export default function UserDetailPage() {
               <button
                 type="button"
                 onClick={handleExportDetails}
-                className="inline-flex h-[34px] items-center gap-2 self-start sm:self-auto rounded-[8px] bg-[#191919] border border-[#292929] px-3.5 text-xs font-normal text-[#f6f6f6] hover:bg-[#252525] hover:border-[#383838] transition-colors cursor-pointer shrink-0 font-['Inter']"
+                className="inline-flex h-[34px] items-center gap-2 self-start sm:self-auto rounded-[8px] bg-[#191919] border border-[#292929] px-3.5 text-xs font-normal text-[#f6f6f6] hover:bg-[#252525] hover:border-[#383838] transition-colors cursor-pointer shrink-0"
               >
                 <Download className="size-3.5 text-[#b9b9b9]" />
                 <span>Export details</span>
@@ -238,18 +238,18 @@ export default function UserDetailPage() {
             {/* User Account Summary Hero Card (Figma Node 310:511 - 310:519) */}
             <div className="rounded-[10px] bg-[#141414] border border-[#292929] p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
               <div className="space-y-1">
-                <h2 className="font-['Lexend'] text-xl sm:text-2xl font-light text-[#f6f6f6] leading-snug">
+                <h2 className="text-xl sm:text-2xl font-light text-[#f6f6f6] leading-snug">
                   {fullName}
                 </h2>
-                <p className="text-sm text-[#b9b9b9] font-['Inter']">
+                <p className="text-sm text-[#b9b9b9]">
                   {user.email || "No email on record"}
                 </p>
-                <p className="text-xs text-[#929292] font-['Inter'] font-mono pt-0.5">
+                <p className="text-xs text-[#929292] font-mono pt-0.5">
                   User since {formatSinceDate(user.createdAt)}
                 </p>
               </div>
 
-              <div className="flex flex-col md:items-end gap-2.5 shrink-0 font-['Inter']">
+              <div className="flex flex-col md:items-end gap-2.5 shrink-0">
                 <div className="flex items-center gap-2">
                   {/* Status Badge */}
                   {user.status === "active" ? (
@@ -313,12 +313,12 @@ export default function UserDetailPage() {
                 {/* 1. Personal Information Card (Figma Node 310:520 - 310:540) */}
                 <div className="rounded-[10px] bg-[#141414] border border-[#292929] overflow-hidden shadow-sm">
                   <div className="px-5 py-4 border-b border-[#292929]">
-                    <h3 className="font-['Lexend'] text-base font-light text-[#f6f6f6]">
+                    <h3 className="text-base font-light text-[#f6f6f6]">
                       Personal information
                     </h3>
                   </div>
 
-                  <div className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-5 font-['Inter']">
+                  <div className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-5">
                     {/* Display name */}
                     <div>
                       <p className="text-xs text-[#929292]">Display name</p>
@@ -370,12 +370,12 @@ export default function UserDetailPage() {
                 {/* 2. Contact Information Card (Figma Node 310:541 - 310:554) */}
                 <div className="rounded-[10px] bg-[#141414] border border-[#292929] overflow-hidden shadow-sm">
                   <div className="px-5 py-4 border-b border-[#292929]">
-                    <h3 className="font-['Lexend'] text-base font-light text-[#f6f6f6]">
+                    <h3 className="text-base font-light text-[#f6f6f6]">
                       Contact information
                     </h3>
                   </div>
 
-                  <div className="p-5 space-y-4 font-['Inter']">
+                  <div className="p-5 space-y-4">
                     {/* Email Row */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                       <div>
@@ -421,12 +421,12 @@ export default function UserDetailPage() {
                 {/* 3. System Information Card (Figma Node 310:555 - 310:561) */}
                 <div className="rounded-[10px] bg-[#141414] border border-[#292929] overflow-hidden shadow-sm">
                   <div className="px-5 py-4 border-b border-[#292929]">
-                    <h3 className="font-['Lexend'] text-base font-light text-[#f6f6f6]">
+                    <h3 className="text-base font-light text-[#f6f6f6]">
                       System information
                     </h3>
                   </div>
 
-                  <div className="p-5 font-['Inter']">
+                  <div className="p-5">
                     <p className="text-xs text-[#929292]">User ID</p>
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-1.5">
                       <p className="text-xs sm:text-sm text-[#f6f6f6] font-mono break-all">
@@ -435,7 +435,7 @@ export default function UserDetailPage() {
                       <button
                         type="button"
                         onClick={handleCopyId}
-                        className="inline-flex h-[34px] items-center gap-1.5 self-start sm:self-auto rounded-[8px] bg-[#191919] border border-[#292929] px-3 text-xs font-normal text-[#f6f6f6] hover:bg-[#252525] hover:border-[#383838] transition-colors cursor-pointer shrink-0 font-['Inter']"
+                        className="inline-flex h-[34px] items-center gap-1.5 self-start sm:self-auto rounded-[8px] bg-[#191919] border border-[#292929] px-3 text-xs font-normal text-[#f6f6f6] hover:bg-[#252525] hover:border-[#383838] transition-colors cursor-pointer shrink-0"
                       >
                         {copiedId ? (
                           <>
@@ -458,7 +458,7 @@ export default function UserDetailPage() {
                   <div className="px-5 py-4 border-b border-[#292929] flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <HeartHandshake className="size-4 text-[#ff967f]" />
-                      <h3 className="font-['Lexend'] text-base font-light text-[#f6f6f6]">
+                      <h3 className="text-base font-light text-[#f6f6f6]">
                         Emergency contacts
                       </h3>
                     </div>
@@ -467,7 +467,7 @@ export default function UserDetailPage() {
                     </span>
                   </div>
 
-                  <div className="p-5 font-['Inter']">
+                  <div className="p-5">
                     {emergencyContacts.length > 0 ? (
                       <div className="space-y-3">
                         {emergencyContacts.map((contact, index) => (
@@ -510,12 +510,12 @@ export default function UserDetailPage() {
                 {/* 1. Authentication Card (Figma Node 310:562 - 310:569) */}
                 <div className="rounded-[10px] bg-[#141414] border border-[#292929] overflow-hidden shadow-sm">
                   <div className="px-5 py-4 border-b border-[#292929]">
-                    <h3 className="font-['Lexend'] text-base font-light text-[#f6f6f6]">
+                    <h3 className="text-base font-light text-[#f6f6f6]">
                       Authentication
                     </h3>
                   </div>
 
-                  <div className="p-5 space-y-4 font-['Inter']">
+                  <div className="p-5 space-y-4">
                     <div>
                       <p className="text-xs text-[#929292]">Sign-in provider</p>
                       <p className="text-sm text-[#f6f6f6] mt-1 font-medium">
@@ -537,12 +537,12 @@ export default function UserDetailPage() {
                 {/* 2. Verification & Onboarding Card (Figma Node 310:570 - 310:583) */}
                 <div className="rounded-[10px] bg-[#141414] border border-[#292929] overflow-hidden shadow-sm">
                   <div className="px-5 py-4 border-b border-[#292929]">
-                    <h3 className="font-['Lexend'] text-base font-light text-[#f6f6f6]">
+                    <h3 className="text-base font-light text-[#f6f6f6]">
                       Verification & onboarding
                     </h3>
                   </div>
 
-                  <div className="p-5 space-y-3 font-['Inter'] text-sm">
+                  <div className="p-5 space-y-3 text-sm">
                     {/* Account verified */}
                     <div className="flex items-center justify-between">
                       <span className="text-[#b9b9b9]">Account verified</span>
@@ -606,12 +606,12 @@ export default function UserDetailPage() {
                 {/* 3. Account Timestamps Card (Figma Node 310:584 - 310:590) */}
                 <div className="rounded-[10px] bg-[#141414] border border-[#292929] overflow-hidden shadow-sm">
                   <div className="px-5 py-4 border-b border-[#292929]">
-                    <h3 className="font-['Lexend'] text-base font-light text-[#f6f6f6]">
+                    <h3 className="text-base font-light text-[#f6f6f6]">
                       Account timestamps
                     </h3>
                   </div>
 
-                  <div className="p-5 space-y-3 font-['Inter'] text-xs">
+                  <div className="p-5 space-y-3 text-xs">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                       <span className="text-[#929292]">Created</span>
                       <span className="text-[#b9b9b9] font-mono">
@@ -635,13 +635,13 @@ export default function UserDetailPage() {
                   <div className="px-5 py-4 border-b border-[#292929] flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Shield className="size-4 text-[#b9b9b9]" />
-                      <h3 className="font-['Lexend'] text-base font-light text-[#f6f6f6]">
+                      <h3 className="text-base font-light text-[#f6f6f6]">
                         Account moderation
                       </h3>
                     </div>
                   </div>
 
-                  <div className="p-5 space-y-3 font-['Inter']">
+                  <div className="p-5 space-y-3">
                     {/* Status change actions */}
                     {user.status === "active" ? (
                       <button
@@ -693,7 +693,7 @@ export default function UserDetailPage() {
 
             {/* Bottom Footer Note (Figma Node 310:591) */}
             <div className="pt-2">
-              <p className="text-xs text-[#929292] font-['Inter']">
+              <p className="text-xs text-[#929292]">
                 All timestamps are shown in UTC. Sensitive authentication credentials are not displayed.
               </p>
             </div>
@@ -709,16 +709,16 @@ export default function UserDetailPage() {
                   <AlertTriangle className="size-5" />
                 </div>
                 <div>
-                  <h4 className="font-['Lexend'] text-base font-light text-[#f6f6f6]">
+                  <h4 className="text-base font-light text-[#f6f6f6]">
                     Confirm account status change
                   </h4>
-                  <p className="text-xs text-[#929292] font-['Inter']">
+                  <p className="text-xs text-[#929292]">
                     Updating account to <strong className="text-[#f6f6f6]">{confirmingStatus}</strong>
                   </p>
                 </div>
               </div>
 
-              <p className="text-xs text-[#b9b9b9] font-['Inter'] leading-relaxed">
+              <p className="text-xs text-[#b9b9b9] leading-relaxed">
                 {confirmingStatus === "blocked"
                   ? "Blocking this user will immediately revoke all active sessions across all devices and prevent any future sign-in attempts."
                   : confirmingStatus === "deleted"
@@ -727,7 +727,7 @@ export default function UserDetailPage() {
               </p>
 
               <div>
-                <label className="text-xs text-[#929292] font-['Inter'] block mb-1.5">
+                <label className="text-xs text-[#929292] block mb-1.5">
                   Audit log reason (optional)
                 </label>
                 <input
@@ -735,7 +735,7 @@ export default function UserDetailPage() {
                   placeholder="e.g. Terms of service violation, admin request"
                   value={moderationReason}
                   onChange={(e) => setModerationReason(e.target.value)}
-                  className="h-[36px] w-full rounded-lg border border-[#292929] bg-[#090909] px-3 text-xs text-[#f6f6f6] placeholder:text-[#838383] outline-none focus:border-[#ff6347]/60 font-['Inter']"
+                  className="h-[36px] w-full rounded-lg border border-[#292929] bg-[#090909] px-3 text-xs text-[#f6f6f6] placeholder:text-[#838383] outline-none focus:border-[#ff6347]/60"
                 />
               </div>
 

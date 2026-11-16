@@ -157,10 +157,10 @@ export function UserDetailSheet({
         <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
           {/* Header Title Section */}
           <SheetHeader className="p-0 space-y-1">
-            <SheetTitle className="font-['Lexend'] text-2xl font-light text-[#f6f6f6] tracking-tight">
+            <SheetTitle className="text-2xl font-light text-[#f6f6f6] tracking-tight">
               User details
             </SheetTitle>
-            <SheetDescription className="text-xs text-[#929292] font-['Inter']">
+            <SheetDescription className="text-xs text-[#929292]">
               View profile information, sign-in method, verification, and moderation controls.
             </SheetDescription>
           </SheetHeader>
@@ -214,7 +214,7 @@ export function UserDetailSheet({
                     {initials.toUpperCase()}
                   </div>
                   <div>
-                    <h3 className="font-['Lexend'] text-xl font-light text-[#f6f6f6] leading-tight">
+                    <h3 className="text-xl font-light text-[#f6f6f6] leading-tight">
                       {fullName}
                     </h3>
                     <p className="text-xs text-[#b9b9b9] font-mono mt-0.5">
@@ -246,7 +246,7 @@ export function UserDetailSheet({
 
               {/* Profile & Contact Details Section */}
               <div className="rounded-[10px] bg-[#141414] border border-[#292929] p-5 space-y-4">
-                <h4 className="text-xs font-semibold text-[#838383] uppercase tracking-wider font-['Inter']">
+                <h4 className="text-xs font-semibold text-[#838383] uppercase tracking-wider">
                   Profile & Contact Information
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
@@ -279,7 +279,7 @@ export function UserDetailSheet({
 
               {/* Authentication & Security Section */}
               <div className="rounded-[10px] bg-[#141414] border border-[#292929] p-5 space-y-4">
-                <h4 className="text-xs font-semibold text-[#838383] uppercase tracking-wider font-['Inter']">
+                <h4 className="text-xs font-semibold text-[#838383] uppercase tracking-wider">
                   Authentication & Security
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
@@ -335,7 +335,7 @@ export function UserDetailSheet({
               {/* Linked Emergency Contacts Section */}
               <div className="rounded-[10px] bg-[#141414] border border-[#292929] p-5 space-y-3">
                 <div className="flex items-center justify-between">
-                  <h4 className="text-xs font-semibold text-[#838383] uppercase tracking-wider font-['Inter'] flex items-center gap-1.5">
+                  <h4 className="text-xs font-semibold text-[#838383] uppercase tracking-wider flex items-center gap-1.5">
                     <HeartHandshake className="size-3.5 text-[#ff967f]" />
                     <span>Emergency Contacts ({contacts.length})</span>
                   </h4>
@@ -376,7 +376,7 @@ export function UserDetailSheet({
 
               {/* Account Moderation Actions */}
               <div className="rounded-[10px] bg-[#141414] border border-[#292929] p-5 space-y-4">
-                <h4 className="text-xs font-semibold text-[#838383] uppercase tracking-wider font-['Inter'] flex items-center gap-1.5">
+                <h4 className="text-xs font-semibold text-[#838383] uppercase tracking-wider flex items-center gap-1.5">
                   <Shield className="size-3.5 text-[#ff6347]" />
                   <span>Account Moderation</span>
                 </h4>
