@@ -101,6 +101,45 @@ describe("Email Auth Routes (/api/auth/email)", () => {
       expect(res.body.error).toContain("Please wait 45 seconds")
       expect(res.body.code).toBe("RATE_LIMITED")
     })
+
+    it("should return 404 Not Found when intent is sign_in and account does not exist", async () => {
+      vi.spyOn(authService, "initiateEmailAuth").mockRejectedValueOnce(
+        new AuthServiceError("No account found with this email address.", 404, {
+          code: "USER_NOT_FOUND",
+        })
+      )
+
+      const res = await request(app)
+        .post("/api/auth/email/initiate")
+        .send({
+          email: "unregistered@forginity.com",
+          intent: "sign_in",
+        })
+
+      expect(res.status).toBe(404)
+      expect(res.body.code).toBe("USER_NOT_FOUND")
+      expect(res.body.error).toBe("No account found with this email address.")
+    })
+
+    it("should return 403 Forbidden when intent is sign_in and user lacks admin role", async () => {
+      vi.spyOn(authService, "initiateEmailAuth").mockRejectedValueOnce(
+        new AuthServiceError("Access denied. Administrator privileges required.", 403, {
+          code: "FORBIDDEN",
+        })
+      )
+
+      const res = await request(app)
+        .post("/api/auth/email/initiate")
+        .send({
+          email: "regular@forginity.com",
+          intent: "sign_in",
+          userType: "admin",
+        })
+
+      expect(res.status).toBe(403)
+      expect(res.body.code).toBe("FORBIDDEN")
+      expect(res.body.error).toBe("Access denied. Administrator privileges required.")
+    })
   })
 
   describe("POST /api/auth/email/verify", () => {
@@ -196,6 +235,8 @@ describe("Email Auth Routes (/api/auth/email)", () => {
       expect(res.body.isOnboarded).toBe(true)
       expect(res.body.session.accessToken).toBe("mock.access.token")
       expect(res.body.session.refreshToken).toBe("mock.refresh.token")
+      expect(res.headers["set-cookie"]).toBeDefined()
+      expect(res.headers["set-cookie"][0]).toContain("refreshToken=mock.refresh.token")
     })
 
     it("should return 400 Bad Request if requestId is not a valid UUID", async () => {
@@ -231,6 +272,47 @@ describe("Email Auth Routes (/api/auth/email)", () => {
       expect(res.body.code).toBe("INVALID_CODE")
       expect(res.body.remainingAttempts).toBe(2)
       expect(res.body.maxAttempts).toBe(3)
+    })
+
+    it("should return 404 Not Found when intent is sign_in and user does not exist", async () => {
+      vi.spyOn(authService, "verifyEmailAuth").mockRejectedValueOnce(
+        new AuthServiceError("No account found with this email address.", 404, {
+          code: "USER_NOT_FOUND",
+        })
+      )
+
+      const res = await request(app)
+        .post("/api/auth/email/verify")
+        .send({
+          requestId: "550e8400-e29b-41d4-a716-446655440000",
+          code: "123456",
+          intent: "sign_in",
+        })
+
+      expect(res.status).toBe(404)
+      expect(res.body.code).toBe("USER_NOT_FOUND")
+      expect(res.body.error).toBe("No account found with this email address.")
+    })
+
+    it("should return 403 Forbidden when userType is admin but user is non-admin", async () => {
+      vi.spyOn(authService, "verifyEmailAuth").mockRejectedValueOnce(
+        new AuthServiceError("Access denied. Administrator privileges required.", 403, {
+          code: "FORBIDDEN",
+        })
+      )
+
+      const res = await request(app)
+        .post("/api/auth/email/verify")
+        .send({
+          requestId: "550e8400-e29b-41d4-a716-446655440000",
+          code: "123456",
+          intent: "sign_in",
+          userType: "admin",
+        })
+
+      expect(res.status).toBe(403)
+      expect(res.body.code).toBe("FORBIDDEN")
+      expect(res.body.error).toBe("Access denied. Administrator privileges required.")
     })
   })
 })

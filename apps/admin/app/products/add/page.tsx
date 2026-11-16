@@ -10,14 +10,10 @@ import {
   Loader2,
   Plus,
 } from "lucide-react"
-import { AppShell } from "@workspace/ui/components/app-shell"
+import { AdminShell } from "@/components/admin-shell"
 import { Button } from "@workspace/ui/components/button"
 import { Card } from "@workspace/ui/components/card"
 import { Input } from "@workspace/ui/components/input"
-import {
-  ADMIN_NAV_SECTIONS,
-  ADMIN_USER_PROFILE,
-} from "@/constants/admin-nav.constants"
 import { useCreateProduct } from "@forginity/sdk/modules/products/products.hooks"
 import type { ProductStatus, VersionStatus } from "@forginity/sdk/modules/products/products.types"
 import { ApiError } from "@forginity/sdk/core/api-error"
@@ -111,16 +107,13 @@ export default function AddProductPage() {
   }
 
   return (
-    <AppShell
+    <AdminShell
       currentPath="/products/add"
       breadcrumbs={[
         { label: "Workspace" },
         { label: "Product", href: "/products" },
         { label: "Add product" },
       ]}
-      sections={ADMIN_NAV_SECTIONS}
-      user={ADMIN_USER_PROFILE}
-      linkComponent={Link}
     >
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         {/* Back navigation */}
@@ -369,6 +362,6 @@ export default function AddProductPage() {
           </div>
         </Card>
       </form>
-    </AppShell>
+    </AdminShell>
   )
 }

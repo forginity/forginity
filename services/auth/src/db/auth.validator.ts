@@ -131,6 +131,9 @@ export type VerifyOtpRequestInput = z.infer<typeof VerifyOtpRequestSchema>
 /**
  * Unified Passwordless Email Auth Schemas
  */
+export const AuthIntentEnum = z.enum(["authentication", "sign_in"])
+export type AuthIntent = z.infer<typeof AuthIntentEnum>
+
 export const InitiateEmailAuthSchema = z.object({
   email: z
     .string()
@@ -140,14 +143,18 @@ export const InitiateEmailAuthSchema = z.object({
     .email("Invalid email address format")
     .transform((val) => val.toLowerCase()),
   productName: z.string().trim().max(100).optional(),
+  intent: AuthIntentEnum.optional().default("authentication"),
+  userType: UserTypeEnum.optional(),
 })
-export type InitiateEmailAuthInput = z.infer<typeof InitiateEmailAuthSchema>
+export type InitiateEmailAuthInput = z.input<typeof InitiateEmailAuthSchema>
 
 export const VerifyEmailAuthSchema = z.object({
   requestId: z.string().uuid("Invalid requestId UUID format"),
   code: z.string().regex(/^\d{6}$/, "Verification code must be a 6-digit numeric string"),
+  intent: AuthIntentEnum.optional(),
+  userType: UserTypeEnum.optional(),
 })
-export type VerifyEmailAuthInput = z.infer<typeof VerifyEmailAuthSchema>
+export type VerifyEmailAuthInput = z.input<typeof VerifyEmailAuthSchema>
 
 export const GoogleAuthSchema = z.object({
   idToken: z.string().min(1, "Google ID token is required"),

@@ -23,6 +23,13 @@ import {
 } from "@workspace/ui/constants/brand.constants"
 import { BrandLogo } from "@workspace/ui/components/brand-logo"
 import { Avatar, AvatarFallback, AvatarImage } from "@workspace/ui/components/avatar"
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@workspace/ui/components/dropdown-menu"
 
 export interface AppSidebarProps extends React.HTMLAttributes<HTMLElement> {
   currentPath?: string
@@ -296,37 +303,87 @@ export function AppSidebar({
           </div>
         )}
 
-        {/* User Profile Card: Exact 24px spacing above it */}
-        {user && (
-          <div className="mt-[24px] flex h-[52px] w-full items-center justify-between rounded-[6px] border border-border/40 bg-[#141414] px-2.5 py-1.5">
-            <div className="flex items-center gap-2.5 min-w-0">
-              <Avatar className="size-[34px] shrink-0 rounded-full">
-                {user.avatarUrl && <AvatarImage src={user.avatarUrl} alt={user.name} />}
-                <AvatarFallback className="text-xs bg-[#1A1A1A] text-[#F6F6F6] font-medium">
-                  {user.initials}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex flex-col min-w-0">
-                <span className="text-[16px] font-normal text-[#F6F6F6] leading-tight truncate">
-                  {user.name}
-                </span>
-                <span className="text-[12px] font-light text-[#838383] leading-tight truncate">
-                  {user.role}
-                </span>
-              </div>
-            </div>
-
-            {onLogout && (
-              <button
-                type="button"
-                onClick={onLogout}
-                className="rounded p-1 text-[#838383] hover:bg-[#1A1A1A] hover:text-[#F6F6F6] transition-colors shrink-0"
-                title="Log out"
-                aria-label="Log out"
+        {/* User Profile Card with Interactive Dropdown Menu */}
+        {user ? (
+          <div className="mt-[24px]">
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                className="flex h-[52px] w-full items-center justify-between rounded-[8px] border border-border/40 bg-[#141414] px-2.5 py-1.5 hover:bg-[#1a1a1a] hover:border-border/60 transition-all text-left outline-none cursor-pointer group"
+                aria-label="User account menu"
               >
-                <LogOut className="size-4" />
-              </button>
-            )}
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <Avatar className="size-[34px] shrink-0 rounded-full">
+                    {user.avatarUrl && <AvatarImage src={user.avatarUrl} alt={user.name} />}
+                    <AvatarFallback className="text-xs bg-[#1A1A1A] text-[#F6F6F6] font-medium">
+                      {user.initials}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-[14px] font-normal text-[#F6F6F6] leading-tight truncate">
+                      {user.name}
+                    </span>
+                    <span className="text-[11px] font-light text-[#838383] leading-tight truncate">
+                      {user.email || user.role}
+                    </span>
+                  </div>
+                </div>
+
+                <ChevronDown className="size-4 shrink-0 text-[#838383] group-hover:text-[#F6F6F6] transition-colors" />
+              </DropdownMenuTrigger>
+
+              <DropdownMenuContent
+                side="top"
+                align="start"
+                sideOffset={8}
+                className="w-56 rounded-xl border border-[#292929] bg-[#141416] p-1.5 text-[#f6f6f6] shadow-2xl"
+              >
+                <div className="px-2.5 py-2">
+                  <p className="text-xs font-medium text-[#f6f6f6] truncate">{user.name}</p>
+                  {user.email && (
+                    <p className="text-[11px] text-[#838383] font-mono truncate">{user.email}</p>
+                  )}
+                  <div className="mt-1.5 inline-flex items-center rounded-sm bg-[#ff6347]/10 px-1.5 py-0.5 text-[10px] font-medium text-[#ff967f]">
+                    {user.role}
+                  </div>
+                </div>
+
+                <DropdownMenuSeparator className="bg-[#292929]" />
+
+                <DropdownMenuItem
+                  className="cursor-pointer text-xs text-[#b9b9b9] hover:bg-white/[0.06] hover:text-[#f6f6f6] rounded-md px-2.5 py-2"
+                  onClick={() => {
+                    if (typeof window !== "undefined") {
+                      window.location.href = "/settings"
+                    }
+                  }}
+                >
+                  <SettingsIcon className="size-3.5 mr-2 text-[#838383]" />
+                  <span>Account settings</span>
+                </DropdownMenuItem>
+
+                {onLogout && (
+                  <>
+                    <DropdownMenuSeparator className="bg-[#292929]" />
+                    <DropdownMenuItem
+                      variant="destructive"
+                      className="cursor-pointer text-xs text-[#ff967f] hover:bg-[#d94f2e]/10 hover:text-[#ff967f] rounded-md px-2.5 py-2"
+                      onClick={onLogout}
+                    >
+                      <LogOut className="size-3.5 mr-2 text-[#d94f2e]" />
+                      <span>Log out</span>
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        ) : (
+          <div className="mt-[24px] flex h-[52px] w-full items-center gap-2.5 rounded-[8px] border border-border/40 bg-[#141414] px-2.5 py-1.5 animate-pulse">
+            <div className="size-[34px] shrink-0 rounded-full bg-[#1e1e1e]" />
+            <div className="flex flex-col gap-1.5 flex-1 min-w-0">
+              <div className="h-3 w-20 rounded bg-[#1e1e1e]" />
+              <div className="h-2.5 w-28 rounded bg-[#1a1a1a]" />
+            </div>
           </div>
         )}
       </div>

@@ -10,6 +10,7 @@ export interface OtpInputProps {
   onComplete?: (value: string) => void
   disabled?: boolean
   className?: string
+  slotClassName?: string
   error?: boolean
 }
 
@@ -20,6 +21,7 @@ export function OtpInput({
   onComplete,
   disabled = false,
   className,
+  slotClassName,
   error = false,
 }: OtpInputProps) {
   const [digits, setDigits] = React.useState<string[]>(() => {
@@ -107,7 +109,7 @@ export function OtpInput({
   }
 
   return (
-    <div className={cn("flex items-center gap-2 sm:gap-3", className)}>
+    <div className={cn("flex items-center justify-between gap-2 sm:gap-2.5 w-full", className)}>
       {Array.from({ length }).map((_, index) => {
         const isFocused = activeIndex === index
         const digit = digits[index] || ""
@@ -115,10 +117,11 @@ export function OtpInput({
           <div
             key={index}
             className={cn(
-              "relative flex size-13 sm:size-[76px] items-center justify-center rounded-[14px] sm:rounded-[16px] border border-[#292929] bg-[#141414] transition-all",
-              isFocused && "border-[#FF6347] ring-1 ring-[#FF6347]/30",
+              "relative flex h-[50px] flex-1 max-w-[54px] items-center justify-center rounded-lg border border-[#292929] bg-[#141414] transition-all",
+              isFocused && "border-[#FF6347] ring-1 ring-[#FF6347]/40",
               error && "border-[#D94F2E]",
-              disabled && "opacity-50 pointer-events-none"
+              disabled && "opacity-50 pointer-events-none",
+              slotClassName
             )}
           >
             <input
@@ -133,11 +136,11 @@ export function OtpInput({
               onFocus={() => setActiveIndex(index)}
               onChange={(e) => handleChange(index, e.target.value)}
               onKeyDown={(e) => handleKeyDown(index, e)}
-              className="absolute inset-0 size-full bg-transparent text-center text-xl sm:text-[28px] font-normal text-[#F6F6F6] outline-none caret-transparent"
+              className="absolute inset-0 size-full bg-transparent text-center text-lg sm:text-xl font-medium font-mono text-[#F6F6F6] outline-none caret-transparent"
               aria-label={`Digit ${index + 1}`}
             />
             {!digit && isFocused && (
-              <span className="h-6 w-0.5 bg-[#FF6347] animate-pulse pointer-events-none" />
+              <span className="h-5 w-0.5 bg-[#FF6347] animate-pulse pointer-events-none" />
             )}
           </div>
         )

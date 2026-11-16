@@ -2,26 +2,19 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { AppShell } from "@workspace/ui/components/app-shell"
+import { AdminShell } from "@/components/admin-shell"
 import { Skeleton } from "@workspace/ui/components/skeleton"
-import {
-  ADMIN_NAV_SECTIONS,
-  ADMIN_USER_PROFILE,
-} from "@/constants/admin-nav.constants"
 import { ProductTableSkeleton } from "./product-table-skeleton"
 
 /**
  * Next.js App Router instant streaming loading state for /products.
- * Immediately paints AppShell, KPI Metric skeletons, and Table skeleton.
+ * Immediately paints AdminShell, KPI Metric skeletons, and Table skeleton.
  */
 export default function ProductsLoading() {
   return (
-    <AppShell
+    <AdminShell
       currentPath="/products"
       breadcrumbs={[{ label: "Workspace" }, { label: "Product" }]}
-      sections={ADMIN_NAV_SECTIONS}
-      user={ADMIN_USER_PROFILE}
-      linkComponent={Link}
     >
       <div className="flex flex-col gap-6 animate-pulse">
         {/* Page Heading & Actions Skeleton */}
@@ -80,6 +73,6 @@ export default function ProductsLoading() {
           </div>
         </div>
       </div>
-    </AppShell>
+    </AdminShell>
   )
 }

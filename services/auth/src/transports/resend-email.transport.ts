@@ -83,9 +83,34 @@ export class ResendEmailTransport implements OtpTransport {
         "[ResendEmailTransport] Failed to send email via nodemailer:",
         error
       )
+
+      const errCode = error?.code || ""
+      const errSyscall = error?.syscall || ""
+      let friendlyMessage = "Failed to dispatch verification email."
+
+      if (
+        errCode === "EAI_AGAIN" ||
+        errCode === "ENOTFOUND" ||
+        errCode === "EDNS" ||
+        errSyscall === "getaddrinfo"
+      ) {
+        friendlyMessage =
+          "Email service network error: unable to resolve mail server (DNS/network issue). Please verify your connection or try again shortly."
+      } else if (errCode === "ETIMEDOUT" || errCode === "ESOCKETTIMEDOUT") {
+        friendlyMessage =
+          "Email service connection timed out. Please check your network connection and try again."
+      } else if (errCode === "ECONNREFUSED" || errCode === "ECONNRESET") {
+        friendlyMessage =
+          "Email service connection was reset or refused by the mail server. Please try again shortly."
+      } else if (error?.responseCode >= 400 && error?.responseCode < 500) {
+        friendlyMessage = `Email provider rejected request: ${error?.message || "Invalid recipient or sender."}`
+      } else if (error?.message) {
+        friendlyMessage = `Email delivery error: ${error.message}`
+      }
+
       return {
         success: false,
-        error: error?.message || "Failed to dispatch email",
+        error: friendlyMessage,
       }
     }
   }

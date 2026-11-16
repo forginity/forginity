@@ -367,7 +367,15 @@ registry.registerPath({
       },
     },
     403: {
-      description: "Account is blocked or deleted",
+      description: "Account is blocked/deleted, or non-admin attempted admin sign-in",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    404: {
+      description: "Account not found (when intent is sign_in)",
       content: {
         "application/json": {
           schema: ErrorResponseSchema,
@@ -392,7 +400,7 @@ registry.registerPath({
   tags: ["Authentication"],
   summary: "Verify Email OTP & Provision Session or Onboarding Token",
   description:
-    "Validates the OTP code against requestId. If the user is new, automatically registers the account and returns a 2-hour onboardingToken. If the user is returning and onboarded, establishes an active session and returns accessToken + refreshToken.",
+    "Validates the OTP code against requestId. If the user is new, automatically registers the account and returns a 2-hour onboardingToken. If the user is returning and onboarded, establishes an active session, issues accessToken + refreshToken, and sets the HTTP-only secure refreshToken cookie.",
   request: {
     body: {
       content: {
@@ -424,7 +432,15 @@ registry.registerPath({
       },
     },
     403: {
-      description: "Account is blocked or deleted",
+      description: "Account is blocked/deleted, or non-admin attempted admin sign-in",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    404: {
+      description: "Account not found (when intent is sign_in)",
       content: {
         "application/json": {
           schema: ErrorResponseSchema,

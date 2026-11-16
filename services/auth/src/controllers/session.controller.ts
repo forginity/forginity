@@ -4,6 +4,10 @@ import {
   SessionService,
   SessionServiceError,
 } from "../services/session.service.js"
+import {
+  setRefreshTokenCookie,
+  clearRefreshTokenCookie,
+} from "../utils/cookie.utils.js"
 
 export class SessionController {
   private service: SessionService
@@ -26,6 +30,10 @@ export class SessionController {
         ipAddress: ipAddress ? String(ipAddress).split(",")[0].trim() : undefined,
         userAgent: userAgent ? String(userAgent) : undefined,
       })
+
+      if (result.session?.refreshToken) {
+        setRefreshTokenCookie(res, result.session.refreshToken)
+      }
 
       res.status(200).json(result)
     } catch (error) {
@@ -82,6 +90,7 @@ export class SessionController {
         undefined,
         userId
       )
+      clearRefreshTokenCookie(res)
       res.status(200).json(result)
     } catch (error) {
       if (error instanceof SessionServiceError) {
@@ -110,6 +119,7 @@ export class SessionController {
       }
 
       const result = await this.service.revokeAllSessions(req.user.id)
+      clearRefreshTokenCookie(res)
       res.status(200).json(result)
     } catch (error) {
       if (error instanceof SessionServiceError) {

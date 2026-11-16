@@ -4,6 +4,7 @@ import {
   OnboardingService,
   OnboardingServiceError,
 } from "../services/onboarding.service.js"
+import { setRefreshTokenCookie } from "../utils/cookie.utils.js"
 
 export class OnboardingController {
   private service: OnboardingService
@@ -38,6 +39,10 @@ export class OnboardingController {
           userAgent: userAgent ? String(userAgent) : undefined,
         }
       )
+
+      if (result.session?.refreshToken) {
+        setRefreshTokenCookie(res, result.session.refreshToken)
+      }
 
       res.status(200).json(result)
     } catch (error) {

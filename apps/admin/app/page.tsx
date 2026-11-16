@@ -4,27 +4,20 @@ import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Calendar, Download, Info } from "lucide-react"
-import { AppShell } from "@workspace/ui/components/app-shell"
+import { AdminShell } from "@/components/admin-shell"
 import { DashboardHeader } from "@workspace/ui/components/dashboard-header"
 import { MetricCard } from "@workspace/ui/components/metric-card"
 import { Button } from "@workspace/ui/components/button"
 import { Card } from "@workspace/ui/components/card"
-import {
-  ADMIN_NAV_SECTIONS,
-  ADMIN_USER_PROFILE,
-} from "@/constants/admin-nav.constants"
 import { WorkspacePulse } from "@/components/workspace-pulse"
 
 export default function AdminHomePage() {
   const pathname = usePathname()
 
   return (
-    <AppShell
+    <AdminShell
       currentPath={pathname}
       breadcrumbs={[{ label: "Workspace" }, { label: "Home" }]}
-      sections={ADMIN_NAV_SECTIONS}
-      user={ADMIN_USER_PROFILE}
-      linkComponent={Link}
     >
       {/* Page Header with Action Buttons */}
       <DashboardHeader
@@ -133,6 +126,6 @@ export default function AdminHomePage() {
         <span>© 2026 Forginity</span>
         <span>Last synced 30 Oct 2026, 09:30 UTC</span>
       </div>
-    </AppShell>
+    </AdminShell>
   )
 }

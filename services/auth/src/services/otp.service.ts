@@ -38,6 +38,12 @@ export class OtpServiceError extends Error {
       ...(this.details?.maxAttempts !== undefined
         ? { maxAttempts: this.details.maxAttempts }
         : {}),
+      ...(this.details?.cooldownSeconds !== undefined
+        ? { cooldownSeconds: this.details.cooldownSeconds }
+        : {}),
+      ...(this.details?.requestId
+        ? { requestId: this.details.requestId }
+        : {}),
     }
   }
 }
@@ -116,7 +122,11 @@ export class OtpService {
         throw new OtpServiceError(
           `Please wait ${waitSeconds} seconds before requesting another verification code.`,
           429,
-          { code: "RATE_LIMITED" }
+          {
+            code: "RATE_LIMITED",
+            cooldownSeconds: waitSeconds,
+            requestId: latestActive.id,
+          }
         )
       }
     }
@@ -161,10 +171,13 @@ export class OtpService {
     })
 
     if (!dispatchResult.success) {
+      // Clean up the unused/undelivered OTP record so user is NOT unfairly locked in cooldown
+      await this.repository.deleteOtpById(record.id).catch(() => {})
+
       throw new OtpServiceError(
         dispatchResult.error || "Failed to dispatch verification code",
-        500,
-        { code: "DISPATCH_FAILED" }
+        502,
+        { code: "DELIVERY_FAILED" }
       )
     }
 

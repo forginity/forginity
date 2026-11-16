@@ -21,17 +21,13 @@ import {
   Trash2,
   Workflow,
 } from "lucide-react"
-import { AppShell } from "@workspace/ui/components/app-shell"
+import { AdminShell } from "@/components/admin-shell"
 import { DashboardHeader } from "@workspace/ui/components/dashboard-header"
 import { MetricCard } from "@workspace/ui/components/metric-card"
 import { Button } from "@workspace/ui/components/button"
 import { Card } from "@workspace/ui/components/card"
 import { Input } from "@workspace/ui/components/input"
 import { Skeleton } from "@workspace/ui/components/skeleton"
-import {
-  ADMIN_NAV_SECTIONS,
-  ADMIN_USER_PROFILE,
-} from "@/constants/admin-nav.constants"
 import { useProducts } from "@forginity/sdk/modules/products/products.hooks"
 import type { Product } from "@forginity/sdk/modules/products/products.types"
 import { QueryErrorState } from "@/components/query-error-state"
@@ -95,12 +91,9 @@ export default function ProductsPage() {
   }
 
   return (
-    <AppShell
+    <AdminShell
       currentPath={pathname}
       breadcrumbs={[{ label: "Workspace" }, { label: "Product" }]}
-      sections={ADMIN_NAV_SECTIONS}
-      user={ADMIN_USER_PROFILE}
-      linkComponent={Link}
     >
       {/* Page Heading & Actions - Responsive wrap */}
       <DashboardHeader
@@ -403,6 +396,6 @@ export default function ProductsPage() {
           </div>
         </div>
       </Card>
-    </AppShell>
+    </AdminShell>
   )
 }

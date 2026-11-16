@@ -93,6 +93,27 @@ describe("Session Routes (/api/auth/session)", () => {
       expect(res.body.success).toBe(true)
     })
 
+    it("should accept refreshToken from Cookie header if not provided in body", async () => {
+      vi.spyOn(sessionService, "refreshSession").mockResolvedValueOnce({
+        success: true,
+        session: {
+          accessToken: "mock.rotated.access.token",
+          refreshToken: "mock.rotated.refresh.token",
+          expiresIn: 900,
+        },
+      })
+
+      const res = await request(app)
+        .post("/api/auth/session/refresh")
+        .set("Cookie", ["refreshToken=cookie.mock.refresh.token"])
+        .send({})
+
+      expect(res.status).toBe(200)
+      expect(res.body.success).toBe(true)
+      expect(res.headers["set-cookie"]).toBeDefined()
+      expect(res.headers["set-cookie"][0]).toContain("refreshToken=mock.rotated.refresh.token")
+    })
+
     it("should return 400 Bad Request if refreshToken is missing", async () => {
       const res = await request(app).post("/api/auth/session/refresh").send({})
 

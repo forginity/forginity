@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from "express"
 import { authService, AuthServiceError } from "../services/auth.service.js"
 import { OtpServiceError } from "../services/otp.service.js"
+import { setRefreshTokenCookie } from "../utils/cookie.utils.js"
 import type {
   InitiateEmailAuthInput,
   VerifyEmailAuthInput,
@@ -50,6 +51,10 @@ export class AuthController {
         ipAddress: clientIp,
         userAgent,
       })
+
+      if ("session" in result && result.session?.refreshToken) {
+        setRefreshTokenCookie(res, result.session.refreshToken)
+      }
 
       res.status(200).json(result)
     } catch (error) {

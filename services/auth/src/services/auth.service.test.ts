@@ -178,6 +178,47 @@ describe("AuthService Unit Tests", () => {
         authService.initiateEmailAuth({ email: "deleted@forginity.com" })
       ).rejects.toThrow("Account has been deleted.")
     })
+
+    it("should throw 404 USER_NOT_FOUND when intent is sign_in and user does not exist", async () => {
+      await expect(
+        authService.initiateEmailAuth({
+          email: "nonexistent@forginity.com",
+          intent: "sign_in",
+        })
+      ).rejects.toThrow("No account found with this email address.")
+    })
+
+    it("should throw 403 FORBIDDEN when intent is sign_in, userType is admin, but user is regular user", async () => {
+      await mockUserRepo.createUser({
+        email: "regular@forginity.com",
+        userType: "user",
+      })
+
+      await expect(
+        authService.initiateEmailAuth({
+          email: "regular@forginity.com",
+          intent: "sign_in",
+          userType: "admin",
+        })
+      ).rejects.toThrow("Access denied. Administrator privileges required.")
+    })
+
+    it("should succeed and dispatch OTP with purpose sign_in for existing admin user", async () => {
+      await mockUserRepo.createUser({
+        email: "admin@forginity.com",
+        userType: "admin",
+      })
+
+      const res = await authService.initiateEmailAuth({
+        email: "admin@forginity.com",
+        intent: "sign_in",
+        userType: "admin",
+      })
+
+      expect(res.success).toBe(true)
+      expect(res.isNewUser).toBe(false)
+      expect(res.requestId).toBeDefined()
+    })
   })
 
   describe("verifyEmailAuth", () => {
@@ -272,6 +313,63 @@ describe("AuthService Unit Tests", () => {
           code: "123456",
         })
       ).rejects.toThrow("Account is blocked. Please contact support.")
+    })
+
+    it("should throw 404 USER_NOT_FOUND when intent is sign_in and user does not exist in DB", async () => {
+      vi.spyOn(mockOtpService, "verifyOtp").mockResolvedValueOnce({
+        verified: true,
+        requestId: "550e8400-e29b-41d4-a716-446655440000",
+        identifier: "unknown@forginity.com",
+        identifierType: "email",
+        purpose: "sign_in",
+      })
+
+      await expect(
+        authService.verifyEmailAuth({
+          requestId: "550e8400-e29b-41d4-a716-446655440000",
+          code: "123456",
+          intent: "sign_in",
+        })
+      ).rejects.toThrow("No account found with this email address.")
+    })
+
+    it("should throw 403 FORBIDDEN when userType is admin but user in DB is regular user", async () => {
+      await mockUserRepo.createUser({
+        email: "rider@forginity.com",
+        userType: "user",
+        isOnboarded: true,
+      })
+
+      await expect(
+        authService.verifyEmailAuth({
+          requestId: "550e8400-e29b-41d4-a716-446655440000",
+          code: "123456",
+          intent: "sign_in",
+          userType: "admin",
+        })
+      ).rejects.toThrow("Access denied. Administrator privileges required.")
+    })
+
+    it("should verify successfully and issue session tokens for existing admin user", async () => {
+      await mockUserRepo.createUser({
+        email: "rider@forginity.com",
+        userType: "admin",
+        isOnboarded: true,
+      })
+
+      const res = await authService.verifyEmailAuth({
+        requestId: "550e8400-e29b-41d4-a716-446655440000",
+        code: "123456",
+        intent: "sign_in",
+        userType: "admin",
+      })
+
+      expect(res.success).toBe(true)
+      expect(res.isNewUser).toBe(false)
+      expect(res.isOnboarded).toBe(true)
+      expect((res as any).session).toBeDefined()
+      expect((res as any).session.accessToken).toBeDefined()
+      expect(res.user.userType).toBe("admin")
     })
   })
 })

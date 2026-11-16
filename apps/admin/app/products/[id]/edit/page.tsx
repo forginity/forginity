@@ -11,15 +11,11 @@ import {
   Trash2,
   TriangleAlert,
 } from "lucide-react"
-import { AppShell } from "@workspace/ui/components/app-shell"
+import { AdminShell } from "@/components/admin-shell"
 import { Button } from "@workspace/ui/components/button"
 import { Card } from "@workspace/ui/components/card"
 import { Input } from "@workspace/ui/components/input"
 import { Skeleton } from "@workspace/ui/components/skeleton"
-import {
-  ADMIN_NAV_SECTIONS,
-  ADMIN_USER_PROFILE,
-} from "@/constants/admin-nav.constants"
 import {
   useProduct,
   useUpdateProduct,
@@ -129,7 +125,7 @@ export default function EditProductPage() {
   }
 
   return (
-    <AppShell
+    <AdminShell
       currentPath={`/products/${id}/edit`}
       breadcrumbs={[
         { label: "Workspace" },
@@ -137,9 +133,6 @@ export default function EditProductPage() {
         { label: product?.name || (isLoading ? "Loading..." : "Product"), href: `/products/${id}` },
         { label: "Edit product" },
       ]}
-      sections={ADMIN_NAV_SECTIONS}
-      user={ADMIN_USER_PROFILE}
-      linkComponent={Link}
     >
       <div className="flex flex-col gap-6">
         {/* Back navigation */}
@@ -414,7 +407,7 @@ export default function EditProductPage() {
           </form>
         )}
       </div>
-    </AppShell>
+    </AdminShell>
   )
 }
 

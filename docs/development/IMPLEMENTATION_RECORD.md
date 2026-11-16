@@ -7,11 +7,11 @@
 
 ## 1. LAST UPDATE
 
-- **Timestamp:** `2026-11-13 21:15`
-- **Component / Service:** `services/auth` / `service_auth`
-- **Task:** `TASK-10: Admin User Management Suite (API & RBAC Authorization)`
+- **Timestamp:** `2026-11-16 20:25`
+- **Component / Service:** `apps/admin` / `web_admin_auth`
+- **Task:** `TASK-01: Login Screen UI & Login API Integration (Email + OTP)`
 - **Summary:**
-  Implemented administrative user directory, inspection, and status moderation APIs in `services/auth` with Actor-Based Clean Architecture (`admin-user.service.ts` / `admin-user.controller.ts`). Added `user_type` column to database, enforced strict RBAC via `requireAdmin` middleware (`userType === 'admin'`), immediate session purging on moderation, OpenAPI documentation, and verified across 25 test files and 194 passing tests.
+  Completed comprehensive hardening and production polish for admin login and authentication session. Handled SMTP/DNS delivery errors (`EAI_AGAIN`) with clean domain errors and undelivered OTP cleanup; added automatic cooldown timer countdown and direct code entry fallback in `LoginForm`; designed a modern, elegant, dark-mode responsive OTP email template (`otp-email.template.ts`); implemented interactive sidebar user avatar card with dropdown menu displaying logged-in administrator details; wired Redux user state with automatic SDK session hydration; implemented complete logout workflow with token/cookie revocation; and enforced Next.js 16 `proxy.ts` route protection. Verified via unit and integration suites across `@services/auth`, `@forginity/sdk`, `@workspace/ui`, and `@web/admin`.
 
 ---
 
@@ -46,3 +46,4 @@
 | 25 | [`service_auth`](./service_auth/TASK_LIST.md) | `TASK-08` | User Profile & Emergency Contacts API | [`TASK_08_IMPLEMENTATION_GUIDE.md`](./service_auth/TASK_08_IMPLEMENTATION_GUIDE.md) | 2026-11-12 | Vitest (159 tests) + PostgreSQL + TypeScript |
 | 26 | [`service_auth`](./service_auth/TASK_LIST.md) | `TASK-09` | User Lifecycle & Self-Service Account Deletion API | [`TASK_09_IMPLEMENTATION_GUIDE.md`](./service_auth/TASK_09_IMPLEMENTATION_GUIDE.md) | 2026-11-13 | Vitest (171 tests) + PostgreSQL + TypeScript |
 | 27 | [`service_auth`](./service_auth/TASK_LIST.md) | `TASK-10` | Admin User Management Suite (API & RBAC Authorization) | [`TASK_10_IMPLEMENTATION_GUIDE.md`](./service_auth/TASK_10_IMPLEMENTATION_GUIDE.md) | 2026-11-13 | Vitest (194 tests) + PostgreSQL + TypeScript |
+| 28 | [`web_admin_auth`](./web_admin_auth/TASK_LIST.md) | `TASK-01` | Login Screen UI & Login API Integration (Email + OTP) | [`TASK_01_IMPLEMENTATION_GUIDE.md`](./web_admin_auth/TASK_01_IMPLEMENTATION_GUIDE.md) | 2026-11-14 | Next.js Build + TypeScript + ESLint |

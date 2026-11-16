@@ -1,7 +1,8 @@
-import { Router } from "express"
+import { Router, type Request, type Response, type NextFunction } from "express"
 import { sessionController } from "../controllers/session.controller.js"
 import { validateRequest } from "../middleware/validate.middleware.js"
 import { authenticate } from "../middleware/auth.middleware.js"
+import { extractCookie, REFRESH_TOKEN_COOKIE_NAME } from "../utils/cookie.utils.js"
 import {
   RefreshSessionSchema,
   SwitchProductSchema,
@@ -11,17 +12,37 @@ import {
 export const sessionRouter = Router()
 
 /**
+ * Middleware that extracts the refreshToken from the HTTP-only cookie
+ * if it is not already provided in the request body.
+ */
+const populateRefreshTokenFromCookie = (
+  req: Request,
+  _res: Response,
+  next: NextFunction
+): void => {
+  if (!req.body?.refreshToken) {
+    const cookieToken = extractCookie(req.headers.cookie, REFRESH_TOKEN_COOKIE_NAME)
+    if (cookieToken) {
+      req.body = { ...req.body, refreshToken: cookieToken }
+    }
+  }
+  next()
+}
+
+/**
  * POST /api/auth/session/refresh (and POST /api/auth/session)
  * Refreshes user session with Token Rotation.
  */
 sessionRouter.post(
   "/refresh",
+  populateRefreshTokenFromCookie,
   validateRequest({ body: RefreshSessionSchema }),
   sessionController.refreshSession
 )
 
 sessionRouter.post(
   "/",
+  populateRefreshTokenFromCookie,
   validateRequest({ body: RefreshSessionSchema }),
   sessionController.refreshSession
 )
@@ -39,21 +60,23 @@ sessionRouter.post(
 
 /**
  * POST /api/auth/session/revoke
- * Token-level session revocation via refreshToken in request body.
+ * Token-level session revocation via refreshToken in request body or cookie.
  */
 sessionRouter.post(
   "/revoke",
+  populateRefreshTokenFromCookie,
   validateRequest({ body: RevokeSessionSchema }),
   sessionController.revokeSession
 )
 
 /**
  * POST /api/auth/session/logout
- * Authenticated single session logout via Bearer access token (and optional refreshToken).
+ * Authenticated single session logout via Bearer access token (and optional refreshToken in body or cookie).
  */
 sessionRouter.post(
   "/logout",
   authenticate,
+  populateRefreshTokenFromCookie,
   validateRequest({ body: RevokeSessionSchema }),
   sessionController.revokeSession
 )

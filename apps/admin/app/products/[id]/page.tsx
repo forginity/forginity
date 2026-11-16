@@ -12,14 +12,10 @@ import {
   Plus,
   Trash2,
 } from "lucide-react"
-import { AppShell } from "@workspace/ui/components/app-shell"
+import { AdminShell } from "@/components/admin-shell"
 import { Button } from "@workspace/ui/components/button"
 import { Card } from "@workspace/ui/components/card"
 import { Skeleton } from "@workspace/ui/components/skeleton"
-import {
-  ADMIN_NAV_SECTIONS,
-  ADMIN_USER_PROFILE,
-} from "@/constants/admin-nav.constants"
 import {
   useProduct,
   useDeleteProductVersion,
@@ -85,16 +81,13 @@ export default function ViewProductPage() {
   }
 
   return (
-    <AppShell
+    <AdminShell
       currentPath={`/products/${id}`}
       breadcrumbs={[
         { label: "Workspace" },
         { label: "Product", href: "/products" },
         { label: product?.name || (isLoading ? "Loading..." : "Product") },
       ]}
-      sections={ADMIN_NAV_SECTIONS}
-      user={ADMIN_USER_PROFILE}
-      linkComponent={Link}
     >
       <div className="flex flex-col gap-6">
         {/* Back navigation */}
@@ -338,6 +331,6 @@ export default function ViewProductPage() {
           </>
         )}
       </div>
-    </AppShell>
+    </AdminShell>
   )
 }

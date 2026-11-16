@@ -3,16 +3,7 @@ import {
   Package,
   Users,
 } from "lucide-react"
-import type {
-  NavSection,
-  UserProfile,
-} from "@workspace/ui/types/navigation.types"
-
-export const ADMIN_USER_PROFILE: UserProfile = {
-  name: "Alex Morgan",
-  role: "Organization owner",
-  initials: "AM",
-}
+import type { NavSection } from "@workspace/ui/types/navigation.types"
 
 export const ADMIN_NAV_SECTIONS: NavSection[] = [
   {

@@ -1,15 +1,22 @@
 import type { Metadata } from "next"
-import { Lexend } from "next/font/google"
+import { Inter, Lexend } from "next/font/google"
 import "@workspace/ui/globals.css"
 import { ThemeProvider } from "@workspace/ui/components/theme-provider"
 import { TooltipProvider } from "@workspace/ui/components/tooltip"
 import { QueryProvider } from "@/providers/query-provider"
+import { ReduxProvider } from "@/providers/redux-provider"
 import { cn } from "@workspace/ui/lib/utils"
 
 const lexend = Lexend({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600"],
   variable: "--font-sans",
+})
+
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-inter",
 })
 
 export const metadata: Metadata = {
@@ -26,12 +33,18 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={cn("dark antialiased font-sans font-light", lexend.variable)}
+      className={cn(
+        "dark antialiased font-sans font-light",
+        lexend.variable,
+        inter.variable
+      )}
     >
       <body className="h-screen max-h-screen overflow-hidden bg-background text-foreground">
         <ThemeProvider defaultTheme="dark">
           <TooltipProvider>
-            <QueryProvider>{children}</QueryProvider>
+            <ReduxProvider>
+              <QueryProvider>{children}</QueryProvider>
+            </ReduxProvider>
           </TooltipProvider>
         </ThemeProvider>
       </body>

@@ -2,31 +2,24 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { AppShell } from "@workspace/ui/components/app-shell"
-import {
-  ADMIN_NAV_SECTIONS,
-  ADMIN_USER_PROFILE,
-} from "@/constants/admin-nav.constants"
+import { AdminShell } from "@/components/admin-shell"
 import { ViewProductSkeleton } from "./skeleton"
 
 /**
  * Next.js App Router instant streaming loading state for /products/[id].
- * Mounts synchronously with AppShell on link click before client query resolution.
+ * Mounts synchronously with AdminShell on link click before client query resolution.
  */
 export default function ProductDetailLoading() {
   return (
-    <AppShell
+    <AdminShell
       currentPath="/products"
       breadcrumbs={[
         { label: "Workspace" },
         { label: "Product", href: "/products" },
         { label: "Loading..." },
       ]}
-      sections={ADMIN_NAV_SECTIONS}
-      user={ADMIN_USER_PROFILE}
-      linkComponent={Link}
     >
       <ViewProductSkeleton />
-    </AppShell>
+    </AdminShell>
   )
 }

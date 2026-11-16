@@ -42,12 +42,15 @@ export type OtpErrorCode =
   | "INVALID_CODE"
   | "RATE_LIMITED"
   | "DISPATCH_FAILED"
+  | "DELIVERY_FAILED"
   | "PHONE_VERIFICATION_DEFERRED"
 
 export interface OtpErrorDetails {
   code: OtpErrorCode
   remainingAttempts?: number
   maxAttempts?: number
+  cooldownSeconds?: number
+  requestId?: string
 }
 
 /**

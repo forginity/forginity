@@ -3,6 +3,7 @@ import {
   googleAuthService,
   GoogleAuthServiceError,
 } from "../services/google-auth.service.js"
+import { setRefreshTokenCookie } from "../utils/cookie.utils.js"
 import type { GoogleAuthInput } from "../db/auth.validator.js"
 
 export class GoogleAuthController {
@@ -28,6 +29,10 @@ export class GoogleAuthController {
         ipAddress: clientIp,
         userAgent,
       })
+
+      if ("session" in result && result.session?.refreshToken) {
+        setRefreshTokenCookie(res, result.session.refreshToken)
+      }
 
       res.status(200).json(result)
     } catch (error) {

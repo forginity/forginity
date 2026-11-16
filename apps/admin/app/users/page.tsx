@@ -14,17 +14,13 @@ import {
   Users as UsersIcon,
   UserX,
 } from "lucide-react"
-import { AppShell } from "@workspace/ui/components/app-shell"
+import { AdminShell } from "@/components/admin-shell"
 import { DashboardHeader } from "@workspace/ui/components/dashboard-header"
 import { MetricCard } from "@workspace/ui/components/metric-card"
 import { Button } from "@workspace/ui/components/button"
 import { Card } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
 import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar"
-import {
-  ADMIN_NAV_SECTIONS,
-  ADMIN_USER_PROFILE,
-} from "@/constants/admin-nav.constants"
 
 interface UserRow {
   id: string
@@ -108,12 +104,9 @@ export default function UsersPage() {
   })
 
   return (
-    <AppShell
+    <AdminShell
       currentPath={pathname}
       breadcrumbs={[{ label: "Workspace" }, { label: "User" }]}
-      sections={ADMIN_NAV_SECTIONS}
-      user={ADMIN_USER_PROFILE}
-      linkComponent={Link}
     >
       <DashboardHeader
         title="Users"
@@ -282,6 +275,6 @@ export default function UsersPage() {
           <span>Rows per page: 10</span>
         </div>
       </Card>
-    </AppShell>
+    </AdminShell>
   )
 }

@@ -65,6 +65,7 @@ export class AuthService {
 
   /**
    * Unified initiate endpoint for both sign-up and sign-in.
+   * Supports intent: "authentication" (unified sign-in / sign-up) and "sign_in" (sign-in only).
    * Checks whether the user exists, verifies moderation status,
    * dispatches a 6-digit OTP code, and returns isNewUser: true | false.
    */
@@ -72,11 +73,30 @@ export class AuthService {
     input: InitiateEmailAuthInput
   ): Promise<InitiateEmailAuthResult> {
     const normalizedEmail = input.email.toLowerCase().trim()
+    const intent = input.intent || "authentication"
 
     // 1. Query existing user
     const existingUser = await this.userRepo.findUserByEmail(normalizedEmail)
 
-    // 2. Account moderation checks
+    // 2. Intent validation: sign_in requires an existing user (and admin privileges if requested)
+    if (intent === "sign_in") {
+      if (!existingUser) {
+        throw new AuthServiceError(
+          "No account found with this email address.",
+          404,
+          { code: "USER_NOT_FOUND" }
+        )
+      }
+      if (input.userType === "admin" && existingUser.userType !== "admin") {
+        throw new AuthServiceError(
+          "Access denied. Administrator privileges required.",
+          403,
+          { code: "FORBIDDEN" }
+        )
+      }
+    }
+
+    // 3. Account moderation checks
     if (existingUser) {
       if (existingUser.status === "blocked") {
         throw new AuthServiceError(
@@ -94,11 +114,11 @@ export class AuthService {
 
     const isNewUser = !existingUser
 
-    // 3. Dispatch OTP via reusable OTP engine
+    // 4. Dispatch OTP via reusable OTP engine
     const otpResult = await this.otp.sendOtp({
       identifier: normalizedEmail,
       identifierType: "email",
-      purpose: "authentication",
+      purpose: intent,
       ...(input.productName ? { productName: input.productName } : {}),
     })
 
@@ -115,7 +135,8 @@ export class AuthService {
   /**
    * Unified verification endpoint for both sign-up and sign-in.
    * Validates code against requestId via OTP engine.
-   * - If new user: registers active account, issues scoped 2-hour onboardingToken.
+   * - If sign_in intent: rejects with 404 if user doesn't exist, enforces admin if requested.
+   * - If new user (authentication intent): registers active account, issues scoped 2-hour onboardingToken.
    * - If returning onboarded user: creates session, issues accessToken (15m) + refreshToken (30d).
    * - If returning un-onboarded user: issues scoped 2-hour onboardingToken.
    */
@@ -130,12 +151,23 @@ export class AuthService {
     })
 
     const userEmail = otpVerification.identifier.toLowerCase().trim()
+    const effectiveIntent =
+      input.intent ||
+      (otpVerification.purpose === "sign_in" ? "sign_in" : "authentication")
 
     // 2. Query user by verified email
     let user = await this.userRepo.findUserByEmail(userEmail)
 
-    // 3. Case: Brand new user registration
+    // 3. Case: Brand new user registration (only allowed under authentication/signup intent)
     if (!user) {
+      if (effectiveIntent === "sign_in") {
+        throw new AuthServiceError(
+          "No account found with this email address.",
+          404,
+          { code: "USER_NOT_FOUND" }
+        )
+      }
+
       user = await this.userRepo.createUser({
         email: userEmail,
         authProvider: "email_otp",
@@ -173,6 +205,14 @@ export class AuthService {
       throw new AuthServiceError("Account has been deleted.", 403, {
         code: "ACCOUNT_DELETED",
       })
+    }
+
+    if (input.userType === "admin" && user.userType !== "admin") {
+      throw new AuthServiceError(
+        "Access denied. Administrator privileges required.",
+        403,
+        { code: "FORBIDDEN" }
+      )
     }
 
     // Update email verified flag if not already set
