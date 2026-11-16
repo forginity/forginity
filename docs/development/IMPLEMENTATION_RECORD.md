@@ -7,11 +7,11 @@
 
 ## 1. LAST UPDATE
 
-- **Timestamp:** `2026-11-16 20:25`
+- **Timestamp:** `2026-11-16 22:15`
 - **Component / Service:** `apps/admin` / `web_admin_auth`
-- **Task:** `TASK-01: Login Screen UI & Login API Integration (Email + OTP)`
+- **Task:** `TASK-03: View User UI & Account Moderation Integration`
 - **Summary:**
-  Completed comprehensive hardening and production polish for admin login and authentication session. Handled SMTP/DNS delivery errors (`EAI_AGAIN`) with clean domain errors and undelivered OTP cleanup; added automatic cooldown timer countdown and direct code entry fallback in `LoginForm`; designed a modern, elegant, dark-mode responsive OTP email template (`otp-email.template.ts`); implemented interactive sidebar user avatar card with dropdown menu displaying logged-in administrator details; wired Redux user state with automatic SDK session hydration; implemented complete logout workflow with token/cookie revocation; and enforced Next.js 16 `proxy.ts` route protection. Verified via unit and integration suites across `@services/auth`, `@forginity/sdk`, `@workspace/ui`, and `@web/admin`.
+  Implemented dedicated User Details view strictly matching Figma specification (`Node 309:404`) at `apps/admin/app/users/[id]/page.tsx` and high-fidelity zero-CLS skeleton (`apps/admin/app/users/[id]/skeleton.tsx`). The page features full `AdminShell` integration with back breadcrumb navigation to `/users`, user account summary card (name, email, membership date, live status pill, verification badge, onboarding indicator), 2-column info grid (Personal information, Contact details with email/phone verified pills, System information with copy-to-clipboard User ID, Emergency contacts card, Authentication provider metadata, Verification & onboarding status matrix, and UTC timestamps), and interactive Account Moderation modal controls (Block, Unblock, Soft Delete) submitting mutations to `services/auth`; updated `/users` table rows and `View ↗` action buttons to navigate directly to `/users/[id]`; removed redundant user counter in card header; resolved SSR hydration mismatch; and verified with complete test suites across `@web/admin` (typecheck, lint, Next.js 16 build: 12 routes), `@forginity/sdk` (24/24 tests), and `@services/auth` (214/214 tests).
 
 ---
 
@@ -47,3 +47,5 @@
 | 26 | [`service_auth`](./service_auth/TASK_LIST.md) | `TASK-09` | User Lifecycle & Self-Service Account Deletion API | [`TASK_09_IMPLEMENTATION_GUIDE.md`](./service_auth/TASK_09_IMPLEMENTATION_GUIDE.md) | 2026-11-13 | Vitest (171 tests) + PostgreSQL + TypeScript |
 | 27 | [`service_auth`](./service_auth/TASK_LIST.md) | `TASK-10` | Admin User Management Suite (API & RBAC Authorization) | [`TASK_10_IMPLEMENTATION_GUIDE.md`](./service_auth/TASK_10_IMPLEMENTATION_GUIDE.md) | 2026-11-13 | Vitest (194 tests) + PostgreSQL + TypeScript |
 | 28 | [`web_admin_auth`](./web_admin_auth/TASK_LIST.md) | `TASK-01` | Login Screen UI & Login API Integration (Email + OTP) | [`TASK_01_IMPLEMENTATION_GUIDE.md`](./web_admin_auth/TASK_01_IMPLEMENTATION_GUIDE.md) | 2026-11-14 | Next.js Build + TypeScript + ESLint |
+| 29 | [`web_admin_auth`](./web_admin_auth/TASK_LIST.md) | `TASK-02` | User List UI & Directory API Integration | [`TASK_02_IMPLEMENTATION_GUIDE.md`](./web_admin_auth/TASK_02_IMPLEMENTATION_GUIDE.md) | 2026-11-16 | Next.js Build + Vitest + TypeScript + ESLint |
+| 30 | [`web_admin_auth`](./web_admin_auth/TASK_LIST.md) | `TASK-03` | View User UI & Account Moderation Integration | [`TASK_03_IMPLEMENTATION_GUIDE.md`](./web_admin_auth/TASK_03_IMPLEMENTATION_GUIDE.md) | 2026-11-16 | Next.js Build + Vitest + TypeScript + ESLint |

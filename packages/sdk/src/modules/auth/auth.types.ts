@@ -1,6 +1,7 @@
 export type UserStatus = "active" | "blocked" | "deleted"
 export type UserType = "user" | "admin"
 export type AuthIntent = "authentication" | "sign_in"
+export type AuthProvider = "email_otp" | "google" | "password"
 
 export interface UserProfile {
   id: string
@@ -12,11 +13,15 @@ export interface UserProfile {
   avatarUrl: string | null
   gender: string | null
   country: string | null
+  googleId?: string | null
+  authProvider?: AuthProvider | null
+  isVerified?: boolean
   isEmailVerified: boolean
   isPhoneVerified: boolean
   isOnboarded: boolean
   userType: UserType
   status: UserStatus
+  emergencyContactsCount?: number
   createdAt: string
   updatedAt: string
 }
@@ -93,9 +98,11 @@ export interface RevokeSessionPayload {
 export interface ListUsersParams {
   status?: UserStatus
   userType?: UserType
+  authProvider?: AuthProvider
   search?: string
   page?: number
   limit?: number
+  offset?: number
 }
 
 export interface ListUsersResponse {
@@ -103,10 +110,30 @@ export interface ListUsersResponse {
   users: UserProfile[]
   pagination: {
     total: number
-    page: number
     limit: number
-    totalPages: number
+    offset: number
+    hasMore: boolean
+    page?: number
+    totalPages?: number
   }
+}
+
+export interface EmergencyContact {
+  id: string
+  userId: string
+  contactName: string
+  contactPhone: string
+  relationship?: string | null
+  isPrimary?: boolean | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface UserDetailsResponse {
+  success: boolean
+  user: UserProfile
+  emergencyContacts?: EmergencyContact[]
+  activeSessionsCount?: number
 }
 
 export interface UpdateUserStatusPayload {

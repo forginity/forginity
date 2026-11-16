@@ -11,7 +11,7 @@
   - Interactive user directory data table at `/users` consuming `services/auth` `GET /api/users` with search, status filtering, and pagination.
   - View User detail drawer / modal consuming `GET /api/users/:userId` with full user metadata, emergency contacts, and moderation actions (`active`, `blocked`, `deleted`).
 - **Tech Stack:** Next.js 16 (App Router), React 19, Tailwind CSS v4, Shadcn UI (`@workspace/ui`), TypeScript, TanStack Query v5.
-- **Component Status:** `IN_PROGRESS` (1/3 tasks completed; target deadline: **Tomorrow, 2026-11-14**).
+- **Component Status:** `COMPLETED` (3/3 tasks completed; target deadline: **2026-11-16**).
 - **Central Implementation Record:** [`../IMPLEMENTATION_RECORD.md`](../IMPLEMENTATION_RECORD.md)
 - **Overall Progress:** [`../PROGRESS.md`](../PROGRESS.md)
 
@@ -22,8 +22,8 @@
 | Task ID | Task Title | Key Deliverable | Guide File | Status |
 | :--- | :--- | :--- | :--- | :--- |
 | `TASK-01` | Login Screen UI & Login API Integration (Email + OTP) | Responsive `/login` view, email OTP initiation & verify form, HTTP-only session cookies, and Next.js `proxy.ts` route protection | [`TASK_01_IMPLEMENTATION_GUIDE.md`](./TASK_01_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
-| `TASK-02` | User List UI & Directory API Integration | Interactive responsive data table at `/users`, TanStack Query fetching `GET /api/users`, search filter, status tabs, pagination, and zero-CLS skeleton | [`TASK_02_IMPLEMENTATION_GUIDE.md`](./TASK_02_IMPLEMENTATION_GUIDE.md) | `PENDING` |
-| `TASK-03` | View User UI & Account Moderation Integration | Slide-over user detail drawer at `/users` consuming `GET /api/users/:userId`, contact stats, and block/unblock action dialogs triggering `PATCH /api/users/:userId/status` | [`TASK_03_IMPLEMENTATION_GUIDE.md`](./TASK_03_IMPLEMENTATION_GUIDE.md) | `PENDING` |
+| `TASK-02` | User List UI & Directory API Integration | Interactive responsive data table at `/users`, TanStack Query fetching `GET /api/users`, search filter, status tabs, pagination, and zero-CLS skeleton | [`TASK_02_IMPLEMENTATION_GUIDE.md`](./TASK_02_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
+| `TASK-03` | View User UI & Account Moderation Integration | Slide-over user detail drawer at `/users` consuming `GET /api/users/:userId`, contact stats, and block/unblock action dialogs triggering `PATCH /api/users/:userId/status` | [`TASK_03_IMPLEMENTATION_GUIDE.md`](./TASK_03_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
 
 ---
 

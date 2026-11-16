@@ -29,6 +29,20 @@ export function AdminShell({
   const dispatch = useAppDispatch()
   const reduxUser = useAppSelector((state) => state.user.user)
 
+  // Hydrate local cache once mounted on the client to avoid SSR hydration mismatch
+  React.useEffect(() => {
+    if (!reduxUser && typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("admin_user")
+        if (stored) {
+          dispatch(setUser(JSON.parse(stored)))
+        }
+      } catch {
+        // ignore storage errors
+      }
+    }
+  }, [reduxUser, dispatch])
+
   // Hydrate user session from auth microservice when Redux is not yet populated
   const { data: sessionData } = useCurrentSession({
     enabled: !reduxUser,

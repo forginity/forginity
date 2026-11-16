@@ -27,11 +27,13 @@ export function LoginForm({ className }: LoginFormProps) {
   const [requestId, setRequestId] = React.useState<string | null>(null)
   const [debugOtp, setDebugOtp] = React.useState<string | null>(null)
   const [resendCountdown, setResendCountdown] = React.useState(0)
+  const [isVerifying, setIsVerifying] = React.useState(false)
   const [isRedirecting, setIsRedirecting] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
   const [successMessage, setSuccessMessage] = React.useState<string | null>(null)
 
   const isLoading = initiateMutation.isPending || verifyMutation.isPending
+  const isBusy = isLoading || isVerifying || isRedirecting
 
   /* ==========================================================================
    * [COMMENTED] PASSWORD AUTHENTICATION STATE & HANDLERS
@@ -139,10 +141,9 @@ export function LoginForm({ className }: LoginFormProps) {
    * Refresh token is stored securely in an HTTP-only cookie by the API.
    * Authenticated user profile is stored directly into Redux store.
    */
-  const handleOtpVerify = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setError(null)
-    setSuccessMessage(null)
+  const executeOtpVerify = async (codeToVerify?: string) => {
+    if (isBusy) return
+    const code = (codeToVerify || otpValue).trim()
 
     if (!requestId) {
       setError("Verification request expired. Please re-enter your email.")
@@ -150,15 +151,19 @@ export function LoginForm({ className }: LoginFormProps) {
       return
     }
 
-    if (otpValue.length !== 6) {
+    if (code.length !== 6) {
       setError("Please enter all 6 digits of your one-time verification code.")
       return
     }
 
+    setError(null)
+    setSuccessMessage(null)
+    setIsVerifying(true)
+
     try {
       const data = await verifyMutation.mutateAsync({
         requestId,
-        code: otpValue,
+        code,
         intent: "sign_in",
         userType: "admin",
       })
@@ -175,11 +180,17 @@ export function LoginForm({ className }: LoginFormProps) {
       setIsRedirecting(true)
       setSuccessMessage("Authentication verified! Entering workspace...")
       setTimeout(() => {
-        router.push("/")
-      }, 400)
+        window.location.href = "/"
+      }, 300)
     } catch (err: any) {
+      setIsVerifying(false)
       setError(err?.message || "Verification failed.")
     }
+  }
+
+  const handleOtpVerify = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    await executeOtpVerify()
   }
 
   /**
@@ -346,7 +357,7 @@ export function LoginForm({ className }: LoginFormProps) {
                 <span className="text-[#a1a1a1]">Admin account</span>
                 <button
                   type="button"
-                  disabled={isLoading || isRedirecting}
+                  disabled={isBusy}
                   onClick={resetOtpFlow}
                   className="text-xs text-[#ff967f] hover:underline disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
@@ -367,10 +378,11 @@ export function LoginForm({ className }: LoginFormProps) {
                 <OtpInput
                   length={6}
                   value={otpValue}
-                  disabled={isLoading || isRedirecting}
+                  disabled={isBusy}
                   onChange={(val) => setOtpValue(val)}
                   onComplete={(val) => {
                     setOtpValue(val)
+                    executeOtpVerify(val)
                   }}
                   error={Boolean(error)}
                 />
@@ -382,11 +394,11 @@ export function LoginForm({ className }: LoginFormProps) {
               <span>Didn&apos;t receive the code?</span>
               <button
                 type="button"
-                disabled={resendCountdown > 0 || isLoading || isRedirecting}
+                disabled={resendCountdown > 0 || isBusy}
                 onClick={handleResendOtp}
                 className={cn(
                   "font-medium transition-colors cursor-pointer",
-                  resendCountdown > 0 || isLoading || isRedirecting
+                  resendCountdown > 0 || isBusy
                     ? "text-[#858585] cursor-not-allowed"
                     : "text-[#ff967f] hover:underline"
                 )}
@@ -398,7 +410,7 @@ export function LoginForm({ className }: LoginFormProps) {
             {/* Verify & sign in button */}
             <button
               type="submit"
-              disabled={isLoading || isRedirecting || otpValue.length !== 6}
+              disabled={isBusy || otpValue.length !== 6}
               className="flex h-[50px] w-full items-center justify-center rounded-lg bg-[#ff6347] px-4 text-sm font-medium text-[#16100f] transition-all hover:bg-[#ff7257] active:bg-[#d94f2e] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               {isRedirecting ? (
@@ -406,7 +418,7 @@ export function LoginForm({ className }: LoginFormProps) {
                   <span className="size-4 animate-spin rounded-full border-2 border-[#16100f] border-t-transparent" />
                   Entering workspace...
                 </span>
-              ) : isLoading ? (
+              ) : isVerifying || verifyMutation.isPending ? (
                 <span className="inline-flex items-center gap-2">
                   <span className="size-4 animate-spin rounded-full border-2 border-[#16100f] border-t-transparent" />
                   Verifying code...

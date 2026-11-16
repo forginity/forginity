@@ -84,7 +84,9 @@ describe("AuthService", () => {
     const params = { status: "active" as const, page: 1, limit: 10 }
     const result = await AuthService.listUsers(params)
 
-    expect(mockGet).toHaveBeenCalledWith(API_ENDPOINTS.AUTH.USERS, { params })
+    expect(mockGet).toHaveBeenCalledWith(API_ENDPOINTS.AUTH.USERS, {
+      params: { ...params, offset: 0 },
+    })
     expect(result.users).toHaveLength(1)
   })
 })

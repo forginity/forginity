@@ -2,279 +2,704 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import {
-  Edit2,
-  Mail,
-  MoreVertical,
-  Plus,
   Search,
-  ShieldCheck,
-  UserCheck,
+  Download,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ExternalLink,
+  X,
+  AlertCircle,
+  RefreshCw,
   Users as UsersIcon,
-  UserX,
 } from "lucide-react"
 import { AdminShell } from "@/components/admin-shell"
-import { DashboardHeader } from "@workspace/ui/components/dashboard-header"
-import { MetricCard } from "@workspace/ui/components/metric-card"
-import { Button } from "@workspace/ui/components/button"
-import { Card } from "@workspace/ui/components/card"
-import { Badge } from "@workspace/ui/components/badge"
-import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar"
+import { useUsers } from "@forginity/sdk/modules/auth/auth.hooks"
+import type { UserProfile, UserStatus, AuthProvider, ListUsersParams } from "@forginity/sdk/modules/auth/auth.types"
+import { cn } from "@workspace/ui/lib/utils"
 
-interface UserRow {
-  id: string
-  name: string
-  email: string
-  role: string
-  status: "Active" | "Pending" | "Suspended"
-  initials: string
-  lastActive: string
+function formatJoinedDate(isoString: string): { date: string; time: string } {
+  try {
+    const d = new Date(isoString)
+    if (isNaN(d.getTime())) return { date: "—", time: "—" }
+    const day = d.getUTCDate()
+    const months = [
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+    ]
+    const month = months[d.getUTCMonth()]
+    const year = d.getUTCFullYear()
+    const hours = String(d.getUTCHours()).padStart(2, "0")
+    const minutes = String(d.getUTCMinutes()).padStart(2, "0")
+    return {
+      date: `${day} ${month} ${year}`,
+      time: `${hours}:${minutes} UTC`,
+    }
+  } catch {
+    return { date: "—", time: "—" }
+  }
 }
 
-const USERS: UserRow[] = [
-  {
-    id: "usr-1",
-    name: "Alex Morgan",
-    email: "alex.morgan@forginity.com",
-    role: "Organization owner",
-    status: "Active",
-    initials: "AM",
-    lastActive: "Just now",
-  },
-  {
-    id: "usr-2",
-    name: "Maya Chen",
-    email: "maya.chen@forginity.com",
-    role: "Lead Architect",
-    status: "Active",
-    initials: "MC",
-    lastActive: "12m ago",
-  },
-  {
-    id: "usr-3",
-    name: "Noah Wilson",
-    email: "noah.wilson@forginity.com",
-    role: "Product Manager",
-    status: "Active",
-    initials: "NW",
-    lastActive: "1h ago",
-  },
-  {
-    id: "usr-4",
-    name: "Olivia Park",
-    email: "olivia.park@forginity.com",
-    role: "Security Engineer",
-    status: "Active",
-    initials: "OP",
-    lastActive: "3h ago",
-  },
-  {
-    id: "usr-5",
-    name: "Liam Patel",
-    email: "liam.patel@forginity.com",
-    role: "DevOps Engineer",
-    status: "Active",
-    initials: "LP",
-    lastActive: "5h ago",
-  },
-  {
-    id: "usr-6",
-    name: "Emma Davis",
-    email: "emma.davis@forginity.com",
-    role: "Frontend Developer",
-    status: "Pending",
-    initials: "ED",
-    lastActive: "Invited yesterday",
-  },
-]
+function formatProvider(provider?: AuthProvider | null): string {
+  if (!provider) return "Email OTP"
+  if (provider === "google") return "Google"
+  if (provider === "email_otp") return "Email OTP"
+  if (provider === "password") return "Password"
+  return provider
+}
 
-export default function UsersPage() {
+function getUserInitials(user: UserProfile): string {
+  if (user.firstName && user.lastName) {
+    return `${user.firstName[0]}${user.lastName[0]}`.toUpperCase()
+  }
+  if (user.name) {
+    return user.name.substring(0, 2).toUpperCase()
+  }
+  if (user.email) {
+    return user.email.substring(0, 2).toUpperCase()
+  }
+  return "U"
+}
+
+export default function AdminUsersPage() {
   const pathname = usePathname()
-  const [searchTerm, setSearchTerm] = React.useState("")
-  const [roleFilter, setRoleFilter] = React.useState<string>("All")
+  const router = useRouter()
 
-  const filteredUsers = USERS.filter((user) => {
-    const matchesSearch =
-      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.role.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesRole = roleFilter === "All" || user.role.includes(roleFilter)
-    return matchesSearch && matchesRole
-  })
+  // Search & Filter state
+  const [searchInput, setSearchInput] = React.useState("")
+  const [debouncedSearch, setDebouncedSearch] = React.useState("")
+  const [statusFilter, setStatusFilter] = React.useState<"all" | UserStatus>("all")
+  const [providerFilter, setProviderFilter] = React.useState<"all" | AuthProvider>("all")
+  const [verificationFilter, setVerificationFilter] = React.useState<"all" | "verified" | "unverified">("all")
+
+  // Pagination state
+  const [page, setPage] = React.useState(1)
+  const [pageSize, setPageSize] = React.useState(10)
+
+  // Debounce search input by 300ms
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchInput.trim())
+      setPage(1)
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [searchInput])
+
+  // Build query params
+  const queryParams = React.useMemo<ListUsersParams>(() => {
+    return {
+      search: debouncedSearch || undefined,
+      status: statusFilter !== "all" ? statusFilter : undefined,
+      authProvider: providerFilter !== "all" ? providerFilter : undefined,
+      page,
+      limit: pageSize,
+    }
+  }, [debouncedSearch, statusFilter, providerFilter, page, pageSize])
+
+  // Fetch users from services/auth via SDK
+  const { data, isLoading, isError, error, refetch, isFetching } = useUsers(queryParams)
+
+  const users = data?.users || []
+  const totalCount = data?.pagination?.total || 0
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize))
+
+  // Client-side verification filter if selected
+  const displayedUsers = React.useMemo(() => {
+    if (verificationFilter === "all") return users
+    if (verificationFilter === "verified") {
+      return users.filter((u) => u.isEmailVerified || u.isVerified)
+    }
+    return users.filter((u) => !u.isEmailVerified && !u.isVerified)
+  }, [users, verificationFilter])
+
+  // KPI Calculations
+  const activeCount = users.filter((u) => u.status === "active").length
+  const verifiedCount = users.filter((u) => u.isEmailVerified || u.isVerified).length
+  const pendingOnboardCount = users.filter((u) => !u.isOnboarded).length
+
+  const activePercent = users.length ? ((activeCount / users.length) * 100).toFixed(1) : "0"
+  const verifiedPercent = users.length ? ((verifiedCount / users.length) * 100).toFixed(1) : "0"
+  const pendingPercent = users.length ? ((pendingOnboardCount / users.length) * 100).toFixed(1) : "0"
+
+  // Export users to CSV
+  const handleExportCsv = () => {
+    if (!displayedUsers.length) return
+    const headers = [
+      "User ID",
+      "Full Name",
+      "Email",
+      "Phone",
+      "Country",
+      "Auth Provider",
+      "Verification",
+      "Onboarding",
+      "Status",
+      "Created At",
+    ]
+
+    const rows = displayedUsers.map((u) => {
+      const name =
+        u.firstName && u.lastName
+          ? `${u.firstName} ${u.lastName}`
+          : u.name || ""
+      return [
+        u.id,
+        `"${name.replace(/"/g, '""')}"`,
+        u.email || "",
+        u.phone || "",
+        u.country || "",
+        formatProvider(u.authProvider),
+        u.isEmailVerified || u.isVerified ? "Verified" : "Unverified",
+        u.isOnboarded ? "Complete" : "Pending",
+        u.status,
+        u.createdAt,
+      ]
+    })
+
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [headers.join(","), ...rows.map((e) => e.join(","))].join("\n")
+    const encodedUri = encodeURI(csvContent)
+    const link = document.createElement("a")
+    link.setAttribute("href", encodedUri)
+    link.setAttribute(
+      "download",
+      `forginity-users-${new Date().toISOString().slice(0, 10)}.csv`
+    )
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
+  // Handle page navigation
+  const handlePrevPage = () => {
+    if (page > 1) setPage((prev) => prev - 1)
+  }
+
+  const handleNextPage = () => {
+    if (page < totalPages) setPage((prev) => prev + 1)
+  }
+
+  const startRecord = totalCount === 0 ? 0 : (page - 1) * pageSize + 1
+  const endRecord = Math.min(page * pageSize, totalCount)
 
   return (
     <AdminShell
       currentPath={pathname}
-      breadcrumbs={[{ label: "Workspace" }, { label: "User" }]}
+      breadcrumbs={[
+        { label: "Workspace" },
+        { label: "Users" },
+        { label: "Overview" },
+      ]}
     >
-      <DashboardHeader
-        title="Users"
-        description="Manage organization members, access permissions, and session lifecycles."
-        actions={
-          <Button
-            size="sm"
-            className="h-8 gap-1.5 bg-[#f95738] text-white hover:bg-[#e0482b]"
-          >
-            <Plus className="size-4" />
-            <span>Invite user</span>
-          </Button>
-        }
-      />
-
-      {/* KPI Metric Cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <MetricCard
-          title="Total users"
-          value="48,260"
-          change="+8.2%"
-          changeType="positive"
-          description="Registered across all products"
-        />
-        <MetricCard
-          title="Daily active users"
-          value="12,840"
-          change="+18.6%"
-          changeType="positive"
-          description="Active within the last 24 hours"
-        />
-        <MetricCard
-          title="Administrators"
-          value="14"
-          change="Full RBAC"
-          changeType="neutral"
-          description="Global administrative access"
-        />
-        <MetricCard
-          title="Pending invites"
-          value="6"
-          change="Requires review"
-          changeType="neutral"
-          description="Awaiting email / SMS verification"
-        />
-      </div>
-
-      {/* Users Table Card */}
-      <Card className="overflow-hidden rounded-xl border border-border/50 bg-card/60">
-        <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between border-b border-border/40">
+      <div className="space-y-6">
+        {/* Page Header (Matching Figma Node 310:350 - 310:353) */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-sm font-semibold text-foreground">User directory</h2>
-            <p className="text-xs text-muted-foreground">
-              {filteredUsers.length} members found
+            <h1 className="font-['Lexend'] text-2xl sm:text-3xl font-light text-[#f6f6f6] tracking-tight">
+              Users
+            </h1>
+            <p className="text-xs sm:text-sm text-[#929292] mt-1 font-['Inter']">
+              Monitor accounts, verification and onboarding in one place.
             </p>
           </div>
 
           <div className="flex items-center gap-2.5">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 size-3.5 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Search users..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="h-8 w-48 rounded-lg border border-border/50 bg-background/50 pl-8 pr-3 text-xs text-foreground placeholder:text-muted-foreground/60 focus:border-border focus:outline-none"
-              />
-            </div>
-
-            <select
-              value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
-              className="h-8 rounded-lg border border-border/50 bg-background/50 px-2.5 text-xs text-foreground focus:border-border focus:outline-none"
-              aria-label="Filter users by role"
+            <button
+              type="button"
+              onClick={handleExportCsv}
+              disabled={isLoading || displayedUsers.length === 0}
+              className="inline-flex h-[34px] items-center gap-2 rounded-lg border border-[#292929] bg-[#191919] px-3.5 text-xs font-normal text-[#f6f6f6] transition-colors hover:bg-[#252525] active:bg-[#1f1f1f] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
             >
-              <option value="All">All roles</option>
-              <option value="owner">Owner</option>
-              <option value="Architect">Architect</option>
-              <option value="Engineer">Engineer</option>
-              <option value="Manager">Manager</option>
-            </select>
+              <Download className="size-3.5 text-[#b9b9b9]" />
+              <span>Export users</span>
+            </button>
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="border-b border-border/40 bg-muted/20 text-[11px] font-medium text-muted-foreground">
-              <tr>
-                <th className="py-3 px-4">User</th>
-                <th className="py-3 px-4">Role</th>
-                <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4">Last active</th>
-                <th className="py-3 px-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border/30">
-              {filteredUsers.map((user) => (
-                <tr
-                  key={user.id}
-                  className="transition-colors hover:bg-muted/30"
-                >
-                  <td className="py-3 px-4">
-                    <div className="flex items-center gap-3">
-                      <Avatar className="size-8">
-                        <AvatarFallback className="text-[11px] bg-muted font-medium">
-                          {user.initials}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <span className="font-medium text-foreground">
-                          {user.name}
-                        </span>
-                        <p className="text-[11px] text-muted-foreground">
-                          {user.email}
-                        </p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="py-3 px-4 text-muted-foreground">
-                    {user.role}
-                  </td>
-                  <td className="py-3 px-4">
-                    <Badge
-                      variant="outline"
-                      className={
-                        user.status === "Active"
-                          ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
-                          : user.status === "Pending"
-                            ? "border-amber-500/30 bg-amber-500/10 text-amber-400"
-                            : "border-rose-500/30 bg-rose-500/10 text-rose-400"
-                      }
-                    >
-                      • {user.status}
-                    </Badge>
-                  </td>
-                  <td className="py-3 px-4 text-muted-foreground">
-                    {user.lastActive}
-                  </td>
-                  <td className="py-3 px-4 text-right">
-                    <div className="flex items-center justify-end gap-1.5">
-                      <Button
-                        variant="ghost"
-                        size="xs"
-                        className="h-7 gap-1 px-2 text-xs text-muted-foreground hover:text-foreground"
-                      >
-                        <Edit2 className="size-3" />
-                        <span>Edit</span>
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="xs"
-                        className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
-                      >
-                        <MoreVertical className="size-3.5" />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        {/* 4 KPI Metric Cards (Matching Figma Node 310:354 - 310:369) */}
+        <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
+          {/* Card 1: Total Users */}
+          <div className="h-[120px] rounded-[10px] bg-[#141414] border border-[#292929]/50 p-[18px] flex flex-col justify-between transition-colors">
+            <span className="text-xs font-normal text-[#b9b9b9] font-['Inter']">
+              Total users
+            </span>
+            <span className="font-['Lexend'] text-2xl sm:text-[30px] font-light text-[#f6f6f6] leading-none">
+              {isLoading ? (
+                <span className="inline-block h-8 w-24 bg-[#252525] animate-pulse rounded" />
+              ) : (
+                totalCount.toLocaleString()
+              )}
+            </span>
+            <span className="text-xs text-[#929292] font-['Inter']">
+              All registered accounts
+            </span>
+          </div>
+
+          {/* Card 2: Active Users */}
+          <div className="h-[120px] rounded-[10px] bg-[#141414] border border-[#292929]/50 p-[18px] flex flex-col justify-between transition-colors">
+            <span className="text-xs font-normal text-[#b9b9b9] font-['Inter']">
+              Active users
+            </span>
+            <span className="font-['Lexend'] text-2xl sm:text-[30px] font-light text-[#f6f6f6] leading-none">
+              {isLoading ? (
+                <span className="inline-block h-8 w-24 bg-[#252525] animate-pulse rounded" />
+              ) : (
+                activeCount.toLocaleString()
+              )}
+            </span>
+            <span className="text-xs text-[#a2c7ad] font-['Inter'] font-medium">
+              {activePercent}% of directory
+            </span>
+          </div>
+
+          {/* Card 3: Verified Users */}
+          <div className="h-[120px] rounded-[10px] bg-[#141414] border border-[#292929]/50 p-[18px] flex flex-col justify-between transition-colors">
+            <span className="text-xs font-normal text-[#b9b9b9] font-['Inter']">
+              Verified users
+            </span>
+            <span className="font-['Lexend'] text-2xl sm:text-[30px] font-light text-[#f6f6f6] leading-none">
+              {isLoading ? (
+                <span className="inline-block h-8 w-24 bg-[#252525] animate-pulse rounded" />
+              ) : (
+                verifiedCount.toLocaleString()
+              )}
+            </span>
+            <span className="text-xs text-[#a2c7ad] font-['Inter'] font-medium">
+              {verifiedPercent}% verification rate
+            </span>
+          </div>
+
+          {/* Card 4: Pending Onboarding */}
+          <div className="h-[120px] rounded-[10px] bg-[#141414] border border-[#292929]/50 p-[18px] flex flex-col justify-between transition-colors">
+            <span className="text-xs font-normal text-[#b9b9b9] font-['Inter']">
+              Pending onboarding
+            </span>
+            <span className="font-['Lexend'] text-2xl sm:text-[30px] font-light text-[#f6f6f6] leading-none">
+              {isLoading ? (
+                <span className="inline-block h-8 w-24 bg-[#252525] animate-pulse rounded" />
+              ) : (
+                pendingOnboardCount.toLocaleString()
+              )}
+            </span>
+            <span className="text-xs text-[#dfc38c] font-['Inter'] font-medium">
+              {pendingPercent}% need to complete setup
+            </span>
+          </div>
         </div>
 
-        <div className="flex items-center justify-between border-t border-border/40 px-4 py-3 text-[11px] text-muted-foreground">
-          <span>Showing {filteredUsers.length} of {USERS.length} users</span>
-          <span>Rows per page: 10</span>
+        {/* Users List Container (Matching Figma Node 310:370 - 310:505) */}
+        <div className="rounded-[10px] bg-[#141414] border border-[#292929] overflow-hidden shadow-sm">
+          {/* Card Top Title Bar */}
+          <div className="flex items-center justify-between px-5 py-4 border-b border-[#292929]">
+            <div className="flex items-center gap-3">
+              <h2 className="font-['Lexend'] text-base font-light text-[#f6f6f6]">
+                All users
+              </h2>
+            </div>
+            <span className="text-xs text-[#929292] font-['Inter'] hidden sm:inline-block">
+              Account directory
+            </span>
+          </div>
+
+          {/* Toolbar: Search & Filter Controls (Matching Figma Node 310:376 - 310:386) */}
+          <div className="p-4 sm:p-5 flex flex-wrap items-center justify-between gap-3 border-b border-[#292929]/60">
+            {/* Search Input */}
+            <div className="relative w-full sm:w-[320px] md:w-[370px]">
+              <Search className="absolute left-3 top-2.5 size-3.5 text-[#929292]" />
+              <input
+                type="text"
+                placeholder="Search by name, email or phone"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                className="h-[36px] w-full rounded-lg border border-[#292929] bg-[#090909] pl-9 pr-8 text-xs text-[#f6f6f6] placeholder:text-[#929292] outline-none transition-colors focus:border-[#ff6347]/60 font-['Inter']"
+              />
+              {searchInput && (
+                <button
+                  type="button"
+                  onClick={() => setSearchInput("")}
+                  className="absolute right-2.5 top-2.5 text-[#929292] hover:text-[#f6f6f6]"
+                  aria-label="Clear search"
+                >
+                  <X className="size-3.5" />
+                </button>
+              )}
+            </div>
+
+            {/* Filter Dropdowns */}
+            <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
+              {/* Status Filter */}
+              <div className="relative">
+                <select
+                  value={statusFilter}
+                  onChange={(e) => {
+                    setStatusFilter(e.target.value as "all" | UserStatus)
+                    setPage(1)
+                  }}
+                  className="h-[34px] appearance-none rounded-lg border border-[#292929] bg-[#191919] pl-3 pr-8 text-xs font-normal text-[#f6f6f6] outline-none hover:bg-[#222222] transition-colors cursor-pointer"
+                  aria-label="Filter users by status"
+                >
+                  <option value="all">Status: All</option>
+                  <option value="active">Status: Active</option>
+                  <option value="blocked">Status: Blocked</option>
+                  <option value="deleted">Status: Deleted</option>
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-2.5 top-2.5 size-3 text-[#b9b9b9]" />
+              </div>
+
+              {/* Provider Filter */}
+              <div className="relative">
+                <select
+                  value={providerFilter}
+                  onChange={(e) => {
+                    setProviderFilter(e.target.value as "all" | AuthProvider)
+                    setPage(1)
+                  }}
+                  className="h-[34px] appearance-none rounded-lg border border-[#292929] bg-[#191919] pl-3 pr-8 text-xs font-normal text-[#f6f6f6] outline-none hover:bg-[#222222] transition-colors cursor-pointer"
+                  aria-label="Filter users by authentication provider"
+                >
+                  <option value="all">Provider: All</option>
+                  <option value="email_otp">Provider: Email OTP</option>
+                  <option value="google">Provider: Google</option>
+                  <option value="password">Provider: Password</option>
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-2.5 top-2.5 size-3 text-[#b9b9b9]" />
+              </div>
+
+              {/* Verification Filter */}
+              <div className="relative">
+                <select
+                  value={verificationFilter}
+                  onChange={(e) => {
+                    setVerificationFilter(e.target.value as "all" | "verified" | "unverified")
+                    setPage(1)
+                  }}
+                  className="h-[34px] appearance-none rounded-lg border border-[#292929] bg-[#191919] pl-3 pr-8 text-xs font-normal text-[#f6f6f6] outline-none hover:bg-[#222222] transition-colors cursor-pointer"
+                  aria-label="Filter users by verification state"
+                >
+                  <option value="all">Verification: All</option>
+                  <option value="verified">Verification: Verified</option>
+                  <option value="unverified">Verification: Unverified</option>
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-2.5 top-2.5 size-3 text-[#b9b9b9]" />
+              </div>
+
+              {/* Active Records Indicator */}
+              <span className="text-xs text-[#929292] font-['Inter'] pl-1">
+                {displayedUsers.length} shown
+              </span>
+            </div>
+          </div>
+
+          {/* Table Container with Horizontal Scroll Guarantee */}
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[950px] border-collapse text-left text-xs">
+              {/* Table Header (Matching Figma Node 310:387 - 310:396) */}
+              <thead>
+                <tr className="h-[40px] border-b border-[#292929] bg-[#191919] text-[12px] font-normal text-[#b9b9b9] font-['Inter']">
+                  <th className="py-2 px-4 w-[240px]">User</th>
+                  <th className="py-2 px-4 w-[140px]">Phone</th>
+                  <th className="py-2 px-4 w-[70px]">Country</th>
+                  <th className="py-2 px-4 w-[110px]">Auth provider</th>
+                  <th className="py-2 px-4 w-[100px]">Verification</th>
+                  <th className="py-2 px-4 w-[100px]">Onboarding</th>
+                  <th className="py-2 px-4 w-[90px]">Status</th>
+                  <th className="py-2 px-4 w-[130px]">Joined ↓</th>
+                  <th className="py-2 px-4 w-[80px] text-right">Action</th>
+                </tr>
+              </thead>
+
+              {/* Table Body */}
+              <tbody className="divide-y divide-[#292929]/70 font-['Inter']">
+                {isLoading ? (
+                  // Zero-CLS Loading Skeletons: Exact row height 72px
+                  Array.from({ length: pageSize }).map((_, idx) => (
+                    <tr key={`skeleton-${idx}`} className="h-[72px] animate-pulse">
+                      <td className="py-3 px-4">
+                        <div className="flex items-center gap-3">
+                          <div className="size-8 rounded-full bg-[#252525]" />
+                          <div className="space-y-1.5">
+                            <div className="h-3.5 w-28 rounded bg-[#252525]" />
+                            <div className="h-3 w-36 rounded bg-[#252525]/70" />
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="h-3.5 w-24 rounded bg-[#252525]" />
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="h-3.5 w-8 rounded bg-[#252525]" />
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="h-3.5 w-16 rounded bg-[#252525]" />
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="h-6 w-16 rounded bg-[#252525]" />
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="h-3.5 w-14 rounded bg-[#252525]" />
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="h-6 w-14 rounded bg-[#252525]" />
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="h-3.5 w-20 rounded bg-[#252525]" />
+                      </td>
+                      <td className="py-3 px-4 text-right">
+                        <div className="h-7 w-14 rounded bg-[#252525] ml-auto" />
+                      </td>
+                    </tr>
+                  ))
+                ) : isError ? (
+                  // Error State
+                  <tr>
+                    <td colSpan={9} className="py-12 text-center">
+                      <div className="mx-auto flex max-w-sm flex-col items-center justify-center text-center">
+                        <AlertCircle className="size-8 text-[#ff6347] mb-2" />
+                        <p className="text-sm font-medium text-[#f6f6f6]">
+                          Failed to load user directory
+                        </p>
+                        <p className="text-xs text-[#929292] mt-1 mb-4">
+                          {error?.message || "An unexpected error occurred while communicating with the authentication service."}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => refetch()}
+                          className="inline-flex items-center gap-1.5 rounded-lg bg-[#252525] px-3 py-1.5 text-xs text-[#f6f6f6] hover:bg-[#2f2f2f] transition-colors"
+                        >
+                          <RefreshCw className="size-3.5" />
+                          <span>Retry connection</span>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ) : displayedUsers.length === 0 ? (
+                  // Empty State
+                  <tr>
+                    <td colSpan={9} className="py-16 text-center">
+                      <div className="mx-auto flex max-w-sm flex-col items-center justify-center text-center">
+                        <UsersIcon className="size-8 text-[#838383] mb-2" />
+                        <p className="text-sm font-medium text-[#f6f6f6]">
+                          No users found
+                        </p>
+                        <p className="text-xs text-[#929292] mt-1 mb-4">
+                          {searchInput || statusFilter !== "all" || providerFilter !== "all" || verificationFilter !== "all"
+                            ? "No account records matched your active query and filter criteria."
+                            : "There are currently no registered users in the organization."}
+                        </p>
+                        {(searchInput || statusFilter !== "all" || providerFilter !== "all" || verificationFilter !== "all") && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSearchInput("")
+                              setStatusFilter("all")
+                              setProviderFilter("all")
+                              setVerificationFilter("all")
+                              setPage(1)
+                            }}
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-[#292929] bg-[#191919] px-3.5 py-1.5 text-xs text-[#ff967f] hover:bg-[#222222] transition-colors"
+                          >
+                            <span>Clear all filters</span>
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
+                  // Resolved Users Rows (Matching Figma Node 310:397 - 310:492)
+                  displayedUsers.map((user) => {
+                    const fullName =
+                      user.firstName && user.lastName
+                        ? `${user.firstName} ${user.lastName}`
+                        : user.name || "Unnamed user"
+                    const isVerified = user.isEmailVerified || user.isVerified
+                    const joined = formatJoinedDate(user.createdAt)
+                    const initials = getUserInitials(user)
+
+                    return (
+                      <tr
+                        key={user.id}
+                        onClick={() => router.push(`/users/${user.id}`)}
+                        className="h-[72px] transition-colors hover:bg-[#1a1715]/60 group cursor-pointer"
+                      >
+                        {/* User Column */}
+                        <td className="py-3 px-4">
+                          <div className="flex items-center gap-3">
+                            <div className="size-8 shrink-0 rounded-full bg-[#1e1e1e] border border-[#2e2e2e] text-[#f6f6f6] font-mono text-[11px] font-medium flex items-center justify-center">
+                              {initials}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="font-medium text-[#f6f6f6] text-[14px] truncate leading-tight">
+                                {fullName}
+                              </p>
+                              <p className="text-[12px] text-[#929292] truncate leading-normal">
+                                {user.email || "No email"}
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+
+                        {/* Phone Column */}
+                        <td className="py-3 px-4 text-[#b9b9b9] text-[12px]">
+                          {user.phone ? (
+                            <span className="font-mono">{user.phone}</span>
+                          ) : (
+                            <span className="text-[#929292]">Not provided</span>
+                          )}
+                        </td>
+
+                        {/* Country Column */}
+                        <td className="py-3 px-4 text-[#b9b9b9] text-[12px] font-mono">
+                          {user.country || "—"}
+                        </td>
+
+                        {/* Auth Provider Column */}
+                        <td className="py-3 px-4 text-[#b9b9b9] text-[12px]">
+                          {formatProvider(user.authProvider)}
+                        </td>
+
+                        {/* Verification Column */}
+                        <td className="py-3 px-4">
+                          {isVerified ? (
+                            <span className="inline-flex h-[26px] items-center rounded-[6px] bg-[#1c2820] px-2 text-[12px] font-normal text-[#a2c7ad]">
+                              Verified
+                            </span>
+                          ) : (
+                            <span className="inline-flex h-[26px] items-center rounded-[6px] bg-[#29251c] px-2 text-[12px] font-normal text-[#dfc38c]">
+                              Unverified
+                            </span>
+                          )}
+                        </td>
+
+                        {/* Onboarding Column */}
+                        <td className="py-3 px-4 text-[12px]">
+                          {user.isOnboarded ? (
+                            <span className="text-[#b9b9b9]">Complete</span>
+                          ) : (
+                            <span className="text-[#dfc38c]">Pending</span>
+                          )}
+                        </td>
+
+                        {/* Status Column */}
+                        <td className="py-3 px-4">
+                          {user.status === "active" ? (
+                            <span className="inline-flex h-[26px] items-center rounded-[6px] bg-[#1c2820] px-2 text-[12px] font-normal text-[#a2c7ad]">
+                              Active
+                            </span>
+                          ) : user.status === "blocked" ? (
+                            <span className="inline-flex h-[26px] items-center rounded-[6px] bg-[#2a1b18] px-2 text-[12px] font-normal text-[#ff967f]">
+                              Blocked
+                            </span>
+                          ) : (
+                            <span className="inline-flex h-[26px] items-center rounded-[6px] bg-[#252525] px-2 text-[12px] font-normal text-[#929292]">
+                              Deleted
+                            </span>
+                          )}
+                        </td>
+
+                        {/* Joined Column */}
+                        <td className="py-3 px-4">
+                          <p className="text-[12px] text-[#b9b9b9] leading-tight font-mono">
+                            {joined.date}
+                          </p>
+                          <p className="text-[12px] text-[#929292] leading-normal font-mono">
+                            {joined.time}
+                          </p>
+                        </td>
+
+                        {/* Action Column */}
+                        <td className="py-3 px-4 text-right">
+                          <Link
+                            href={`/users/${user.id}`}
+                            onClick={(e) => e.stopPropagation()}
+                            className="inline-flex h-[34px] items-center justify-center rounded-[8px] bg-[#191919] border border-[#292929] px-3 text-[12px] font-normal text-[#f6f6f6] transition-all hover:bg-[#ff795c] hover:text-[#090909] hover:border-[#ff795c] cursor-pointer"
+                          >
+                            <span>View ↗</span>
+                          </Link>
+                        </td>
+                      </tr>
+                    )
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Table Footer & Pagination (Matching Figma Node 310:493 - 310:505) */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-5 py-4 border-t border-[#292929] bg-[#141414] text-xs font-['Inter']">
+            {/* Showing Count */}
+            <p className="text-[#929292]">
+              Showing {startRecord}–{endRecord} of {totalCount.toLocaleString()} users
+            </p>
+
+            {/* Pagination Controls */}
+            <div className="flex items-center gap-2">
+              {/* Rows per page selector */}
+              <div className="relative mr-2 hidden sm:block">
+                <select
+                  value={pageSize}
+                  onChange={(e) => {
+                    setPageSize(Number(e.target.value))
+                    setPage(1)
+                  }}
+                  className="h-[34px] appearance-none rounded-lg border border-[#292929] bg-[#191919] pl-2.5 pr-7 text-xs text-[#b9b9b9] outline-none hover:bg-[#222222] transition-colors cursor-pointer"
+                  aria-label="Rows per page"
+                >
+                  <option value={6}>Rows: 6</option>
+                  <option value={10}>Rows: 10</option>
+                  <option value={20}>Rows: 20</option>
+                  <option value={50}>Rows: 50</option>
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-2 top-2.5 size-3 text-[#b9b9b9]" />
+              </div>
+
+              {/* Previous Button */}
+              <button
+                type="button"
+                onClick={handlePrevPage}
+                disabled={page <= 1 || isLoading}
+                className="h-[34px] rounded-[8px] border border-[#292929] bg-[#191919] px-3 text-xs text-[#f6f6f6] transition-colors hover:bg-[#252525] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+              >
+                Previous
+              </button>
+
+              {/* Page Number Buttons (Show first 3-5 pages) */}
+              {Array.from({ length: Math.min(totalPages, 5) }).map((_, idx) => {
+                const pageNumber = idx + 1
+                const isActive = pageNumber === page
+                return (
+                  <button
+                    key={`page-${pageNumber}`}
+                    type="button"
+                    onClick={() => setPage(pageNumber)}
+                    disabled={isLoading}
+                    className={cn(
+                      "size-[34px] rounded-[8px] text-xs transition-colors cursor-pointer flex items-center justify-center font-medium",
+                      isActive
+                        ? "bg-[#ff795c] text-[#090909]"
+                        : "border border-[#292929] bg-[#191919] text-[#f6f6f6] hover:bg-[#252525]"
+                    )}
+                  >
+                    {pageNumber}
+                  </button>
+                )
+              })}
+
+              {/* Next Button */}
+              <button
+                type="button"
+                onClick={handleNextPage}
+                disabled={page >= totalPages || isLoading}
+                className="h-[34px] rounded-[8px] border border-[#292929] bg-[#191919] px-3 text-xs text-[#f6f6f6] transition-colors hover:bg-[#252525] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+              >
+                Next
+              </button>
+            </div>
+          </div>
         </div>
-      </Card>
+      </div>
     </AdminShell>
   )
 }

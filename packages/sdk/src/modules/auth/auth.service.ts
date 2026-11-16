@@ -12,6 +12,7 @@ import type {
   ListUsersParams,
   ListUsersResponse,
   UserProfile,
+  UserDetailsResponse,
   UpdateUserStatusPayload,
 } from "./auth.types"
 
@@ -81,9 +82,13 @@ export class AuthService {
    * Lists users in the organization with pagination and filters (Admin only).
    */
   static async listUsers(params?: ListUsersParams): Promise<ListUsersResponse> {
+    const queryParams: Record<string, any> = { ...params }
+    if (params?.page && params?.limit && queryParams.offset === undefined) {
+      queryParams.offset = (params.page - 1) * params.limit
+    }
     const response = await authClient.get<ListUsersResponse>(
       API_ENDPOINTS.AUTH.USERS,
-      { params }
+      { params: queryParams }
     )
     return response.data
   }
@@ -91,8 +96,8 @@ export class AuthService {
   /**
    * Retrieves a single user record by UUID (Admin only).
    */
-  static async getUserById(userId: string): Promise<{ success: boolean; user: UserProfile }> {
-    const response = await authClient.get<{ success: boolean; user: UserProfile }>(
+  static async getUserById(userId: string): Promise<UserDetailsResponse> {
+    const response = await authClient.get<UserDetailsResponse>(
       API_ENDPOINTS.AUTH.USER_BY_ID(userId)
     )
     return response.data

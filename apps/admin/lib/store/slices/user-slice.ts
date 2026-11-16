@@ -8,22 +8,10 @@ export interface UserState {
   error: string | null
 }
 
-function getInitialUser(): UserProfile | null {
-  if (typeof window === "undefined") return null
-  try {
-    const raw = localStorage.getItem("admin_user")
-    return raw ? JSON.parse(raw) : null
-  } catch {
-    return null
-  }
-}
-
-const initialUser = getInitialUser()
-
 const initialState: UserState = {
-  user: initialUser,
-  isAuthenticated: Boolean(initialUser),
-  status: initialUser ? "authenticated" : "idle",
+  user: null,
+  isAuthenticated: false,
+  status: "idle",
   error: null,
 }
 

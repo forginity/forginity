@@ -20,6 +20,7 @@ import type {
   ListUsersParams,
   ListUsersResponse,
   UserProfile,
+  UserDetailsResponse,
   UpdateUserStatusPayload,
 } from "./auth.types"
 
@@ -121,12 +122,12 @@ export function useUsers(
 }
 
 export function useUser(
-  userId: string,
-  options?: Partial<UseQueryOptions<{ success: boolean; user: UserProfile }, ApiError>>
+  userId?: string | null,
+  options?: Partial<UseQueryOptions<UserDetailsResponse, ApiError>>
 ) {
   return useQuery({
-    queryKey: authCacheKeys.user(userId),
-    queryFn: () => AuthService.getUserById(userId),
+    queryKey: authCacheKeys.user(userId || ""),
+    queryFn: () => AuthService.getUserById(userId!),
     enabled: Boolean(userId),
     staleTime: 60 * 1000,
     ...options,

@@ -109,7 +109,7 @@ export function OtpInput({
   }
 
   return (
-    <div className={cn("flex items-center justify-between gap-2 sm:gap-2.5 w-full", className)}>
+    <div className={cn("grid grid-cols-6 gap-2 sm:gap-2.5 w-full", className)}>
       {Array.from({ length }).map((_, index) => {
         const isFocused = activeIndex === index
         const digit = digits[index] || ""
@@ -117,8 +117,8 @@ export function OtpInput({
           <div
             key={index}
             className={cn(
-              "relative flex h-[50px] flex-1 max-w-[54px] items-center justify-center rounded-lg border border-[#292929] bg-[#141414] transition-all",
-              isFocused && "border-[#FF6347] ring-1 ring-[#FF6347]/40",
+              "relative flex h-[50px] w-full items-center justify-center rounded-lg border border-[#292929] bg-[#141414] transition-all",
+              isFocused && "border-[#FF6347] ring-1 ring-[#FF6347]/40 bg-[#1a1413]",
               error && "border-[#D94F2E]",
               disabled && "opacity-50 pointer-events-none",
               slotClassName
