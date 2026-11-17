@@ -118,7 +118,7 @@ export function createAuthMiddleware(
                   email: user.email!,
                   role: user.userType,
                   userType: user.userType,
-                  type: "access",
+                  scope: "access",
                 } as AccessTokenPayload
                 next()
                 return

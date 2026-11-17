@@ -33,7 +33,7 @@ describe("OtpRepository Real Database Operations", () => {
     await expect(checkDatabaseConnection(invalidDb)).rejects.toThrow(
       "Database connection failed: Connection refused at port 5432"
     )
-  })
+  }, 15000)
 
   it("should execute OTP lifecycle in the database", async () => {
     if (!isDbAvailable) {

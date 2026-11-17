@@ -1,60 +1,82 @@
-# Welcome to your Expo app 👋
+# PikyRider Mobile Application (`mobile_apps/pikyrider`)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+The official cross-platform mobile client for **TrackRide**, Forginity's flagship motorcycle navigation and rider awareness platform.
 
-## Get started
+---
 
-1. Install dependencies
+## 1. What This Application Is
 
-   ```bash
-   npm install
-   ```
+PikyRider provides motorcycle riders with offline navigation, turn-by-turn voice directions, real-time group rider radar over WebSockets, emergency stall detection, and seamless authentication with the centralized Forginity ecosystem.
 
-2. Start the app
+### Core Capabilities
+- **Passwordless Rider Onboarding:** Fast email OTP login and 1-tap Google Social SSO.
+- **Hardware-Backed Session Security:** Secure token storage via `expo-secure-store` with silent background token rotation.
+- **Mandatory Profile Setup:** First-time onboarding screen capturing rider metadata (names, gender, ISO country).
+- **Rider Emergency Safety:** Linked emergency contacts for incident alerts and deviation monitoring.
+- **Group Radar & Mesh:** Real-time proximity radar and 6-digit group session codes.
 
-   ```bash
-   npx expo start
-   ```
+---
 
-In the output, you'll find options to open the app in a
+## 2. Authoritative Backend API Source of Truth
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+> [!IMPORTANT]
+> **API Contracts & Integration Reference:**
+> All backend authentication, session lifecycle, profile, and emergency contact contracts are authoritatively documented in:
+> 
+> 👉 **[`services/auth/README.md`](../../services/auth/README.md)**
+> 
+> When developing, testing, or modifying API integrations in PikyRider, **refer directly to `services/auth/README.md`** for exact request/response JSON schemas, headers, status codes, error models, and mobile integration guidelines (`expo-secure-store`, refresh token handling, and navigation redirects).
+> 
+> **Do NOT guess or reverse-engineer API contracts from backend source files.**
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+### Primary Backend Service Mappings
+| Mobile Feature / Screen | Backend Endpoint | Reference Section in Auth README |
+| :--- | :--- | :--- |
+| **Email Sign-In / Sign-Up** (`/(onboarding)/signin`, `signup`) | `POST /api/auth/email/initiate` | [`services/auth/README.md` -> Group C](../../services/auth/README.md#group-c-unified-passwordless-email-authentication) |
+| **OTP Code Verification** (`/(onboarding)/otp`) | `POST /api/auth/email/verify` | [`services/auth/README.md` -> Group C](../../services/auth/README.md#group-c-unified-passwordless-email-authentication) |
+| **Google 1-Tap Sign-In** | `POST /api/auth/google` | [`services/auth/README.md` -> Group D](../../services/auth/README.md#group-d-google-oauth-20--social-sso) |
+| **Profile Onboarding** (`/(onboarding)/profile`) | `POST /api/auth/onboarding` | [`services/auth/README.md` -> Group E](../../services/auth/README.md#group-e-rider-profile-onboarding) |
+| **Silent Session Refresh** (Background Interceptor) | `POST /api/auth/session/refresh` | [`services/auth/README.md` -> Group F](../../services/auth/README.md#group-f-session-lifecycle--token-management) |
+| **Single-Device Logout** | `POST /api/auth/session/revoke` | [`services/auth/README.md` -> Group F](../../services/auth/README.md#group-f-session-lifecycle--token-management) |
+| **Rider Profile & Settings** (`/(app)/profile`) | `GET /api/users/me`, `PUT /api/users/me` | [`services/auth/README.md` -> Group G](../../services/auth/README.md#group-g-user-self-service--lifecycle) |
+| **Emergency Contacts** | `GET/POST/PUT/DELETE /api/users/me/emergency-contacts` | [`services/auth/README.md` -> Group H](../../services/auth/README.md#group-h-emergency-contacts-rider-safety) |
 
-## Get a fresh project
+---
 
-When you're ready, run:
+## 3. Tech Stack
 
+- **Framework:** Expo 58 (SDK 58), React Native 0.88, React 19.
+- **Routing:** Expo Router (`expo-router/entry`) with typed routes.
+- **Styling:** NativeWind 4.2 (`tailwindcss` 3.4) with Coral Sunset dark theme tokens.
+- **State Management:** Zustand 5.0 (`useOnboardingStore`).
+- **Validation:** Zod 4.
+- **Security:** `expo-secure-store` for hardware-backed JWT storage.
+- **Icons:** `lucide-react-native`.
+
+---
+
+## 4. Getting Started
+
+### 1. Start the Metro Development Server
 ```bash
-npm run reset-project
+pnpm --filter pikyrider start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### 2. Run on Android Emulator / Device
+```bash
+pnpm --filter pikyrider android
+```
 
-### Other setup steps
+### 3. Run on iOS Simulator / Device
+```bash
+pnpm --filter pikyrider ios
+```
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+### 4. Verification Suite
+```bash
+# Typecheck
+pnpm --filter pikyrider typecheck
 
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
-
-## helper
-
-- cache cache control : sudo slabtop -o | head -n 15
+# Linting
+pnpm --filter pikyrider lint
+```

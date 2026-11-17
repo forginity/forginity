@@ -18,6 +18,11 @@
 - **Central Implementation Record:** [`../IMPLEMENTATION_RECORD.md`](../IMPLEMENTATION_RECORD.md)
 - **Overall Progress:** [`../PROGRESS.md`](../PROGRESS.md)
 
+> [!IMPORTANT]
+> **Authoritative Backend API Source of Truth:**
+> When implementing mobile authentication, token storage, and user profile management in `mobile_apps/pikyrider`, developers and AI agents MUST refer directly to [`services/auth/README.md`](../../services/auth/README.md).
+> It serves as the single source of truth containing exhaustive request/response schemas, JSON payloads, Zod field constraints, status codes, error enumerations, and mobile integration guidance (`Expo SecureStore`, refresh token rotation in non-cookie environments, and navigation routing). Do NOT guess or inspect the raw backend codebase.
+
 ---
 
 ## 2. PROGRESSIVE TASK MATRIX
@@ -42,6 +47,7 @@
 - **Description:** Implement clean, responsive mobile email entry screen.
   Validate email format via client-side Zod schema.
   Submit request to `POST /api/auth/email/initiate` in `services/auth`, receive `{ isNewUser, requestId, expiresInSeconds }`, and transition to OTP verification screen.
+- **API Contract Source of Truth:** [`services/auth/README.md`](../../services/auth/README.md#group-c-unified-passwordless-email-authentication) (`POST /api/auth/email/initiate`)
 - **Guide:** [`TASK_01_IMPLEMENTATION_GUIDE.md`](./TASK_01_IMPLEMENTATION_GUIDE.md)
 
 ### `TASK-02`: OTP Code Verification Screen (Sign-in / Sign-up)
@@ -49,26 +55,30 @@
   Submit `requestId` and `code` to `POST /api/auth/email/verify`.
   If returning onboarded user, receive `{ accessToken, refreshToken }` and transition to Home canvas.
   If new user, receive `onboardingToken` and route to Onboarding screen.
+- **API Contract Source of Truth:** [`services/auth/README.md`](../../services/auth/README.md#group-c-unified-passwordless-email-authentication) (`POST /api/auth/email/verify`)
 - **Guide:** [`TASK_02_IMPLEMENTATION_GUIDE.md`](./TASK_02_IMPLEMENTATION_GUIDE.md)
 
 ### `TASK-03`: Rider Profile Onboarding Screen (Sign-up)
 - **Description:** Implement mandatory profile setup screen guarded by `onboardingToken`:
-  - Collect First Name, Last Name, Gender (`male`, `female`, `other`), and ISO 3166-1 alpha-2 Country code.
-  - Submit payload to `POST /api/auth/onboarding`.
+  - Collect First Name, Last Name, Gender (`male`, `female`, `other`, `prefer_not_to_say`), and ISO 3166-1 alpha-2 Country code.
+  - Submit payload with `Authorization: Bearer <onboardingToken>` to `POST /api/auth/onboarding`.
   - Receive production access and refresh tokens, mark user onboarded, and navigate into the app.
+- **API Contract Source of Truth:** [`services/auth/README.md`](../../services/auth/README.md#group-e-rider-profile-onboarding) (`POST /api/auth/onboarding`)
 - **Guide:** [`TASK_03_IMPLEMENTATION_GUIDE.md`](./TASK_03_IMPLEMENTATION_GUIDE.md)
 
 ### `TASK-04`: Session Storage, Refresh & Logout Engine
 - **Description:** Implement mobile session management service:
   - Store JWT access and refresh tokens securely in hardware-backed `Expo SecureStore`.
-  - Silent background token refresh interceptor using `POST /api/auth/session/refresh`.
+  - Silent background token refresh interceptor passing `refreshToken` in request body to `POST /api/auth/session/refresh`.
   - Cold-start session hydration to restore rider state instantly when opening the app.
-  - Single-device logout action invoking `POST /api/auth/logout` and clearing SecureStore tokens.
+  - Single-device logout action invoking `POST /api/auth/session/revoke` and clearing SecureStore tokens.
+- **API Contract Source of Truth:** [`services/auth/README.md`](../../services/auth/README.md#group-f-session-lifecycle--token-management) (`POST /api/auth/session/refresh` & `POST /api/auth/session/revoke`) and [`Section 6 (Mobile Integration Guidelines)`](../../services/auth/README.md#6-client-integration--mobile-best-practices-pikyrider--expo)
 - **Guide:** [`TASK_04_IMPLEMENTATION_GUIDE.md`](./TASK_04_IMPLEMENTATION_GUIDE.md)
 
 ### `TASK-05`: Rider Profile & Settings Management Screen
 - **Description:** Build user profile screen allowing riders to view their account info, update display name, gender, country, and avatar URL via `PUT /api/users/me`.
   Manage emergency contacts (add, edit, remove emergency phone contacts) via `/api/users/me/emergency-contacts`.
+- **API Contract Source of Truth:** [`services/auth/README.md`](../../services/auth/README.md#group-g-user-self-service--lifecycle) (`GET/PUT /api/users/me`) and [`Group H: Emergency Contacts`](../../services/auth/README.md#group-h-emergency-contacts-rider-safety)
 - **Guide:** [`TASK_05_IMPLEMENTATION_GUIDE.md`](./TASK_05_IMPLEMENTATION_GUIDE.md)
 
 ### `TASK-06`: Phase 1 Mobile Build & Verification Test Suite
@@ -84,6 +94,7 @@
   - Send ID token to `POST /api/auth/google` in `services/auth`.
   - Handle automatic avatar extraction from Google profile picture (`claims.picture`).
   - Seamlessly route to Home canvas if onboarded, or prompt Onboarding if first-time user.
+- **API Contract Source of Truth:** [`services/auth/README.md`](../../services/auth/README.md#group-d-google-oauth-20--social-sso) (`POST /api/auth/google`)
 - **Guide:** [`TASK_07_IMPLEMENTATION_GUIDE.md`](./TASK_07_IMPLEMENTATION_GUIDE.md)
 
 ### `TASK-08`: Phase 2 Mobile Build & Parity Test Suite

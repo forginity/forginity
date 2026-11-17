@@ -19,6 +19,12 @@ All applications and microservices are assigned sequential ports in the `3000` s
 | **AI Processing Worker**| `services/ai` | `@services/ai` | **`3006`** | HTTP | Python 3.11, FastAPI, Gemini SDK | `http://localhost:3006` | `GET /health` | `GET /docs` | `pnpm --filter @services/ai dev` | `PLANNED` |
 | **Notifications & WS** | `services/notifications` | `@services/notifications` | **`3007`** | HTTP/WS | Node.js, Express 5, Socket.IO | `http://localhost:3007` | `GET /health` | N/A | `pnpm --filter @services/notifications dev` | `PLANNED` |
 
+> [!NOTE]
+> **API Contracts Single Source of Truth:**
+> For comprehensive request and response schemas, payloads, headers, error models, and integration runbooks for backend microservices, refer directly to each service's authoritative README:
+> - **Auth & SSO Service:** [`services/auth/README.md`](file:///home/vikas/Documents/forginity/services/auth/README.md)
+> - **Products & Catalog:** [`services/products/README.md`](file:///home/vikas/Documents/forginity/services/products/README.md)
+
 ---
 
 ## 2. Shared Packages & SDKs (Zero Server Cost)

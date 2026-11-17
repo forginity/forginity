@@ -13,7 +13,7 @@
         "dark": "./assets/logo/ios/ios-icon-dark.png",
         "tinted": "./assets/logo/ios/ios-icon-tinted.png"
       },
-      "bundleIdentifier": "com.vikass78951.pikyrider"
+      "bundleIdentifier": "com.forginity.pikyrider"
     },
     "android": {
       "adaptiveIcon": {
@@ -22,7 +22,7 @@
         "monochromeImage": "./assets/logo/android/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.vikass78951.pikyrider"
+      "package": "com.forginity.pikyrider"
     },
     "web": {
       "bundler": "metro",
