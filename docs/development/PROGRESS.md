@@ -31,3 +31,17 @@ This section tracks the macro development components ordered by implementation p
 | **10** | [`feature_pikyrider_group`](./feature_pikyrider_group) | 5 | 0 | 5 | Real-time rider radar over WebSockets, 6-digit group session PINs, separation alerts, and emergency stall detection. | `PENDING` | 2027-01-20 | 0% |
 | **11** | [`service_payment`](./service_payment) | 6 | 0 | 6 | Stripe customer mapping, checkout sessions, and webhook processing for host-paid group tours. | `PENDING` | 2027-01-25 | 0% |
 | **12** | [`deployment_hosting`](./deployment_hosting) | 5 | 0 | 5 | Multi-stage Dockerfiles, Docker Compose mesh, Nginx reverse proxy, Cloudflare Edge, and GitHub Actions CI/CD. | `PENDING` | 2027-01-31 | 0% |
+
+---
+
+<br>
+
+# V2 VISION & EXPANSION ROADMAP
+
+This section tracks architectural expansions, international carrier integrations, enterprise RBAC, and observability infrastructure planned for Version 2 rollout across the Forginity ecosystem.
+
+- **Master V2 Task Matrix:** [`docs/development/v2_vision/TASK_LIST.md`](./v2_vision/TASK_LIST.md)
+
+| Component | Total Tasks | Completed | Pending | Core Focus Areas | Status | Target |
+| :--- | :---: | :---: | :---: | :--- | :---: | :---: |
+| [`v2_vision`](./v2_vision) | 3 | 0 | 3 | International Phone & SMS/WhatsApp OTP, End-to-End RBAC Guards, API Logs and Monitoring System. | `PENDING` | `V2 Post-Launch` |

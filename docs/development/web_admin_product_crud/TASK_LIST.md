@@ -35,7 +35,7 @@
 | `TASK-07` | Version Control & Release Track Manager | Release version registry UI, `useProductVersions` & `useCreateVersion` | [`TASK_07_IMPLEMENTATION_GUIDE.md`](./TASK_07_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
 
 > [!NOTE]
-> **Moved to V2 Vision:** Admin RBAC Guards on Mutating Endpoints (former `TASK-08`) has been deferred to [`docs/development/v2_vision/TASK_LIST.md`](../v2_vision/TASK_LIST.md#task-05) to align with full cross-service session and RBAC rollouts.
+> **Moved to V2 Vision:** Admin RBAC Guards on Mutating Endpoints (former `TASK-08`) has been deferred to [`docs/development/v2_vision/TASK_LIST.md`](../v2_vision/TASK_LIST.md#task-02) to align with full cross-service session and RBAC rollouts.
 
 ---
 
@@ -73,4 +73,4 @@
 
 > [!NOTE]
 > **Former `TASK-08` (Admin RBAC Guards on Mutating Endpoints):**
-> Deferred to V2 Vision ([`docs/development/v2_vision/TASK_LIST.md#task-05`](../v2_vision/TASK_LIST.md#task-05)) to align with full cross-service session and RBAC rollouts.
+> Deferred to V2 Vision ([`docs/development/v2_vision/TASK_LIST.md#task-02`](../v2_vision/TASK_LIST.md#task-02)) to align with full cross-service session and RBAC rollouts.

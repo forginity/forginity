@@ -69,11 +69,7 @@ export default function SigninStepScreen() {
       router.replace("/(onboarding)/welcome");
     }
   };
-
-  const handleSwitchToSignup = () => {
-    setFlow("signup");
-    router.replace("/(onboarding)/signup");
-  };
+ 
 
   return (
     <SafeAreaView className="bg-canvas flex-1 p-6">

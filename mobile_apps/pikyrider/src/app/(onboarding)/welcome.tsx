@@ -57,7 +57,7 @@ const Auth = () => {
             variant="tertiary"
             onPress={() => {
               setFlow("signup");
-              router.push("/(onboarding)/signup");
+              router.push("/(onboarding)/auth");
             }}
             showIcon={true}
           >
@@ -68,7 +68,7 @@ const Auth = () => {
             variant="secondary"
             onPress={() => {
               setFlow("signin");
-              router.push("/(onboarding)/signin");
+              router.push("/(onboarding)/auth");
             }}
           >
             Sign in
