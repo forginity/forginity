@@ -1,24 +1,32 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { type ComponentRef, useEffect, useRef, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
   ScrollView,
+  Text,
   View,
   TextInput,
-  Text,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
+import { Check } from "lucide-react-native";
 import StepperHeader from "@/components/ui/StepperHeader";
 import FormSectionHeader from "@/components/ui/FormSectionHeader";
 import CustomInput from "@/components/formElement/CustomInput";
 import Button from "@/components/ui/Button";
 import InfoCard from "@/components/ui/InfoCard";
-import { Check, CheckCircle2 } from "lucide-react-native";
 import { useOnboardingStore } from "@/store/useOnboardingStore";
-import { profileSchema } from "@/lib/validation/auth";
+import { validateProfile } from "@/lib/validation/auth";
+import {
+  type UsernameCheckState,
+  getUsernameError,
+  isUsernameVerifiedFor,
+  normalizeUsername,
+  resolveUsernameVerification,
+} from "@/lib/validation/username-verification";
+import { authApiService } from "@/services/auth-api.service";
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -27,24 +35,32 @@ export default function ProfileScreen() {
   const [firstName, setFirstName] = useState(profile.firstName || "");
   const [lastName, setLastName] = useState(profile.lastName || "");
   const [userName, setUserName] = useState(profile.userName || "");
-  const [isUsernameVerified, setIsUsernameVerified] = useState(
-    profile.isUsernameVerified || false
+  const [usernameState, setUsernameState] = useState<UsernameCheckState>(() =>
+    profile.isUsernameVerified && profile.userName
+      ? { status: "available", username: normalizeUsername(profile.userName) }
+      : { status: "idle" }
   );
-  const [isCheckingUsername, setIsCheckingUsername] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<
     Partial<Record<"firstName" | "lastName" | "userName", string>>
   >({});
   const [keyboardPadding, setKeyboardPadding] = useState(0);
 
-  const firstNameRef = useRef<TextInput>(null);
-  const lastNameRef = useRef<TextInput>(null);
-  const userNameRef = useRef<TextInput>(null);
-  const scrollViewRef = useRef<ScrollView>(null);
+  const firstNameRef = useRef<ComponentRef<typeof TextInput>>(null);
+  const lastNameRef = useRef<ComponentRef<typeof TextInput>>(null);
+  const userNameRef = useRef<ComponentRef<typeof TextInput>>(null);
+  const scrollViewRef = useRef<ComponentRef<typeof ScrollView>>(null);
+  const verificationSeqRef = useRef(0);
 
   const currentStep = 3;
   const totalSteps = 5;
 
-  // Dedicated keyboard listener to guarantee Samsung / Android devices lift above keyboard
+  const effectiveUsernameState: UsernameCheckState =
+    usernameState.status === "available" && !profile.isUsernameVerified
+      ? { status: "idle" }
+      : usernameState;
+
+  // Android keyboards on Samsung devices do not reliably resize KeyboardAvoidingView alone
   useEffect(() => {
     const showSub = Keyboard.addListener(
       Platform.OS === "android" ? "keyboardDidShow" : "keyboardWillShow",
@@ -85,74 +101,105 @@ export default function ProfileScreen() {
 
   const handleUserNameChange = (val: string) => {
     setUserName(val);
-    setIsUsernameVerified(false);
+    verificationSeqRef.current += 1;
+    setUsernameState({ status: "idle" });
+    if (profile.isUsernameVerified) {
+      setProfile({ isUsernameVerified: false });
+    }
     if (errors.userName) {
       setErrors((prev) => ({ ...prev, userName: undefined }));
     }
   };
 
-  const handleVerifyUsername = () => {
-    const trimmed = userName.trim();
-    if (!trimmed) {
-      setErrors((prev) => ({
-        ...prev,
-        userName: "Please enter a username to verify",
-      }));
-      return;
-    }
+  const handleVerifyUsername = async () => {
+    const candidate = normalizeUsername(userName);
+    const seq = ++verificationSeqRef.current;
 
-    if (trimmed.length < 3) {
-      setErrors((prev) => ({
-        ...prev,
-        userName: "Username must be at least 3 characters",
-      }));
-      return;
-    }
-
-    if (!/^[a-zA-Z0-9_]+$/.test(trimmed)) {
-      setErrors((prev) => ({
-        ...prev,
-        userName: "Username can only contain letters, numbers, and underscores",
-      }));
-      return;
-    }
-
-    setIsCheckingUsername(true);
     setErrors((prev) => ({ ...prev, userName: undefined }));
+    setUsernameState({ status: "checking", candidate });
 
-    // Simulate availability verification with feedback
-    setTimeout(() => {
-      setIsCheckingUsername(false);
-      setIsUsernameVerified(true);
-    }, 450);
+    const nextState = await resolveUsernameVerification(userName, (normalized) =>
+      authApiService.checkUsernameAvailability(normalized)
+    );
+
+    if (seq !== verificationSeqRef.current) {
+      return;
+    }
+
+    setUsernameState(nextState);
+    if (nextState.status === "available") {
+      setProfile({ userName: nextState.username, isUsernameVerified: true });
+      return;
+    }
+
+    const errorMessage = getUsernameError(nextState);
+    if (errorMessage) {
+      setErrors((prev) => ({ ...prev, userName: errorMessage }));
+    }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
+    if (isSubmitting || effectiveUsernameState.status === "checking") {
+      return;
+    }
+
     const trimmedData = {
       firstName: firstName.trim(),
       lastName: lastName.trim(),
       userName: userName.trim(),
     };
 
-    const result = profileSchema.safeParse(trimmedData);
+    const result = validateProfile(trimmedData);
 
     if (!result.success) {
-      const fieldErrors: Partial<
-        Record<"firstName" | "lastName" | "userName", string>
-      > = {};
-      for (const issue of result.error.issues) {
-        const field = issue.path[0] as "firstName" | "lastName" | "userName";
-        if (field && !fieldErrors[field]) {
-          fieldErrors[field] = issue.message;
-        }
-      }
-      setErrors(fieldErrors);
+      setErrors(result.errors);
       return;
+    }
+
+    const normalizedUserName = result.data.userName;
+
+    if (
+      effectiveUsernameState.status === "taken" &&
+      effectiveUsernameState.username === normalizedUserName
+    ) {
+      setErrors({ userName: effectiveUsernameState.message });
+      return;
+    }
+
+    let verifiedUsername = normalizedUserName;
+
+    if (!isUsernameVerifiedFor(effectiveUsernameState, trimmedData.userName)) {
+      const seq = ++verificationSeqRef.current;
+      setIsSubmitting(true);
+      setErrors({});
+      setUsernameState({ status: "checking", candidate: normalizedUserName });
+
+      try {
+        const nextState = await resolveUsernameVerification(
+          trimmedData.userName,
+          (normalized) => authApiService.checkUsernameAvailability(normalized)
+        );
+
+        if (seq !== verificationSeqRef.current) {
+          return;
+        }
+
+        setUsernameState(nextState);
+        if (nextState.status !== "available") {
+          setErrors({ userName: getUsernameError(nextState) });
+          return;
+        }
+        verifiedUsername = nextState.username;
+      } finally {
+        setIsSubmitting(false);
+      }
     }
 
     setErrors({});
     setProfile({
-      ...trimmedData,
+      firstName: result.data.firstName,
+      lastName: result.data.lastName,
+      userName: verifiedUsername,
       isUsernameVerified: true,
     });
 
@@ -163,14 +210,21 @@ export default function ProfileScreen() {
     if (router.canGoBack()) {
       router.back();
     } else {
-      router.replace("/(onboarding)/otp");
+      router.replace("/(onboarding)/auth");
     }
   };
 
+  const isCheckingUsername = effectiveUsernameState.status === "checking";
+  const isUsernameVerified = isUsernameVerifiedFor(
+    effectiveUsernameState,
+    userName
+  );
   const isFormValid =
-    firstName.trim().length >= 2 &&
-    lastName.trim().length >= 1 &&
-    userName.trim().length >= 3;
+    firstName.trim().length > 0 &&
+    lastName.trim().length > 0 &&
+    userName.trim().length > 0 &&
+    !isCheckingUsername &&
+    !isSubmitting;
 
   return (
     <SafeAreaView className="bg-canvas flex-1">
@@ -191,14 +245,12 @@ export default function ProfileScreen() {
             }}
           >
             <View>
-              {/* Stepper Header: Step 3 */}
               <StepperHeader
                 currentStep={currentStep}
                 totalSteps={totalSteps}
                 onBack={handleBack}
               />
 
-              {/* Form Section Header */}
               <FormSectionHeader
                 caption="Your profile"
                 title="What should we call you?"
@@ -206,9 +258,7 @@ export default function ProfileScreen() {
                 className="mt-12 mb-8"
               />
 
-              {/* Inputs */}
               <View className="gap-3">
-                {/* First name */}
                 <CustomInput
                   ref={firstNameRef}
                   label="First name"
@@ -221,7 +271,6 @@ export default function ProfileScreen() {
                   error={errors.firstName}
                 />
 
-                {/* Second name */}
                 <CustomInput
                   ref={lastNameRef}
                   label="Second name"
@@ -229,14 +278,11 @@ export default function ProfileScreen() {
                   value={lastName}
                   onChangeText={handleLastNameChange}
                   returnKeyType="next"
-                  onSubmitEditing={() => {
-                    userNameRef.current?.focus();
-                  }}
+                  onSubmitEditing={() => userNameRef.current?.focus()}
                   blurOnSubmit={false}
                   error={errors.lastName}
                 />
 
-                {/* User name with Verify availability button */}
                 <CustomInput
                   ref={userNameRef}
                   label="User name"
@@ -244,8 +290,9 @@ export default function ProfileScreen() {
                   value={userName}
                   onChangeText={handleUserNameChange}
                   autoCapitalize="none"
+                  autoCorrect={false}
                   returnKeyType="done"
-                  onSubmitEditing={Keyboard.dismiss}
+                  onSubmitEditing={handleNext}
                   error={errors.userName}
                   rightElement={
                     isUsernameVerified ? (
@@ -261,30 +308,29 @@ export default function ProfileScreen() {
                         size="sm"
                         onPress={handleVerifyUsername}
                         loading={isCheckingUsername}
-                        disabled={!userName.trim() || isCheckingUsername}
+                        disabled={!userName.trim() || isCheckingUsername || isSubmitting}
                         textClassName="text-[12px] font-lexend-medium"
                         className="rounded-xl"
                       >
-                        Verify
+                        {isCheckingUsername ? "Checking..." : "Verify"}
                       </Button>
                     )
                   }
                 />
 
-                {/* Info Card with I Icon */}
                 <View className="mt-2">
                   <InfoCard text="Your user name will be visible to people you ride with." />
                 </View>
               </View>
             </View>
 
-            {/* Bottom CTA */}
             <View className="mt-auto pt-6">
               <Button
                 variant="tertiary"
                 onPress={handleNext}
                 showIcon={true}
                 disabled={!isFormValid}
+                loading={isSubmitting}
               >
                 Next
               </Button>

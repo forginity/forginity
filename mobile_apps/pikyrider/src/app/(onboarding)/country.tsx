@@ -6,6 +6,7 @@ import {
   Keyboard,
   ScrollView,
   View,
+  Text,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -16,29 +17,25 @@ import CountryListItem, {
   CountryItem,
 } from "@/components/formElement/CountryListItem";
 import Button from "@/components/ui/Button";
-import { Search, Check } from "lucide-react-native";
-import { useOnboardingStore } from "@/store/useOnboardingStore";
+import { Search, Check, AlertCircle } from "lucide-react-native";
+import { useOnboardingStore, COUNTRIES_DATA } from "@/store/useOnboardingStore";
 import { countrySchema } from "@/lib/validation/auth";
-
-const COUNTRIES_DATA: CountryItem[] = [
-  { id: "ca", name: "Canada", region: "North America", flagEmoji: "🇨🇦" },
-  { id: "us", name: "United States", region: "North America", flagEmoji: "🇺🇸" },
-  { id: "fr", name: "France", region: "Europe", flagEmoji: "🇫🇷" },
-  { id: "ch", name: "Switzerland", region: "Europe", flagEmoji: "🇨🇭" },
-  { id: "at", name: "Austria", region: "Europe", flagEmoji: "🇦🇹" },
-  { id: "jp", name: "Japan", region: "Asia", flagEmoji: "🇯🇵" },
-  { id: "nz", name: "New Zealand", region: "Oceania", flagEmoji: "🇳🇿" },
-  { id: "no", name: "Norway", region: "Europe", flagEmoji: "🇳🇴" },
-  { id: "it", name: "Italy", region: "Europe", flagEmoji: "🇮🇹" },
-  { id: "in", name: "India", region: "Asia", flagEmoji: "🇮🇳" },
-];
+import { mapGenderToBackend } from "@/lib/validation/onboarding-state";
+import { authApiService, AuthApiError } from "@/services/auth-api.service";
+import { sessionStorageService } from "@/services/session-storage.service";
 
 export default function CountryScreen() {
   const router = useRouter();
   const {
+    profile,
+    gender,
+    onboardingToken,
     country: storedCountry,
+    setProfile,
     setCountry: setStoreCountry,
-    setIsAuthenticated,
+    setSessionTokens,
+    setCurrentUser,
+    setOnboardingToken,
   } = useOnboardingStore();
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -46,6 +43,7 @@ export default function CountryScreen() {
     storedCountry || COUNTRIES_DATA[0],
   );
   const [isFinishing, setIsFinishing] = useState(false);
+  const [error, setError] = useState<string | undefined>(undefined);
 
   const currentStep = 5;
   const totalSteps = 5;
@@ -59,18 +57,60 @@ export default function CountryScreen() {
     );
   }, [searchQuery]);
 
-  const handleFinish = () => {
+  const handleFinish = async () => {
     if (!selectedCountry) return;
 
     const result = countrySchema.safeParse(selectedCountry);
-    if (!result.success) return;
+    if (!result.success) {
+      setError("Please select a valid country.");
+      return;
+    }
+
+    if (!onboardingToken) {
+      setError("Onboarding session expired. Please sign in again.");
+      return;
+    }
 
     setIsFinishing(true);
-    setStoreCountry(selectedCountry);
-    setIsAuthenticated(true);
-    setIsFinishing(false);
+    setError(undefined);
 
-    router.replace("/(app)");
+    try {
+      const response = await authApiService.submitOnboarding(
+        {
+          username: profile.userName.trim().toLowerCase() || undefined,
+          firstName: profile.firstName.trim() || "Rider",
+          lastName: profile.lastName.trim() || "Member",
+          gender: mapGenderToBackend(gender),
+          country: selectedCountry.id.toUpperCase(),
+        },
+        onboardingToken
+      );
+
+      await sessionStorageService.saveSessionTokens(
+        response.session.accessToken,
+        response.session.refreshToken
+      );
+      setCurrentUser(response.user);
+      setStoreCountry(selectedCountry);
+      setOnboardingToken(null);
+      setIsFinishing(false);
+      setSessionTokens(
+        response.session.accessToken,
+        response.session.refreshToken
+      );
+    } catch (err: any) {
+      setIsFinishing(false);
+      if (err instanceof AuthApiError) {
+        if (err.statusCode === 409) {
+          setProfile({ isUsernameVerified: false });
+        }
+        setError(err.message);
+      } else {
+        setError(
+          err?.message || "Failed to complete onboarding. Please try again."
+        );
+      }
+    }
   };
 
   const handleBack = () => {
@@ -112,11 +152,24 @@ export default function CountryScreen() {
                   placeholder="Search by country"
                   icon={<Search size={20} color="#838383" />}
                   value={searchQuery}
-                  onChangeText={setSearchQuery}
+                  onChangeText={(val) => {
+                    setSearchQuery(val);
+                    if (error) setError(undefined);
+                  }}
                   returnKeyType="search"
                   onSubmitEditing={Keyboard.dismiss}
                 />
               </View>
+
+              {/* Error display */}
+              {error ? (
+                <View className="flex-row items-center gap-1.5 mb-3 px-1">
+                  <AlertCircle size={14} color="#EF4444" />
+                  <Text className="text-red-400 font-lexend-regular text-[12px]">
+                    {error}
+                  </Text>
+                </View>
+              ) : null}
 
               {/* Country List */}
               <ScrollView
@@ -132,6 +185,7 @@ export default function CountryScreen() {
                     isSelected={selectedCountry?.id === country.id}
                     onSelect={(c) => {
                       setSelectedCountry(c);
+                      if (error) setError(undefined);
                       Keyboard.dismiss();
                     }}
                   />

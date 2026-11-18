@@ -10,6 +10,7 @@
   - End-to-End Role-Based Access Control (RBAC) protecting mutating operations across `services/products`, `services/auth`, and `apps/admin`.
   - Centralized API structured JSON logging (Pino), distributed correlation ID tracing (`X-Correlation-Id`), request/response auditing, and Prometheus `/metrics` telemetry.
   - Admin Console system health and API live inspection monitoring dashboards.
+  - Global Unique Handle & Username Claim Engine (`@username`) across all apps with real-time availability checks, reserved handle blocklists, database migrations, and profile binding.
 - **Strategic Context:** V1 focuses on zero-cost, high-deliverability **Email OTP (Resend Free Tier)** and **Google SSO** for global reach. Phone/SMS OTP and high-scale observability pipelines are deferred to V2 to eliminate premature infrastructure and carrier costs while launching cleanly.
 - **Central Implementation Record:** [`../IMPLEMENTATION_RECORD.md`](../IMPLEMENTATION_RECORD.md)
 - **Overall Progress:** [`../PROGRESS.md`](../PROGRESS.md)
@@ -23,6 +24,7 @@
 | `TASK-01` | Phone Number & SMS/WhatsApp OTP Authentication Flow | Unified international E.164 phone sign-in & sign-up, SMS/WhatsApp delivery, toll-fraud protection, and session issuance | [`TASK_01_IMPLEMENTATION_GUIDE.md`](./TASK_01_IMPLEMENTATION_GUIDE.md) | `PENDING` |
 | `TASK-02` | End-to-End RBAC & Administrative Mutation Guards | Cross-service RBAC tokens, route guards for product mutations and account moderation (`services/products`, `services/auth`), and Admin UI conditional action guards | [`TASK_02_IMPLEMENTATION_GUIDE.md`](./TASK_02_IMPLEMENTATION_GUIDE.md) | `PENDING` |
 | `TASK-03` | API Logs and Monitoring System | Centralized structured JSON logging (Pino), correlation ID middleware (`X-Correlation-Id`), Prometheus `/metrics`, error alerting, and Admin monitoring UI | [`TASK_03_IMPLEMENTATION_GUIDE.md`](./TASK_03_IMPLEMENTATION_GUIDE.md) | `PENDING` |
+| `TASK-04` | Unique Handle / Username Claim & Availability Engine | PostgreSQL schema migration for unique username column, real-time availability check API, reserved handle blocklist, and onboarding UI integration | [`TASK_04_IMPLEMENTATION_GUIDE.md`](./TASK_04_IMPLEMENTATION_GUIDE.md) | `PENDING` |
 
 ---
 
@@ -51,3 +53,12 @@
   - **Admin Observability & Audit Dashboard:** Build system monitoring views in `apps/admin` (`/system/logs` & `/system/health`) displaying live microservice availability, real-time error rates, slow query alerts, and administrative security audit trails.
   - **Error Tracking & Alert Webhooks:** Centralized error interceptor capturing unhandled promise rejections, 5xx server exceptions, and critical service failure webhooks (Discord / Slack / PagerDuty / Sentry integration).
 - **Guide:** [`TASK_03_IMPLEMENTATION_GUIDE.md`](./TASK_03_IMPLEMENTATION_GUIDE.md)
+
+### `TASK-04`: Unique Handle / Username Claim & Availability Engine
+- **Description:** Implement a global unique handle and username claim system across backend services (`services/auth`), mobile applications (`mobile_apps/pikyrider`), and admin consoles (`apps/admin`):
+  - **Database Migration:** Add unique, case-insensitive index on `username` column in `users` table (`src/db/users.schema.ts`) with PostgreSQL `citext` or lowercase unique constraint, allowing alphanumeric characters and underscores (3-30 characters).
+  - **Availability Check API:** Expose `GET /api/auth/username/check?username=:handle` with sub-50ms debounce lookup, returning availability status and format validation errors.
+  - **Reserved Handle Protection:** Implement dictionary of reserved system handles (e.g. `admin`, `support`, `pikyrider`, `forginity`, `system`, `help`, `api`, `official`).
+  - **Mobile Onboarding UI Integration:** Re-enable username input in `mobile_apps/pikyrider/src/app/(onboarding)/profile.tsx` with live debounced availability indicator ("Available" badge vs. "Taken" alert) and update `authApiService.submitOnboarding` payload.
+  - **Profile & Radar Display:** Expose rider `@handle` across rider radar, group navigation, and profile screens.
+- **Guide:** [`TASK_04_IMPLEMENTATION_GUIDE.md`](./TASK_04_IMPLEMENTATION_GUIDE.md)

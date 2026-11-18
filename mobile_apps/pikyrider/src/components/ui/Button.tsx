@@ -6,7 +6,6 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
-  withSpring,
 } from "react-native-reanimated";
 
 type ButtonVariant = "primary" | "secondary" | "tertiary" | "ghost";

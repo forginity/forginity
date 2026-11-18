@@ -39,6 +39,17 @@ export class UserRepository {
     return result[0] || null
   }
 
+  async findUserByUsername(username: string): Promise<User | null> {
+    const normalized = username.toLowerCase().trim()
+    const result = await this.client
+      .select()
+      .from(users)
+      .where(eq(users.username, normalized))
+      .limit(1)
+
+    return result[0] || null
+  }
+
   async findUserByGoogleId(googleId: string): Promise<User | null> {
     const result = await this.client
       .select()
@@ -57,6 +68,7 @@ export class UserRepository {
       .values({
         email: normalizedEmail,
         name: input.name,
+        username: input.username ? input.username.toLowerCase().trim() : undefined,
         authProvider: input.authProvider || "email_otp",
         googleId: input.googleId,
         avatarUrl: input.avatarUrl,
@@ -113,6 +125,7 @@ export class UserRepository {
       conditions.push(
         or(
           ilike(users.email, searchPattern),
+          ilike(users.username, searchPattern),
           ilike(users.name, searchPattern),
           ilike(users.firstName, searchPattern),
           ilike(users.lastName, searchPattern)
@@ -154,6 +167,7 @@ export class UserRepository {
       conditions.push(
         or(
           ilike(users.email, searchPattern),
+          ilike(users.username, searchPattern),
           ilike(users.name, searchPattern),
           ilike(users.firstName, searchPattern),
           ilike(users.lastName, searchPattern)

@@ -24,6 +24,7 @@ export const users = pgTable(
     phone: varchar("phone", { length: 50 }),
     name: varchar("name", { length: 255 }),
     passwordHash: text("password_hash"),
+    username: varchar("username", { length: 50 }),
     firstName: varchar("first_name", { length: 100 }),
     lastName: varchar("last_name", { length: 100 }),
     gender: varchar("gender", { length: 30 }), // 'male', 'female', 'other', 'prefer_not_to_say'
@@ -43,6 +44,7 @@ export const users = pgTable(
   (table) => [
     uniqueIndex("users_email_idx").on(table.email),
     uniqueIndex("users_phone_idx").on(table.phone),
+    uniqueIndex("users_username_idx").on(table.username),
     uniqueIndex("users_google_id_idx").on(table.googleId),
     index("users_status_idx").on(table.status),
     index("users_auth_provider_idx").on(table.authProvider),

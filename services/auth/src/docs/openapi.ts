@@ -14,6 +14,7 @@ import {
   SwitchProductSchema,
   RevokeSessionSchema,
   OnboardingProfileSchema,
+  CheckUsernameQuerySchema,
   UpdateUserProfileSchema,
   CreateEmergencyContactSchema,
   UpdateEmergencyContactSchema,
@@ -116,6 +117,7 @@ export const UserResponseSchema = z
     email: z.string().email().openapi({ example: "rider@forginity.com" }),
     phone: z.string().nullable().optional(),
     name: z.string().nullable().optional().openapi({ example: "John Doe" }),
+    username: z.string().nullable().optional().openapi({ example: "johndoe" }),
     firstName: z.string().nullable().optional().openapi({ example: "John" }),
     lastName: z.string().nullable().optional().openapi({ example: "Doe" }),
     gender: z.string().nullable().optional().openapi({ example: "male" }),
@@ -982,7 +984,7 @@ registry.registerPath({
   tags: ["Onboarding"],
   summary: "Complete Mandatory Profile Onboarding",
   description:
-    "Captures first name, last name, gender, and ISO country code per Figma Node 179:509. Guarded strictly by the 2-hour scoped onboardingToken. Flips isOnboarded to true and upgrades session to production tokens.",
+    "Captures first name, last name, optional unique username, gender, and ISO country code per Figma Node 179:509. Guarded strictly by the 2-hour scoped onboardingToken. Flips isOnboarded to true and upgrades session to production tokens.",
   security: [{ BearerAuth: [] }],
   request: {
     body: {
@@ -990,6 +992,7 @@ registry.registerPath({
         "application/json": {
           schema: OnboardingProfileSchema,
           example: {
+            username: "alexrider",
             firstName: "Alex",
             lastName: "Rider",
             gender: "male",
@@ -1026,6 +1029,14 @@ registry.registerPath({
     },
     403: {
       description: "Account is blocked or deleted",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    409: {
+      description: "Conflict: Requested username is already taken",
       content: {
         "application/json": {
           schema: ErrorResponseSchema,
@@ -1086,6 +1097,46 @@ export const DeleteEmergencyContactResponseSchema = z
     description: "Confirmation of emergency contact deletion",
   })
 
+export const CheckUsernameResponseSchema = z
+  .object({
+    success: z.boolean().openapi({ example: true }),
+    available: z.boolean().openapi({ example: true }),
+    username: z.string().openapi({ example: "johndoe" }),
+  })
+  .openapi("CheckUsernameResponse", {
+    description: "Confirmation of username global availability status",
+  })
+
+// 11b. Check Username Availability
+registry.registerPath({
+  method: "get",
+  path: "/api/auth/users/check-username",
+  tags: ["User Profile"],
+  summary: "Check Username Availability",
+  description: "Public query checking whether a requested username is available globally.",
+  request: {
+    query: CheckUsernameQuerySchema,
+  },
+  responses: {
+    200: {
+      description: "Availability status resolved",
+      content: {
+        "application/json": {
+          schema: CheckUsernameResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: "Invalid username format (must be 3-30 alphanumeric characters or underscores)",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+  },
+})
+
 // 12. Get User Profile Route
 registry.registerPath({
   method: "get",
@@ -1128,7 +1179,7 @@ registry.registerPath({
   path: "/api/users/me",
   tags: ["User Profile"],
   summary: "Update Authenticated User Profile",
-  description: "Updates user profile fields (firstName, lastName, gender, country, avatarUrl).",
+  description: "Updates user profile fields (username, firstName, lastName, gender, country, avatarUrl).",
   security: [{ BearerAuth: [] }],
   request: {
     body: {
@@ -1136,6 +1187,7 @@ registry.registerPath({
         "application/json": {
           schema: UpdateUserProfileSchema,
           example: {
+            username: "alexrider",
             firstName: "Alex",
             lastName: "Rider",
             gender: "male",
@@ -1173,6 +1225,14 @@ registry.registerPath({
     },
     403: {
       description: "Account is blocked or deleted",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    409: {
+      description: "Conflict: Requested username is already taken",
       content: {
         "application/json": {
           schema: ErrorResponseSchema,

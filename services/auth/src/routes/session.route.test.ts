@@ -17,6 +17,7 @@ describe("Session Routes (/api/auth/session)", () => {
     phone: null,
     name: "Alex Rider",
     passwordHash: null,
+    username: "alexrider",
     firstName: "Alex",
     lastName: "Rider",
     gender: "male",
@@ -136,6 +137,24 @@ describe("Session Routes (/api/auth/session)", () => {
       expect(res.status).toBe(401)
       expect(res.body.error).toBe("Invalid or expired refresh token.")
       expect(res.body.code).toBe("INVALID_TOKEN")
+      expect(res.headers["set-cookie"]).toBeDefined()
+      expect(res.headers["set-cookie"][0]).toContain("refreshToken=;")
+    })
+
+    it("should clear refreshToken cookie when session is not found or revoked", async () => {
+      vi.spyOn(sessionService, "refreshSession").mockRejectedValueOnce(
+        new SessionServiceError("Session not found or has been revoked.", 401, "SESSION_NOT_FOUND")
+      )
+
+      const res = await request(app)
+        .post("/api/auth/session/refresh")
+        .set("Cookie", ["refreshToken=revoked.refresh.token"])
+        .send({})
+
+      expect(res.status).toBe(401)
+      expect(res.body.code).toBe("SESSION_NOT_FOUND")
+      expect(res.headers["set-cookie"]).toBeDefined()
+      expect(res.headers["set-cookie"][0]).toContain("refreshToken=;")
     })
 
     it("should return 403 Forbidden if account is blocked", async () => {
@@ -296,6 +315,7 @@ describe("Session Routes (/api/auth/session)", () => {
           id: mockUserId,
           email: "rider@forginity.com",
           name: "Alex Rider",
+          username: "alexrider",
           phone: null,
           firstName: "Alex",
           lastName: "Rider",

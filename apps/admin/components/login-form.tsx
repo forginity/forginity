@@ -7,7 +7,7 @@ import { OtpInput } from "@workspace/ui/components/otp-input"
 import { ArrowRight, CheckCircle2, AlertCircle } from "lucide-react"
 import { useInitiateEmailAuth, useVerifyEmailAuth } from "@forginity/sdk/modules/auth/auth.hooks"
 import { useAppDispatch } from "@/lib/store/index"
-import { setUser } from "@/lib/store/slices/user-slice"
+import { clearUser, setUser } from "@/lib/store/slices/user-slice"
 
 export interface LoginFormProps {
   className?: string
@@ -65,6 +65,30 @@ export function LoginForm({ className }: LoginFormProps) {
     }, 800)
   }
   ========================================================================== */
+
+  // Handle redirect from expired/revoked session or explicit logout
+  React.useEffect(() => {
+    if (typeof window === "undefined") return
+    const params = new URLSearchParams(window.location.search)
+    const isExpired = params.get("expired") === "1"
+    const isLoggedOut = params.get("logged_out") === "1"
+
+    if (isExpired || isLoggedOut) {
+      dispatch(clearUser())
+      try {
+        localStorage.removeItem("admin_access_token")
+        localStorage.removeItem("access_token")
+        localStorage.removeItem("admin_user")
+        document.cookie = "admin_session=; path=/; max-age=0"
+      } catch {
+        // Ignore storage errors
+      }
+      if (isExpired) {
+        setError("Your session has expired. Please sign in again.")
+      }
+      window.history.replaceState({}, "", "/login")
+    }
+  }, [dispatch])
 
   // Resend timer countdown effect
   React.useEffect(() => {

@@ -14,7 +14,7 @@ export interface CustomInputProps extends TextInputProps {
   helperText?: string;
 }
 
-export const CustomInput = forwardRef<TextInput, CustomInputProps>(
+export const CustomInput = forwardRef<any, CustomInputProps>(
   (
     {
       label,
@@ -32,10 +32,10 @@ export const CustomInput = forwardRef<TextInput, CustomInputProps>(
     },
     ref
   ) => {
-    const inputRef = useRef<TextInput>(null);
+    const inputRef = useRef<any>(null);
     const [isFocused, setIsFocused] = useState(false);
 
-    useImperativeHandle(ref, () => inputRef.current as TextInput);
+    useImperativeHandle(ref, () => inputRef.current);
 
     const handlePress = () => {
       inputRef.current?.focus();
@@ -65,7 +65,7 @@ export const CustomInput = forwardRef<TextInput, CustomInputProps>(
             </Text>
             <TextInput
               ref={inputRef}
-              placeholderTextColor="#616161"
+              placeholderTextColor={inputProps.placeholderTextColor || "#484848"}
               className="text-primary font-lexend-regular text-[16px] p-0 leading-5"
               selectionColor="#FF8A3D"
               autoCapitalize="none"

@@ -1,4 +1,3 @@
-import Glow from "./Glow";
 import Svg, {
   ClipPath,
   Defs,
@@ -10,7 +9,6 @@ import Svg, {
   G,
   Circle,
 } from "react-native-svg";
-import { View } from "react-native";
 
 const TerenMap = () => {
   return (

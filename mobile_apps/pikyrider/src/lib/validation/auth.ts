@@ -54,9 +54,18 @@ export const otpSchema = z
   .length(6, "Code must be exactly 6 digits")
   .regex(/^\d{6}$/, "Code must contain numbers only");
 
-/**
- * Profile step schema
- */
+export const usernameSchema = z
+  .string()
+  .trim()
+  .min(1, "Username is required")
+  .min(3, "Username must be at least 3 characters")
+  .max(30, "Username must be at most 30 characters")
+  .regex(
+    /^[a-zA-Z0-9_]+$/,
+    "Username can only contain letters, numbers, and underscores"
+  )
+  .transform((val) => val.toLowerCase());
+
 export const profileSchema = z.object({
   firstName: z
     .string()
@@ -69,16 +78,7 @@ export const profileSchema = z.object({
     .trim()
     .min(1, "Last name is required")
     .max(50, "Last name must be less than 50 characters"),
-  userName: z
-    .string()
-    .trim()
-    .min(1, "Username is required")
-    .min(3, "Username must be at least 3 characters")
-    .max(30, "Username must be less than 30 characters")
-    .regex(
-      /^[a-zA-Z0-9_]+$/,
-      "Username can only contain letters, numbers, and underscores"
-    ),
+  userName: usernameSchema,
 });
 
 /**
@@ -165,17 +165,22 @@ export const validateOtp = (
   return { success: true };
 };
 
-/**
- * Helper to validate Profile fields individually or together
- */
+export type ProfileInput = z.infer<typeof profileSchema>;
+
 export const validateProfile = (data: {
   firstName: string;
   lastName: string;
   userName: string;
-}): {
-  success: boolean;
-  errors: Partial<Record<"firstName" | "lastName" | "userName", string>>;
-} => {
+}):
+  | {
+      success: true;
+      data: ProfileInput;
+      errors: Partial<Record<"firstName" | "lastName" | "userName", string>>;
+    }
+  | {
+      success: false;
+      errors: Partial<Record<"firstName" | "lastName" | "userName", string>>;
+    } => {
   const result = profileSchema.safeParse(data);
   if (!result.success) {
     const errors: Partial<Record<"firstName" | "lastName" | "userName", string>> =
@@ -188,5 +193,5 @@ export const validateProfile = (data: {
     }
     return { success: false, errors };
   }
-  return { success: true, errors: {} };
+  return { success: true, data: result.data, errors: {} };
 };

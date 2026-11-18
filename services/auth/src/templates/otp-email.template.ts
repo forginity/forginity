@@ -3,33 +3,48 @@ import type {
   GeneratedEmail,
 } from "../types/otp.types.js"
 
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;")
+}
+
 export function generateOtpEmailTemplate(
   options: GenerateOtpEmailOptions
 ): GeneratedEmail {
   const { otp, expiresInMinutes = 10 } = options
 
-  const resolvedProductName = (
+  const productName = (
     options.productName ||
     process.env.PRODUCT_NAME ||
     process.env.APP_NAME ||
     "Forginity"
   ).trim()
 
-  const subject = `Your One-Time Password (OTP) for Verification (${resolvedProductName})`
+  const safeProductName = escapeHtml(productName)
+  const safeOtp = escapeHtml(String(otp))
+  const safeExpiry = escapeHtml(String(expiresInMinutes))
+
+  const subject = `Your verification code for ${productName}`
   const currentYear = new Date().getFullYear()
 
   const text = `
-${resolvedProductName.toUpperCase()}
+${productName}
 
-Your One-Time Password (OTP) for Verification
+Your verification code:
 
-Your verification code is: ${otp}
+${otp}
 
-This code expires in ${expiresInMinutes} minutes and can only be used once.
-If you did not request this verification code, please ignore this email.
+Expires in ${expiresInMinutes} minutes.
 
-— The ${resolvedProductName} Team
-`.trim()
+Didn't request this code? You can safely ignore this email.
+
+© ${currentYear} ${productName}. All rights reserved.
+Automated security notification.
+  `.trim()
 
   const html = `
 <!DOCTYPE html>
@@ -40,12 +55,17 @@ If you did not request this verification code, please ignore this email.
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="x-apple-disable-message-reformatting">
   <meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
-  <title>${subject}</title>
+
+  <title>${escapeHtml(subject)}</title>
+
   <!--[if mso]>
-  <style type="text/css">
-    body, table, td {font-family: Arial, Helvetica, sans-serif !important;}
+  <style>
+    body, table, td {
+      font-family: Arial, Helvetica, sans-serif !important;
+    }
   </style>
   <![endif]-->
+
   <style>
     body {
       margin: 0 !important;
@@ -54,141 +74,261 @@ If you did not request this verification code, please ignore this email.
       -webkit-text-size-adjust: 100%;
       -ms-text-size-adjust: 100%;
     }
-    table, td {
+
+    table {
+      border-collapse: collapse;
       mso-table-lspace: 0pt;
       mso-table-rspace: 0pt;
-      border-collapse: collapse;
     }
+
     img {
       border: 0;
-      height: auto;
-      line-height: 100%;
+      display: block;
       outline: none;
       text-decoration: none;
     }
-    @media only screen and (max-width: 480px) {
+
+    @media only screen and (max-width: 560px) {
       .email-wrapper {
         padding: 24px 12px !important;
       }
+
       .email-card {
-        padding: 28px 20px !important;
-        border-radius: 12px !important;
+        width: 100% !important;
       }
-      .brand-title {
-        font-size: 14px !important;
+
+      .card-content {
+        padding-left: 24px !important;
+        padding-right: 24px !important;
       }
-      .heading-title {
-        font-size: 22px !important;
-      }
+
       .otp-code {
         font-size: 30px !important;
-        letter-spacing: 8px !important;
+        letter-spacing: 7px !important;
       }
     }
   </style>
 </head>
-<body style="margin: 0; padding: 0; background-color: #0b0b0c; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: #f4f4f5; -webkit-font-smoothing: antialiased;">
-  <!-- Hidden Preheader Text for Inbox Preview -->
-  <div style="display: none; font-size: 1px; color: #0b0b0c; line-height: 1px; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;">
-    Your ${resolvedProductName} verification passcode is ${otp}. Valid for ${expiresInMinutes} minutes.
-    &#847; &zwnj; &nbsp; &#8199; &shy; &#847; &zwnj; &nbsp; &#8199; &shy; &#847; &zwnj; &nbsp; &#8199; &shy;
+
+<body style="
+  margin: 0;
+  padding: 0;
+  background-color: #0b0b0c;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    Roboto, Helvetica, Arial, sans-serif;
+  color: #f4f4f5;
+  -webkit-font-smoothing: antialiased;
+">
+
+  <!-- Preheader -->
+  <div style="
+    display: none;
+    max-height: 0;
+    max-width: 0;
+    overflow: hidden;
+    opacity: 0;
+    color: transparent;
+    mso-hide: all;
+  ">
+    Your ${safeProductName} verification code is ready.
+    &#847; &zwnj; &nbsp; &#8199; &shy;
   </div>
 
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" class="email-wrapper" style="width: 100%; background-color: #0b0b0c; padding: 48px 16px; margin: 0;">
+  <!-- Email Wrapper -->
+  <table
+    role="presentation"
+    width="100%"
+    cellspacing="0"
+    cellpadding="0"
+    border="0"
+    class="email-wrapper"
+    style="
+      width: 100%;
+      background-color: #0b0b0c;
+      padding: 48px 16px;
+    "
+  >
     <tr>
       <td align="center">
-        <!--[if (gte mso 9)|(IE)]>
-        <table role="presentation" width="460" align="center" style="width: 460px;">
-        <tr>
-        <td>
-        <![endif]-->
-        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" class="email-card" style="max-width: 460px; width: 100%; background-color: #141416; border: 1px solid #26262a; border-radius: 16px; padding: 36px 32px; box-sizing: border-box; text-align: left; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);">
-          
-          <!-- Header / Brand -->
+
+        <!-- Email Card -->
+        <table
+          role="presentation"
+          width="520"
+          cellspacing="0"
+          cellpadding="0"
+          border="0"
+          class="email-card"
+          style="
+            width: 100%;
+            max-width: 520px;
+            background-color: #141416;
+            border: 1px solid #26262a;
+            border-radius: 14px;
+            overflow: hidden;
+          "
+        >
+
+          <!-- Accent Border -->
           <tr>
-            <td style="padding: 0 0 24px 0; border-bottom: 1px solid #232328;">
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
-                <tr>
-                  <td>
-                    <span class="brand-title" style="font-size: 15px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #ffffff;">
-                      ${resolvedProductName}
-                    </span>
-                  </td>
-                  <td align="right">
-                    <span style="font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #ff6347; background-color: rgba(255, 99, 71, 0.12); border: 1px solid rgba(255, 99, 71, 0.25); border-radius: 6px; padding: 3px 8px;">
-                      SECURITY PASSCODE
-                    </span>
-                  </td>
-                </tr>
-              </table>
+            <td
+              height="3"
+              style="
+                height: 3px;
+                background-color: #ff6347;
+                font-size: 0;
+                line-height: 0;
+              "
+            ></td>
+          </tr>
+
+          <!-- Brand Header -->
+          <tr>
+            <td
+              class="card-content"
+              style="
+                padding: 28px 36px;
+                border-bottom: 1px solid #232328;
+              "
+            >
+              <span style="
+                font-size: 15px;
+                font-weight: 750;
+                letter-spacing: 0.12em;
+                text-transform: uppercase;
+                color: #ffffff;
+              ">
+                ${safeProductName}
+              </span>
             </td>
           </tr>
 
-          <!-- Main Body -->
+          <!-- Main Content -->
           <tr>
-            <td style="padding: 28px 0 0 0;">
-              <h1 class="heading-title" style="margin: 0 0 8px 0; font-size: 24px; font-weight: 600; color: #ffffff; letter-spacing: -0.02em; line-height: 1.25;">
-                Verification Code
+            <td
+              class="card-content"
+              style="padding: 40px 36px 36px;"
+            >
+
+              <!-- Heading -->
+              <h1 style="
+                margin: 0 0 28px;
+                font-size: 26px;
+                line-height: 1.3;
+                font-weight: 650;
+                letter-spacing: -0.7px;
+                color: #ffffff;
+              ">
+                Your verification code
               </h1>
-              <p style="margin: 0 0 24px 0; font-size: 14px; line-height: 1.6; color: #9e9ea7;">
-                Use the one-time passcode below to authenticate your session for <strong style="color: #f4f4f5;">${resolvedProductName}</strong>:
-              </p>
 
-              <!-- OTP Code Display Card -->
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 0 0 24px 0;">
+              <!-- OTP Display -->
+              <table
+                role="presentation"
+                width="100%"
+                cellspacing="0"
+                cellpadding="0"
+                border="0"
+              >
                 <tr>
-                  <td align="center" style="background-color: #0b0b0d; border: 1px solid #2a2a30; border-radius: 12px; padding: 22px 16px;">
-                    <span class="otp-code" style="font-family: ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, 'Liberation Mono', monospace; font-size: 34px; font-weight: 700; letter-spacing: 10px; color: #ff6347; display: inline-block; text-shadow: 0 0 24px rgba(255, 99, 71, 0.3);">
-                      ${otp}
+                  <td
+                    align="center"
+                    style="
+                      padding: 28px 12px;
+                      background-color: #0b0b0d;
+                      border: 1px solid #2a2a30;
+                      border-radius: 10px;
+                    "
+                  >
+                    <span
+                      class="otp-code"
+                      style="
+                        font-family: 'SF Mono', Menlo, Monaco,
+                          Consolas, 'Liberation Mono', monospace;
+                        font-size: 36px;
+                        font-weight: 750;
+                        letter-spacing: 10px;
+                        line-height: 1.3;
+                        color: #ff6347;
+                      "
+                    >
+                      ${safeOtp}
                     </span>
                   </td>
                 </tr>
               </table>
 
-              <!-- Expiry & Security Badge -->
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 0 0 20px 0;">
-                <tr>
-                  <td style="background-color: rgba(255, 255, 255, 0.03); border: 1px solid #242429; border-radius: 8px; padding: 12px 14px;">
-                    <p style="margin: 0 0 4px 0; font-size: 13px; font-weight: 500; color: #d4d4d8; line-height: 1.4;">
-                      ⏱ This passcode expires in <strong style="color: #ffffff;">${expiresInMinutes} minutes</strong>
-                    </p>
-                    <p style="margin: 0; font-size: 12px; color: #71717a; line-height: 1.4;">
-                      It is strictly single-use and cannot be shared.
-                    </p>
-                  </td>
-                </tr>
-              </table>
-
-              <p style="margin: 0; font-size: 12px; line-height: 1.5; color: #71717a;">
-                If you did not request this verification code, please ignore this email. Your account credentials and data remain safe.
+              <!-- Expiry Information -->
+              <p style="
+                margin: 22px 0 0;
+                font-size: 13px;
+                line-height: 1.5;
+                color: #83838d;
+              ">
+                Expires in
+                <strong style="color: #f4f4f5;">
+                  ${safeExpiry} minutes
+                </strong>
               </p>
+
+              <!-- Security Notice -->
+              <p style="
+                margin: 20px 0 0;
+                font-size: 12px;
+                line-height: 1.6;
+                color: #71717a;
+              ">
+                Didn't request this code? You can safely ignore this email.
+              </p>
+
             </td>
           </tr>
 
-          <!-- Minimal Footer -->
+          <!-- Footer -->
           <tr>
-            <td style="padding: 24px 0 0 0; margin-top: 24px; border-top: 1px solid #232328; text-align: center;">
-              <p style="margin: 0 0 4px 0; font-size: 11px; line-height: 1.5; color: #52525b;">
-                &copy; ${currentYear} ${resolvedProductName}. All rights reserved.
+            <td
+              class="card-content"
+              style="
+                padding: 22px 36px;
+                border-top: 1px solid #232328;
+                background-color: #111113;
+              "
+            >
+
+              <p style="
+                margin: 0 0 6px;
+                font-size: 11px;
+                line-height: 1.5;
+                color: #71717a;
+              ">
+                &copy; ${currentYear} ${safeProductName}. All rights reserved.
               </p>
-              <p style="margin: 0; font-size: 10px; line-height: 1.5; color: #3f3f46;">
-                Automated security notification &bull; Please do not reply to this email
+
+              <p style="
+                margin: 0;
+                font-size: 10px;
+                line-height: 1.5;
+                color: #52525b;
+              ">
+                Automated security notification.
               </p>
+
             </td>
           </tr>
 
         </table>
-        <!--[if (gte mso 9)|(IE)]>
-        </td>
-        </tr>
-        </table>
-        <![endif]-->
+
       </td>
     </tr>
   </table>
+
 </body>
 </html>
-`.trim()
+  `.trim()
 
-  return { subject, html, text }
+  return {
+    subject,
+    html,
+    text,
+  }
 }

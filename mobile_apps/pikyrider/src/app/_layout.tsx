@@ -13,11 +13,15 @@ import {
 } from "@expo-google-fonts/lexend";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { sessionManagerService } from "@/services/session-manager.service";
+import { useOnboardingStore } from "@/store/useOnboardingStore";
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  const [isHydrated, setIsHydrated] = useState(false);
+  const isAuthenticated = useOnboardingStore((s) => s.isAuthenticated);
   const [loaded, error] = useFonts({
     Lexend_100Thin,
     Lexend_200ExtraLight,
@@ -31,12 +35,29 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    if (loaded || error) {
+    let isMounted = true;
+    async function prepare() {
+      try {
+        await sessionManagerService.hydrateSession();
+      } finally {
+        if (isMounted) {
+          setIsHydrated(true);
+        }
+      }
+    }
+    prepare();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if ((loaded || error) && isHydrated) {
       SplashScreen.hideAsync();
     }
-  }, [loaded, error]);
+  }, [loaded, error, isHydrated]);
 
-  if (!loaded && !error) {
+  if ((!loaded && !error) || !isHydrated) {
     return null;
   }
 
@@ -44,9 +65,16 @@ export default function RootLayout() {
     <Stack
       screenOptions={{
         headerShown: false,
-        animation: "slide_from_right",
+        animation: "fade",
         contentStyle: { backgroundColor: "#090909" },
       }}
-    />
+    >
+      <Stack.Protected guard={isAuthenticated} redirectTo="/(onboarding)/welcome">
+        <Stack.Screen name="(app)" options={{ gestureEnabled: false }} />
+      </Stack.Protected>
+      <Stack.Protected guard={!isAuthenticated} redirectTo="/(app)">
+        <Stack.Screen name="(onboarding)" options={{ gestureEnabled: false }} />
+      </Stack.Protected>
+    </Stack>
   );
 }

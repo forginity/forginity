@@ -28,6 +28,7 @@ describe("OnboardingService Unit Tests", () => {
       phone: null,
       name: null,
       passwordHash: null,
+      username: null,
       firstName: null,
       lastName: null,
       gender: null,
@@ -51,6 +52,12 @@ describe("OnboardingService Unit Tests", () => {
         return mockUsers.get(id) || null
       },
       async findUserByEmail() {
+        return null
+      },
+      async findUserByUsername(username: string) {
+        for (const u of mockUsers.values()) {
+          if (u.username === username) return u
+        }
         return null
       },
       async createUser() {

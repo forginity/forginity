@@ -38,6 +38,9 @@ export class SessionController {
       res.status(200).json(result)
     } catch (error) {
       if (error instanceof SessionServiceError) {
+        if (error.statusCode === 401 || error.statusCode === 403) {
+          clearRefreshTokenCookie(res)
+        }
         res.status(error.statusCode).json({
           error: error.message,
           code: error.code,

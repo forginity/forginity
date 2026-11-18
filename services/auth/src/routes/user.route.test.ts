@@ -19,6 +19,7 @@ describe("User Profile & Emergency Contact Routes", () => {
     phone: "+14155552671",
     name: "Alex Rider",
     passwordHash: null,
+    username: "alexrider",
     firstName: "Alex",
     lastName: "Rider",
     gender: "male",
@@ -54,6 +55,34 @@ describe("User Profile & Emergency Contact Routes", () => {
       email: mockEmail,
     })
     vi.spyOn(userRepository, "findUserById").mockResolvedValue(mockUser)
+  })
+
+  describe("GET /api/auth/users/check-username (and alias /api/users/check-username)", () => {
+    it("should return available: true when username does not exist", async () => {
+      vi.spyOn(userRepository, "findUserByUsername").mockResolvedValueOnce(null)
+
+      const res = await request(app).get("/api/auth/users/check-username?username=available_user")
+      expect(res.status).toBe(200)
+      expect(res.body.success).toBe(true)
+      expect(res.body.available).toBe(true)
+      expect(res.body.username).toBe("available_user")
+    })
+
+    it("should return available: false when username already exists", async () => {
+      vi.spyOn(userRepository, "findUserByUsername").mockResolvedValueOnce(mockUser)
+
+      const res = await request(app).get("/api/users/check-username?username=alexrider")
+      expect(res.status).toBe(200)
+      expect(res.body.success).toBe(true)
+      expect(res.body.available).toBe(false)
+      expect(res.body.username).toBe("alexrider")
+    })
+
+    it("should return 400 Bad Request when username format is invalid", async () => {
+      const res = await request(app).get("/api/auth/users/check-username?username=a")
+      expect(res.status).toBe(400)
+      expect(res.body.code).toBe("VALIDATION_ERROR")
+    })
   })
 
   describe("GET /api/users/me", () => {

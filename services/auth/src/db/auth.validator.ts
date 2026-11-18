@@ -47,8 +47,28 @@ export const PaginationQuerySchema = z.object({
  */
 export const E164PhoneRegex = /^\+[1-9]\d{1,14}$/
 export const IsoCountryCodeRegex = /^[A-Z]{2}$/
+export const UsernameRegex = /^[a-zA-Z0-9_]{3,30}$/
+
+export const CheckUsernameQuerySchema = z.object({
+  username: z
+    .string()
+    .trim()
+    .min(3, "Username must be at least 3 characters")
+    .max(30, "Username cannot exceed 30 characters")
+    .regex(UsernameRegex, "Username can only contain alphanumeric characters and underscores")
+    .transform((val) => val.toLowerCase()),
+})
+export type CheckUsernameQuery = z.infer<typeof CheckUsernameQuerySchema>
 
 export const OnboardingProfileSchema = z.object({
+  username: z
+    .string()
+    .trim()
+    .min(3, "Username must be at least 3 characters")
+    .max(30, "Username cannot exceed 30 characters")
+    .regex(UsernameRegex, "Username can only contain alphanumeric characters and underscores")
+    .transform((val) => val.toLowerCase())
+    .optional(),
   firstName: z
     .string()
     .trim()
@@ -68,6 +88,14 @@ export const OnboardingProfileSchema = z.object({
 export type OnboardingProfileInput = z.infer<typeof OnboardingProfileSchema>
 
 export const UpdateUserProfileSchema = z.object({
+  username: z
+    .string()
+    .trim()
+    .min(3, "Username must be at least 3 characters")
+    .max(30, "Username cannot exceed 30 characters")
+    .regex(UsernameRegex, "Username can only contain alphanumeric characters and underscores")
+    .transform((val) => val.toLowerCase())
+    .optional(),
   firstName: z.string().trim().min(1).max(100).optional(),
   lastName: z.string().trim().min(1).max(100).optional(),
   gender: GenderEnum.optional(),
@@ -79,6 +107,14 @@ export type UpdateUserProfileInput = z.infer<typeof UpdateUserProfileSchema>
 export const CreateUserSchema = z.object({
   email: z.string().email("Invalid email address").optional(),
   phone: z.string().regex(E164PhoneRegex, "Phone must be in E.164 format (e.g. +14155552671)").optional(),
+  username: z
+    .string()
+    .trim()
+    .min(3)
+    .max(30)
+    .regex(UsernameRegex)
+    .transform((val) => val.toLowerCase())
+    .optional(),
   googleId: z.string().min(1).optional(),
   authProvider: AuthProviderEnum.default("email_otp"),
   firstName: z.string().max(100).optional(),

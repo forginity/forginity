@@ -5,6 +5,7 @@ import { adminUserController } from "../controllers/admin-user.controller.js"
 import { authenticate, requireAdmin } from "../middleware/auth.middleware.js"
 import { validateRequest } from "../middleware/validate.middleware.js"
 import {
+  CheckUsernameQuerySchema,
   UpdateUserProfileSchema,
   CreateEmergencyContactSchema,
   UpdateEmergencyContactSchema,
@@ -16,7 +17,17 @@ import {
 
 export const userRouter = Router()
 
-// All user and profile routes require Bearer accessToken authentication
+/**
+ * 0. Public Route: Username Availability Check
+ * GET /api/auth/users/check-username?username=...
+ */
+userRouter.get(
+  "/check-username",
+  validateRequest({ query: CheckUsernameQuerySchema }),
+  userController.checkUsername
+)
+
+// All user and profile routes below require Bearer accessToken authentication
 userRouter.use(authenticate)
 
 /**

@@ -77,7 +77,23 @@ export class OnboardingService {
 
     const fullName = `${input.firstName} ${input.lastName}`.trim()
 
+    let usernameToSave = user.username
+    if (input.username) {
+      const normalizedUsername = input.username.toLowerCase().trim()
+      const existingUserWithUsername = await this.userRepo.findUserByUsername(normalizedUsername)
+      if (existingUserWithUsername && existingUserWithUsername.id !== user.id) {
+        throw new OnboardingServiceError(
+          "Username is already taken.",
+          409,
+          "CONFLICT",
+          [{ field: "username", message: "Username is already taken" }]
+        )
+      }
+      usernameToSave = normalizedUsername
+    }
+
     const updatedUser = await this.userRepo.updateUser(user.id, {
+      username: usernameToSave,
       firstName: input.firstName,
       lastName: input.lastName,
       name: fullName,

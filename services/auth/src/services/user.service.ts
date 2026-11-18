@@ -85,6 +85,20 @@ export class UserService {
   }
 
   /**
+   * Checks whether a given username is available or already claimed globally.
+   */
+  async checkUsernameAvailability(
+    username: string
+  ): Promise<{ available: boolean; username: string }> {
+    const normalized = username.toLowerCase().trim()
+    const existing = await this.userRepo.findUserByUsername(normalized)
+    return {
+      available: !existing,
+      username: normalized,
+    }
+  }
+
+  /**
    * Updates profile fields (names, gender, country, avatarUrl) and recalculates display name.
    */
   async updateUserProfile(
@@ -110,6 +124,18 @@ export class UserService {
       throw new UserServiceError("Account has been deleted.", 403, {
         code: "ACCOUNT_DELETED",
       })
+    }
+
+    if (input.username !== undefined) {
+      const normalizedUsername = input.username.toLowerCase().trim()
+      const existingWithUsername = await this.userRepo.findUserByUsername(normalizedUsername)
+      if (existingWithUsername && existingWithUsername.id !== userId) {
+        throw new UserServiceError("Username is already taken.", 409, {
+          code: "CONFLICT",
+          issues: [{ field: "username", message: "Username is already taken" }],
+        })
+      }
+      input.username = normalizedUsername
     }
 
     const firstName =

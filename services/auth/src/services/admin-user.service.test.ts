@@ -21,6 +21,7 @@ describe("AdminUserService Unit Tests", () => {
     phone: "+14155552671",
     name: "Alex Rider",
     passwordHash: null,
+    username: "alexrider",
     firstName: "Alex",
     lastName: "Rider",
     gender: "male",

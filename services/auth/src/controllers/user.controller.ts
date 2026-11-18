@@ -12,6 +12,24 @@ export class UserController {
     this.service = service
   }
 
+  checkUsername = async (
+    req: Request<{}, {}, {}, { username: string }>,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    try {
+      const username = String(req.query.username || "")
+      const result = await this.service.checkUsernameAvailability(username)
+      res.status(200).json({ success: true, ...result })
+    } catch (error) {
+      if (error instanceof UserServiceError) {
+        res.status(error.statusCode).json(error.toJSON())
+        return
+      }
+      next(error)
+    }
+  }
+
   getProfile = async (
     req: Request,
     res: Response,

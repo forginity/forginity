@@ -8,5 +8,14 @@ export default function AppLayout() {
     return <Redirect href="/(onboarding)/welcome" />;
   }
 
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return (
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        contentStyle: { backgroundColor: "#090909" },
+      }}
+    >
+      <Stack.Screen name="index" options={{ gestureEnabled: false }} />
+    </Stack>
+  );
 }

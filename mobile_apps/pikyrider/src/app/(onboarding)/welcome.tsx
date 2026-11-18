@@ -10,7 +10,7 @@ import { useOnboardingStore } from "@/store/useOnboardingStore";
 
 const Auth = () => {
   const router = useRouter();
-  const setFlow = useOnboardingStore((s) => s.setFlow);
+  const startAuthFlow = useOnboardingStore((s) => s.startAuthFlow);
   return (
     <SafeAreaView className="bg-canvas flex-1 p-6">
       <RadialBackground className={"-z-10"} />
@@ -56,7 +56,7 @@ const Auth = () => {
           <Button
             variant="tertiary"
             onPress={() => {
-              setFlow("signup");
+              startAuthFlow("signup");
               router.push("/(onboarding)/auth");
             }}
             showIcon={true}
@@ -67,7 +67,7 @@ const Auth = () => {
           <Button
             variant="secondary"
             onPress={() => {
-              setFlow("signin");
+              startAuthFlow("signin");
               router.push("/(onboarding)/auth");
             }}
           >
@@ -79,7 +79,7 @@ const Auth = () => {
           </Button>
         </View>
         <Text className="text-center mt-4 text-muted font-lexend-light">
-          By continuing, you agree to Powder's Terms of Use and Privacy Policy.
+          By continuing, you agree to TrackRide&apos;s Terms of Use and Privacy Policy.
         </Text>
       </View>
     </SafeAreaView>

@@ -43,13 +43,17 @@ export function AdminShell({
     }
   }, [reduxUser, dispatch])
 
-  // Hydrate user session from auth microservice when Redux is not yet populated
-  const { data: sessionData } = useCurrentSession({
-    enabled: !reduxUser,
-  })
+  // Always verify active session with auth microservice (cached for 5m via TanStack Query)
+  // so expired or revoked sessions cannot stay masked by stale localStorage data.
+  const { data: sessionData } = useCurrentSession()
 
   React.useEffect(() => {
-    if (sessionData?.user && !reduxUser) {
+    if (
+      sessionData?.user &&
+      (!reduxUser ||
+        reduxUser.id !== sessionData.user.id ||
+        reduxUser.updatedAt !== sessionData.user.updatedAt)
+    ) {
       dispatch(setUser(sessionData.user))
     }
   }, [sessionData, reduxUser, dispatch])
@@ -70,10 +74,12 @@ export function AdminShell({
       dispatch(clearUser())
       if (typeof window !== "undefined") {
         localStorage.removeItem("admin_access_token")
+        localStorage.removeItem("admin_user")
         document.cookie = "admin_session=; path=/; max-age=0"
-        document.cookie = "refreshToken=; path=/api/auth; max-age=0"
+        window.location.replace("/login?logged_out=1")
+        return
       }
-      router.push("/login")
+      router.replace("/login")
     }
   }
 

@@ -532,6 +532,7 @@ Completes profile setup for a newly registered user. Upgrades user to `isOnboard
 **Request Body:**
 ```json
 {
+  "username": "alexmorgan",
   "firstName": "Alex",
   "lastName": "Morgan",
   "gender": "male",
@@ -539,6 +540,7 @@ Completes profile setup for a newly registered user. Upgrades user to `isOnboard
 }
 ```
 *Validation Rules:*
+- `username`: String, 3–30 chars (`/^[a-zA-Z0-9_]{3,30}$/`), letters, numbers, and underscores only, case-insensitive, globally unique across users (optional, recommended).
 - `firstName`: String, 1–100 chars, required.
 - `lastName`: String, 1–100 chars, required.
 - `gender`: `"male"` | `"female"` | `"other"` | `"prefer_not_to_say"` (required enum).
@@ -553,6 +555,7 @@ Completes profile setup for a newly registered user. Upgrades user to `isOnboard
     "id": "550e8400-e29b-41d4-a716-446655440001",
     "email": "rider@forginity.com",
     "name": "Alex Morgan",
+    "username": "alexmorgan",
     "firstName": "Alex",
     "lastName": "Morgan",
     "gender": "male",
@@ -739,6 +742,34 @@ Revokes all active sessions across all devices for the authenticated user.
 
 ### Group G: User Self-Service & Lifecycle
 
+#### `GET /api/auth/users/check-username` (Alias: `/api/users/check-username`)
+Public endpoint to check whether a proposed username is available or already claimed globally.
+
+- **Authentication:** None (Public)
+- **Query Parameters:**
+  - `username` (string, required): 3–30 characters, letters, numbers, underscores (`/^[a-zA-Z0-9_]{3,30}$/`).
+
+**Success Response (`200 OK`):**
+```json
+{
+  "success": true,
+  "available": true,
+  "username": "alexmorgan"
+}
+```
+*(If taken, `available` is `false`).*
+
+**Error Responses:**
+- `400 Bad Request`: Invalid username format (length < 3, > 30, or contains special characters).
+  ```json
+  {
+    "error": "Username can only contain alphanumeric characters and underscores",
+    "code": "VALIDATION_ERROR"
+  }
+  ```
+
+---
+
 #### `GET /api/users/me`
 Retrieves authenticated user profile.
 
@@ -752,6 +783,7 @@ Retrieves authenticated user profile.
     "id": "550e8400-e29b-41d4-a716-446655440001",
     "email": "rider@forginity.com",
     "name": "Alex Morgan",
+    "username": "alexmorgan",
     "firstName": "Alex",
     "lastName": "Morgan",
     "gender": "male",
@@ -780,6 +812,7 @@ Updates user profile metadata. All fields are optional.
 **Request Body:**
 ```json
 {
+  "username": "alex_rider",
   "firstName": "Alexander",
   "lastName": "Morgan",
   "gender": "male",

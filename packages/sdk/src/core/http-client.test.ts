@@ -4,6 +4,7 @@ import { ApiError } from "./api-error"
 import {
   createHttpClient,
   setAuthTokenProvider,
+  setUnauthorizedHandler,
 } from "./http-client"
 import { createDefaultQueryClient } from "./query-client"
 
@@ -40,10 +41,12 @@ describe("packages/sdk/src/core/api-error", () => {
 describe("packages/sdk/src/core/http-client", () => {
   beforeEach(() => {
     setAuthTokenProvider(null)
+    setUnauthorizedHandler(null)
   })
 
   afterEach(() => {
     setAuthTokenProvider(null)
+    setUnauthorizedHandler(null)
     vi.restoreAllMocks()
   })
 
@@ -130,6 +133,110 @@ describe("packages/sdk/src/core/http-client", () => {
       expect(apiErr.message).toContain("Network error")
       return true
     })
+  })
+
+  it("should invoke unauthorized handler when 401 silent refresh fails", async () => {
+    const onUnauthorized = vi.fn()
+    setUnauthorizedHandler(onUnauthorized)
+
+    vi.spyOn(axios, "post").mockRejectedValueOnce({
+      response: {
+        status: 401,
+        data: {
+          error: "Session not found or has been revoked.",
+          code: "SESSION_NOT_FOUND",
+        },
+      },
+    })
+
+    const client = createHttpClient()
+    const interceptor = client.interceptors.response as unknown as {
+      handlers: Array<{ rejected: (error: unknown) => Promise<never> }>
+    }
+    const errorHandler = interceptor.handlers[0]
+
+    const mock401Error = {
+      name: "AxiosError",
+      message: "Request failed with status code 401",
+      config: {
+        url: "/api/auth/session/me",
+        headers: {},
+      },
+      response: {
+        status: 401,
+        data: {
+          error: '"exp" claim timestamp check failed',
+          code: "INVALID_TOKEN",
+        },
+      },
+    }
+
+    await expect(errorHandler!.rejected(mock401Error)).rejects.toSatisfy((err: unknown) => {
+      expect(ApiError.isApiError(err)).toBe(true)
+      const apiErr = err as ApiError
+      expect(apiErr.status).toBe(401)
+      expect(apiErr.code).toBe("INVALID_TOKEN")
+      return true
+    })
+
+    expect(onUnauthorized).toHaveBeenCalledTimes(1)
+    expect(onUnauthorized.mock.calls[0]?.[0]).toBeInstanceOf(ApiError)
+  })
+
+  it("should parse nested session.accessToken during silent refresh and deduplicate concurrent calls", async () => {
+    const refreshPostSpy = vi.spyOn(axios, "post").mockResolvedValueOnce({
+      data: {
+        success: true,
+        session: {
+          accessToken: "fresh-rotated-access-token",
+          refreshToken: "fresh-rotated-refresh-token",
+          expiresIn: 900,
+        },
+      },
+    })
+
+    const mockAdapter = vi.fn().mockImplementation(async (config) => ({
+      data: { ok: true, authHeader: config.headers?.Authorization },
+      status: 200,
+      statusText: "OK",
+      headers: {},
+      config,
+    }))
+
+    const client = createHttpClient({ adapter: mockAdapter })
+    const interceptor = client.interceptors.response as unknown as {
+      handlers: Array<{ rejected: (error: unknown) => Promise<unknown> }>
+    }
+    const errorHandler = interceptor.handlers[0]
+
+    const make401 = (url: string) => ({
+      name: "AxiosError",
+      message: "Request failed with status code 401",
+      config: {
+        url,
+        headers: {} as Record<string, string>,
+      },
+      response: {
+        status: 401,
+        data: {
+          error: '"exp" claim timestamp check failed',
+          code: "INVALID_TOKEN",
+        },
+      },
+    })
+
+    const [res1, res2] = await Promise.all([
+      errorHandler!.rejected(make401("/api/auth/session/me")),
+      errorHandler!.rejected(make401("/api/admin/users")),
+    ])
+
+    expect(refreshPostSpy).toHaveBeenCalledTimes(1)
+    expect((res1 as { data: { authHeader: string } }).data.authHeader).toBe(
+      "Bearer fresh-rotated-access-token"
+    )
+    expect((res2 as { data: { authHeader: string } }).data.authHeader).toBe(
+      "Bearer fresh-rotated-access-token"
+    )
   })
 })
 

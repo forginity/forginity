@@ -7,14 +7,115 @@ import axios, {
 import { ApiError } from "./api-error"
 
 export type AuthTokenProvider = () => string | null | Promise<string | null>
+export type UnauthorizedHandler = (error: ApiError) => void
 
 let globalAuthTokenProvider: AuthTokenProvider | null = null
+let globalUnauthorizedHandler: UnauthorizedHandler | null = null
+
+interface SilentRefreshResult {
+  accessToken: string
+  expiresIn: number
+}
+
+interface RefreshEndpointResponse {
+  success?: boolean
+  accessToken?: string
+  expiresIn?: number
+  session?: {
+    accessToken?: string
+    refreshToken?: string
+    expiresIn?: number
+  }
+}
+
+let inFlightRefreshPromise: Promise<SilentRefreshResult | null> | null = null
+
+const PUBLIC_AUTH_PATH_SEGMENTS = [
+  "/session/refresh",
+  "/session/revoke",
+  "/logout",
+  "/email/verify",
+  "/email/initiate",
+  "/otp/send",
+  "/otp/verify",
+  "/google",
+]
+
+function isPublicAuthEndpoint(url?: string): boolean {
+  if (!url) return false
+  return PUBLIC_AUTH_PATH_SEGMENTS.some((segment) => url.includes(segment))
+}
+
+function clearBrowserAuthState(): void {
+  if (typeof window === "undefined") return
+  try {
+    localStorage.removeItem("admin_access_token")
+    localStorage.removeItem("access_token")
+    localStorage.removeItem("admin_user")
+    document.cookie = "admin_session=; path=/; max-age=0"
+  } catch {
+    // Ignore storage errors in restricted environments
+  }
+}
+
+async function performSilentRefresh(): Promise<SilentRefreshResult | null> {
+  if (!inFlightRefreshPromise) {
+    const authBaseUrl =
+      process.env.NEXT_PUBLIC_AUTH_API_URL ||
+      process.env.AUTH_API_URL ||
+      "http://localhost:3001"
+
+    inFlightRefreshPromise = axios
+      .post<RefreshEndpointResponse>(
+        `${authBaseUrl}/api/auth/session/refresh`,
+        {},
+        { withCredentials: true }
+      )
+      .then((refreshRes) => {
+        const accessToken =
+          refreshRes.data?.session?.accessToken || refreshRes.data?.accessToken
+        if (!accessToken) return null
+
+        const expiresIn =
+          refreshRes.data?.session?.expiresIn ||
+          refreshRes.data?.expiresIn ||
+          900
+
+        if (typeof window !== "undefined") {
+          try {
+            localStorage.setItem("admin_access_token", accessToken)
+            document.cookie = `admin_session=${accessToken}; path=/; max-age=${expiresIn}; SameSite=Lax`
+          } catch {
+            // Ignore storage write errors
+          }
+        }
+
+        return { accessToken, expiresIn }
+      })
+      .catch(() => null)
+      .finally(() => {
+        inFlightRefreshPromise = null
+      })
+  }
+
+  return inFlightRefreshPromise
+}
 
 /**
  * Configure the global authentication token provider for API requests.
  */
 export function setAuthTokenProvider(provider: AuthTokenProvider | null): void {
   globalAuthTokenProvider = provider
+}
+
+/**
+ * Configure the global callback invoked when authentication cannot be recovered
+ * (e.g. expired access token and missing/revoked refresh session).
+ */
+export function setUnauthorizedHandler(
+  handler: UnauthorizedHandler | null
+): void {
+  globalUnauthorizedHandler = handler
 }
 
 /**
@@ -30,6 +131,7 @@ interface BackendErrorPayload {
 
 export interface HttpClientOptions extends CreateAxiosDefaults {
   tokenProvider?: AuthTokenProvider
+  onUnauthorized?: UnauthorizedHandler
 }
 
 /**
@@ -93,49 +195,20 @@ export function createHttpClient(options?: HttpClientOptions): AxiosInstance {
         | undefined
 
       // Automatic silent refresh on 401 Unauthorized using HTTP-only refreshToken cookie
-      if (
+      const isProtectedUnauthorized =
         error.response?.status === 401 &&
-        originalRequest &&
-        !originalRequest._retry &&
-        !originalRequest.url?.includes("/session/refresh") &&
-        !originalRequest.url?.includes("/email/verify") &&
-        !originalRequest.url?.includes("/email/initiate")
-      ) {
+        Boolean(originalRequest) &&
+        !isPublicAuthEndpoint(originalRequest?.url)
+
+      if (isProtectedUnauthorized && originalRequest && !originalRequest._retry) {
         originalRequest._retry = true
 
-        try {
-          const authBaseUrl =
-            process.env.NEXT_PUBLIC_AUTH_API_URL ||
-            process.env.AUTH_API_URL ||
-            "http://localhost:3001"
-
-          const refreshRes = await axios.post<{
-            success: boolean
-            accessToken: string
-            expiresIn?: number
-          }>(
-            `${authBaseUrl}/api/auth/session/refresh`,
-            {},
-            { withCredentials: true }
-          )
-
-          if (refreshRes.data?.accessToken) {
-            const newAccessToken = refreshRes.data.accessToken
-
-            if (typeof window !== "undefined") {
-              try {
-                localStorage.setItem("admin_access_token", newAccessToken)
-                document.cookie = `admin_session=${newAccessToken}; path=/; max-age=${refreshRes.data.expiresIn || 900}; SameSite=Lax`
-              } catch {
-                // Ignore storage write errors
-              }
-            }
-
-            originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
-            return instance(originalRequest)
+        const refreshed = await performSilentRefresh()
+        if (refreshed?.accessToken) {
+          if (originalRequest.headers) {
+            originalRequest.headers.Authorization = `Bearer ${refreshed.accessToken}`
           }
-        } catch {
-          // Refresh failed - fall through to standard ApiError rejection
+          return instance(originalRequest)
         }
       }
 
@@ -149,14 +222,23 @@ export function createHttpClient(options?: HttpClientOptions): AxiosInstance {
         const code = data?.code
         const details = data?.details || data?.errors
 
-        return Promise.reject(
-          new ApiError({
-            message,
-            status: error.response.status,
-            code,
-            details,
-          })
-        )
+        const apiError = new ApiError({
+          message,
+          status: error.response.status,
+          code,
+          details,
+        })
+
+        // If a protected request remains unauthorized after silent refresh fails,
+        // clear stale client auth artifacts and notify the host application.
+        if (isProtectedUnauthorized) {
+          clearBrowserAuthState()
+          const unauthorizedHandler =
+            options?.onUnauthorized || globalUnauthorizedHandler
+          unauthorizedHandler?.(apiError)
+        }
+
+        return Promise.reject(apiError)
       }
 
       if (error.request) {

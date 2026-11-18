@@ -46,6 +46,7 @@ export type JwtPayloadType =
 export interface CreateUserInput {
   email: string
   name?: string
+  username?: string
   authProvider?: string
   googleId?: string
   avatarUrl?: string
@@ -184,6 +185,7 @@ export type AuthErrorCode =
   | "ALREADY_ONBOARDED"
   | "CONTACT_NOT_FOUND"
   | "LIMIT_EXCEEDED"
+  | "CONFLICT"
 
 export interface AuthErrorDetails {
   code: AuthErrorCode

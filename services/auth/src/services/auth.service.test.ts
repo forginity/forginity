@@ -40,6 +40,7 @@ describe("AuthService Unit Tests", () => {
           phone: input.phone || null,
           name: input.name || null,
           passwordHash: null,
+          username: input.username || null,
           firstName: input.firstName || null,
           lastName: input.lastName || null,
           gender: input.gender || null,

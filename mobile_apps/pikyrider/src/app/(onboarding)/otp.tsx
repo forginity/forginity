@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -16,6 +16,8 @@ import Button from "@/components/ui/Button";
 import { Check } from "lucide-react-native";
 import { useOnboardingStore } from "@/store/useOnboardingStore";
 import { otpSchema } from "@/lib/validation/auth";
+import { authApiService, AuthApiError } from "@/services/auth-api.service";
+import { sessionStorageService } from "@/services/session-storage.service";
 
 export default function OtpVerificationScreen() {
   const router = useRouter();
@@ -23,14 +25,21 @@ export default function OtpVerificationScreen() {
     flow,
     authMethod,
     identifier,
+    requestId,
+    setRequestId,
+    cooldownSeconds,
     setOtp: setStoreOtp,
+    setSessionTokens,
+    setOnboardingToken,
+    setCurrentUser,
     setIsAuthenticated,
   } = useOnboardingStore();
 
   const [otp, setOtp] = useState("");
   const [error, setError] = useState<string | undefined>(undefined);
   const [isVerifying, setIsVerifying] = useState(false);
-  const [countdown, setCountdown] = useState(30);
+  const [isResending, setIsResending] = useState(false);
+  const [countdown, setCountdown] = useState(cooldownSeconds || 60);
   const [resendNotice, setResendNotice] = useState<string | null>(null);
 
   const isSignin = flow === "signin";
@@ -46,53 +55,149 @@ export default function OtpVerificationScreen() {
     return () => clearInterval(interval);
   }, [countdown]);
 
-  const handleNext = () => {
-    const trimmed = otp.trim();
-    const result = otpSchema.safeParse(trimmed);
+  const verifyCode = useCallback(
+    async (codeToVerify: string) => {
+      const trimmed = codeToVerify.trim();
+      const result = otpSchema.safeParse(trimmed);
 
-    if (!result.success) {
-      setError(result.error.issues[0]?.message || "Please enter a valid 6-digit code");
-      return;
-    }
-
-    setError(undefined);
-    setIsVerifying(true);
-    setStoreOtp(trimmed);
-
-    // Provide visual state feedback with small delay
-    setTimeout(() => {
-      setIsVerifying(false);
-      if (isSignin) {
-        setIsAuthenticated(true);
-        router.replace("/(app)");
-      } else {
-        router.push("/(onboarding)/profile");
+      if (!result.success) {
+        setError(
+          result.error.issues[0]?.message || "Please enter a valid 6-digit code"
+        );
+        return;
       }
-    }, 400);
+
+      if (!requestId) {
+        setError(
+          "Verification session expired. Please tap 'Resend code' to request a new code."
+        );
+        return;
+      }
+
+      setError(undefined);
+      setIsVerifying(true);
+
+      try {
+        const response = await authApiService.verifyEmailAuth({
+          requestId,
+          code: trimmed,
+          intent: "authentication",
+        });
+
+        setStoreOtp(trimmed);
+        setCurrentUser(response.user);
+
+        if (response.isOnboarded) {
+          if (response.session) {
+            await sessionStorageService.saveSessionTokens(
+              response.session.accessToken,
+              response.session.refreshToken
+            );
+            setSessionTokens(
+              response.session.accessToken,
+              response.session.refreshToken
+            );
+          } else {
+            setIsAuthenticated(true);
+          }
+          setIsVerifying(false);
+        } else {
+          if (response.onboardingToken) {
+            setOnboardingToken(response.onboardingToken);
+          }
+          setIsVerifying(false);
+          router.replace("/(onboarding)/profile");
+        }
+      } catch (err: any) {
+        setIsVerifying(false);
+        if (err instanceof AuthApiError) {
+          if (err.remainingAttempts !== undefined) {
+            setError(
+              `Invalid code. You have ${err.remainingAttempts} attempt${
+                err.remainingAttempts === 1 ? "" : "s"
+              } remaining.`
+            );
+          } else if (
+            err.code === "REQUEST_EXPIRED" ||
+            err.statusCode === 410 ||
+            err.statusCode === 404
+          ) {
+            setError(
+              "Verification request expired or not found. Please tap 'Resend code'."
+            );
+          } else {
+            setError(err.message);
+          }
+        } else {
+          setError(
+            err?.message || "Unable to verify code. Please check your connection."
+          );
+        }
+      }
+    },
+    [
+      requestId,
+      router,
+      setCurrentUser,
+      setIsAuthenticated,
+      setOnboardingToken,
+      setSessionTokens,
+      setStoreOtp,
+    ]
+  );
+
+  const handleNext = () => {
+    verifyCode(otp);
   };
 
   const handleBack = () => {
     if (router.canGoBack()) {
       router.back();
     } else {
-      router.replace(isSignin ? "/(onboarding)/signin" : "/(onboarding)/signup");
+      router.replace("/(onboarding)/auth");
     }
   };
 
-  const handleResend = () => {
-    if (countdown > 0) return;
-    setCountdown(30);
+  const handleResend = async () => {
+    if (countdown > 0 || isResending) return;
+
+    if (!identifier) {
+      setError("Email address missing. Please go back and enter your email.");
+      return;
+    }
+
+    setIsResending(true);
     setError(undefined);
-    setResendNotice("A new 6-digit code has been sent.");
-    setTimeout(() => {
-      setResendNotice(null);
-    }, 4000);
+
+    try {
+      const response = await authApiService.initiateEmailAuth({
+        email: identifier,
+        productName: "TrackRide",
+        intent: "authentication",
+      });
+
+      setRequestId(response.requestId);
+      setCountdown(response.cooldownSeconds || 60);
+      setOtp("");
+      setResendNotice("A new 6-digit code has been sent.");
+      setTimeout(() => {
+        setResendNotice(null);
+      }, 4000);
+    } catch (err: any) {
+      if (err instanceof AuthApiError) {
+        setError(err.message);
+      } else {
+        setError(err?.message || "Failed to resend code. Please try again.");
+      }
+    } finally {
+      setIsResending(false);
+    }
   };
 
   // Dynamic content based on whether the user is using email or phone
   const isPhone = authMethod === "phone";
   const displayTarget =
-    identifier || (isPhone ? "your mobile number" : "alex@ridge.cc");
+    identifier || (isPhone ? "your mobile number" : "your email");
 
   const caption = isPhone ? "Check your phone" : "Check your email";
   const description = `We sent a 6-digit code to ${displayTarget}.`;
@@ -127,8 +232,12 @@ export default function OtpVerificationScreen() {
                   onChange={(val) => {
                     setOtp(val);
                     if (error) setError(undefined);
+                    if (val.length === 6 && !isVerifying) {
+                      verifyCode(val);
+                    }
                   }}
                   error={error}
+                  autoFocus={true}
                 />
               </View>
 
@@ -148,13 +257,17 @@ export default function OtpVerificationScreen() {
                   variant="ghost"
                   size="sm"
                   onPress={handleResend}
-                  disabled={countdown > 0}
+                  disabled={countdown > 0 || isResending}
                   textClassName={`font-lexend-regular text-[12px] ${
-                    countdown > 0 ? "text-muted" : "text-accent-warm"
+                    countdown > 0 || isResending
+                      ? "text-muted"
+                      : "text-accent-warm"
                   }`}
                   className="px-0"
                 >
-                  {countdown > 0
+                  {isResending
+                    ? "Sending..."
+                    : countdown > 0
                     ? `Resend in 00:${countdown < 10 ? `0${countdown}` : countdown}`
                     : "Resend code"}
                 </Button>

@@ -25,6 +25,37 @@ app.use(
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
+// Request / Response logging middleware (skipped during automated test suites)
+if (!process.env.VITEST && process.env.NODE_ENV !== "test") {
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    const start = Date.now()
+    const { method, originalUrl, ip } = req
+    const timestamp = new Date().toLocaleTimeString()
+
+    console.log(`[auth] [${timestamp}] --> ${method} ${originalUrl} (from ${ip || "unknown"})`)
+
+    if (req.body && typeof req.body === "object" && Object.keys(req.body).length > 0) {
+      const safeBody = { ...req.body }
+      if (safeBody.code) safeBody.code = "******"
+      if (safeBody.accessToken) safeBody.accessToken = "[REDACTED]"
+      if (safeBody.refreshToken) safeBody.refreshToken = "[REDACTED]"
+      if (safeBody.idToken) safeBody.idToken = "[REDACTED]"
+      console.log(`[auth] [${timestamp}]     Payload:`, JSON.stringify(safeBody))
+    }
+
+    res.on("finish", () => {
+      const duration = Date.now() - start
+      const status = res.statusCode
+      const indicator = status >= 500 ? "ERR" : status >= 400 ? "WARN" : "OK"
+      console.log(
+        `[auth] [${new Date().toLocaleTimeString()}] <-- [${indicator}] ${method} ${originalUrl} ${status} (${duration}ms)`
+      )
+    })
+
+    next()
+  })
+}
+
 // OpenAPI / Swagger Documentation
 app.use(
   "/api/docs",

@@ -14,7 +14,7 @@
   - Google Social Sign-In / Sign-Up federation.
   - Phased build, typecheck, and automated test suites.
 - **Tech Stack:** React Native, Expo, TypeScript, `expo-secure-store`, Zod, `@react-native-google-signin/google-signin` / Expo AuthSession, Jest/Vitest.
-- **Component Status:** `PENDING` (0/9 tasks completed; target deadline: **Next Sunday, 2026-11-22**).
+- **Component Status:** `IN_PROGRESS` (1/9 tasks completed; target deadline: **Next Sunday, 2026-11-22**).
 - **Central Implementation Record:** [`../IMPLEMENTATION_RECORD.md`](../IMPLEMENTATION_RECORD.md)
 - **Overall Progress:** [`../PROGRESS.md`](../PROGRESS.md)
 
@@ -29,10 +29,10 @@
 
 | Task ID | Task Title | Key Deliverable | Guide File | Status |
 | :--- | :--- | :--- | :--- | :--- |
-| `TASK-01` | Email Authentication Flow (Sign-in / Sign-up) | Email input screen, Zod format validation, `POST /api/auth/email/initiate` dispatch | [`TASK_01_IMPLEMENTATION_GUIDE.md`](./TASK_01_IMPLEMENTATION_GUIDE.md) | `PENDING` |
-| `TASK-02` | OTP Code Verification Screen (Sign-in / Sign-up) | 6-digit numeric input with auto-focus, countdown timer, `POST /api/auth/email/verify` verification | [`TASK_02_IMPLEMENTATION_GUIDE.md`](./TASK_02_IMPLEMENTATION_GUIDE.md) | `PENDING` |
-| `TASK-03` | Rider Profile Onboarding Screen (Sign-up) | First Name, Last Name, Gender, ISO Country code picker, `POST /api/auth/onboarding` submission | [`TASK_03_IMPLEMENTATION_GUIDE.md`](./TASK_03_IMPLEMENTATION_GUIDE.md) | `PENDING` |
-| `TASK-04` | Session Storage, Refresh & Logout Engine | `Expo SecureStore` token storage, silent background refresh, cold-start hydration, and `POST /api/auth/logout` | [`TASK_04_IMPLEMENTATION_GUIDE.md`](./TASK_04_IMPLEMENTATION_GUIDE.md) | `PENDING` |
+| `TASK-01` | Email Authentication Flow (Sign-in / Sign-up) | Email input screen, Zod format validation, `POST /api/auth/email/initiate` dispatch | [`TASK_01_IMPLEMENTATION_GUIDE.md`](./TASK_01_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
+| `TASK-02` | OTP Code Verification Screen (Sign-in / Sign-up) | 6-digit numeric input with auto-focus, countdown timer, `POST /api/auth/email/verify` verification | [`TASK_02_IMPLEMENTATION_GUIDE.md`](./TASK_02_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
+| `TASK-03` | Rider Profile Onboarding Screen (Sign-up) | First Name, Last Name, Gender, ISO Country code picker, `POST /api/auth/onboarding` submission | [`TASK_03_IMPLEMENTATION_GUIDE.md`](./TASK_03_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
+| `TASK-04` | Session Storage, Refresh & Logout Engine | `Expo SecureStore` token storage, silent background refresh, cold-start hydration, and `POST /api/auth/logout` | [`TASK_04_IMPLEMENTATION_GUIDE.md`](./TASK_04_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
 | `TASK-05` | Rider Profile & Settings Management Screen | Profile screen at `/profile`, update personal metadata via `PUT /api/users/me`, linked emergency contacts | [`TASK_05_IMPLEMENTATION_GUIDE.md`](./TASK_05_IMPLEMENTATION_GUIDE.md) | `PENDING` |
 | `TASK-06` | Phase 1 Mobile Build & Verification Test Suite | Unit tests for auth state machine, navigation guards, token storage mocking, and Expo typecheck | [`TASK_06_IMPLEMENTATION_GUIDE.md`](./TASK_06_IMPLEMENTATION_GUIDE.md) | `PENDING` |
 | `TASK-07` | Google Social Authentication (Sign-in / Sign-up) | Native 1-tap Google Sign-In button, ID token retrieval, `POST /api/auth/google` session exchange | [`TASK_07_IMPLEMENTATION_GUIDE.md`](./TASK_07_IMPLEMENTATION_GUIDE.md) | `PENDING` |

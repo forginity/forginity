@@ -1,24 +1,22 @@
 import React from "react";
 import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
 import Button from "@/components/ui/Button";
 import Logo from "@/components/ui/Logo";
 import RadialBackground from "@/components/visuals/RadialBackground";
 import { useOnboardingStore } from "@/store/useOnboardingStore";
+import { sessionManagerService } from "@/services/session-manager.service";
 
 export default function HomeScreen() {
-  const router = useRouter();
-  const { profile, identifier, country, resetOnboarding } =
-    useOnboardingStore();
+  const { profile, currentUser, identifier, country } = useOnboardingStore();
 
   const displayName = profile.firstName
     ? `${profile.firstName} ${profile.lastName}`.trim()
     : identifier || "Rider";
+  const handle = (profile.userName || currentUser?.username || "").trim();
 
-  const handleSignOut = () => {
-    resetOnboarding();
-    router.replace("/(onboarding)/welcome");
+  const handleSignOut = async () => {
+    await sessionManagerService.logout();
   };
 
   return (
@@ -39,13 +37,13 @@ export default function HomeScreen() {
           </Text>
 
           <View className="gap-2.5 pt-2 border-t border-border/30">
-            {profile.userName ? (
+            {handle ? (
               <View className="flex-row justify-between items-center">
                 <Text className="text-muted text-body-sm font-lexend-regular">
                   Handle
                 </Text>
                 <Text className="text-primary text-body-sm font-lexend-medium">
-                  @{profile.userName}
+                  @{handle}
                 </Text>
               </View>
             ) : null}

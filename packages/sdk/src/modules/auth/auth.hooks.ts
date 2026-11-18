@@ -64,7 +64,7 @@ export function useCurrentSession(
   return useQuery({
     queryKey: authCacheKeys.session(),
     queryFn: () => AuthService.getCurrentSession(),
-    retry: 1,
+    retry: false,
     staleTime: 5 * 60 * 1000, // 5 minutes
     ...options,
   })

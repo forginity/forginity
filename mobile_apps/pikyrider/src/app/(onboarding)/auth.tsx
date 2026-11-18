@@ -6,7 +6,6 @@ import {
   Keyboard,
   View,
   Text,
-  Pressable,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -17,22 +16,29 @@ import Button from "@/components/ui/Button";
 import { Mail, Lock } from "lucide-react-native";
 import { useOnboardingStore } from "@/store/useOnboardingStore";
 import { emailSchema } from "@/lib/validation/auth";
+import { authApiService, AuthApiError } from "@/services/auth-api.service";
 
-export default function SigninStepScreen() {
+export default function AuthScreen() {
   const router = useRouter();
-  const { setFlow, setIdentifier, identifier } = useOnboardingStore();
+  const {
+    flow,
+    setFlow,
+    setIdentifier,
+    identifier,
+    setAuthInitiateData,
+  } = useOnboardingStore();
 
   const [email, setEmail] = useState(identifier || "");
   const [error, setError] = useState<string | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const isSignup = flow === "signup";
   const currentStep = 1;
-  const totalSteps = 2;
+  const totalSteps = isSignup ? 5 : 2;
 
   const handleEmailChange = (text: string) => {
     setEmail(text);
     if (error) {
-      // Re-validate dynamically if an error was already visible
       const result = emailSchema.safeParse(text.trim());
       if (result.success) {
         setError(undefined);
@@ -40,13 +46,13 @@ export default function SigninStepScreen() {
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     const trimmed = email.trim();
     const result = emailSchema.safeParse(trimmed);
 
     if (!result.success) {
       setError(
-        result.error.issues[0]?.message || "Please enter a valid email address",
+        result.error.issues[0]?.message || "Please enter a valid email address"
       );
       return;
     }
@@ -54,12 +60,38 @@ export default function SigninStepScreen() {
     setError(undefined);
     setIsSubmitting(true);
 
-    // Save to Zustand store
-    setFlow("signin");
-    setIdentifier(trimmed, "email");
+    try {
+      const response = await authApiService.initiateEmailAuth({
+        email: trimmed,
+        productName: "TrackRide",
+        intent: "authentication",
+      });
 
-    setIsSubmitting(false);
-    router.push("/(onboarding)/otp");
+      // Save to Zustand store
+      setIdentifier(trimmed, "email");
+      setAuthInitiateData({
+        requestId: response.requestId,
+        isNewUser: response.isNewUser,
+        cooldownSeconds: response.cooldownSeconds,
+      });
+
+      // Dynamically align flow with server account discovery
+      if (response.isNewUser) {
+        setFlow("signup");
+      } else {
+        setFlow("signin");
+      }
+
+      setIsSubmitting(false);
+      router.push("/(onboarding)/otp");
+    } catch (err: any) {
+      setIsSubmitting(false);
+      if (err instanceof AuthApiError) {
+        setError(err.message);
+      } else {
+        setError(err?.message || "Failed to send verification code. Please try again.");
+      }
+    }
   };
 
   const handleBack = () => {
@@ -69,7 +101,6 @@ export default function SigninStepScreen() {
       router.replace("/(onboarding)/welcome");
     }
   };
- 
 
   return (
     <SafeAreaView className="bg-canvas flex-1 p-6">
@@ -87,9 +118,13 @@ export default function SigninStepScreen() {
 
             <View className="mt-8">
               <FormSectionHeader
-                caption="Welcome back"
+                caption={isSignup ? "Create your account" : "Welcome back"}
                 title="What’s your email?"
-                description="We’ll send a one-time code to sign you in."
+                description={
+                  isSignup
+                    ? "We’ll send a one-time code to create your rider account."
+                    : "We’ll send a one-time code to sign you in."
+                }
                 className="mt-12 mb-8"
               />
 

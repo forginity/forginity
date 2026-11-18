@@ -17,6 +17,19 @@ export function proxy(request: NextRequest) {
     pathname.startsWith("/_next") ||
     pathname === "/favicon.ico"
 
+  // Explicit expired-session or logout redirect: always allow /login and purge stale cookies
+  // (including HttpOnly refreshToken) to prevent any redirect loop.
+  const isForcedLogin =
+    request.nextUrl.searchParams.get("expired") === "1" ||
+    request.nextUrl.searchParams.get("logged_out") === "1"
+
+  if (pathname === "/login" && isForcedLogin) {
+    const response = NextResponse.next()
+    response.cookies.delete("admin_session")
+    response.cookies.delete("refreshToken")
+    return response
+  }
+
   // Unauthenticated user attempting to access protected route -> redirect to /login
   if (!sessionCookie && !isPublicRoute) {
     const loginUrl = new URL("/login", request.url)

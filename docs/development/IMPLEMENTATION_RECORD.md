@@ -7,11 +7,11 @@
 
 ## 1. LAST UPDATE
 
-- **Timestamp:** `2026-11-16 22:15`
-- **Component / Service:** `apps/admin` / `web_admin_auth`
-- **Task:** `TASK-03: View User UI & Account Moderation Integration`
+- **Timestamp:** `2026-11-17 22:10`
+- **Component / Service:** `mobile_apps/pikyrider` / `feature_pikyrider_auth`
+- **Task:** `TASK-04: Session Storage, Refresh & Logout Engine`
 - **Summary:**
-  Implemented dedicated User Details view strictly matching Figma specification (`Node 309:404`) at `apps/admin/app/users/[id]/page.tsx` and high-fidelity zero-CLS skeleton (`apps/admin/app/users/[id]/skeleton.tsx`). The page features full `AdminShell` integration with back breadcrumb navigation to `/users`, user account summary card (name, email, membership date, live status pill, verification badge, onboarding indicator), 2-column info grid (Personal information, Contact details with email/phone verified pills, System information with copy-to-clipboard User ID, Emergency contacts card, Authentication provider metadata, Verification & onboarding status matrix, and UTC timestamps), and interactive Account Moderation modal controls (Block, Unblock, Soft Delete) submitting mutations to `services/auth`; updated `/users` table rows and `View ↗` action buttons to navigate directly to `/users/[id]`; removed redundant user counter in card header; resolved SSR hydration mismatch; and verified with complete test suites across `@web/admin` (typecheck, lint, Next.js 16 build: 12 routes), `@forginity/sdk` (24/24 tests), and `@services/auth` (214/214 tests).
+  Built complete mobile session lifecycle engine adhering strictly to `services/auth/README.md` (Group F & Section 6). Created `session-storage.service.ts` using `expo-secure-store` for hardware-backed token persistence with web/test fallbacks. Implemented `refreshSession` (`POST /api/auth/session/refresh`), `revokeSession` (`POST /api/auth/session/revoke`), and `getCurrentSession` (`GET /api/auth/session/me`) in `auth-api.service.ts`. Created `session-manager.service.ts` handling cold-start silent session hydration before splash screen dismiss, automated token rotation in non-cookie mobile environments, and remote session revocation on sign-out. Updated `otp.tsx` and `country.tsx` to persist tokens, and connected "Sign out" CTA in `(app)/index.tsx`. Verified cleanly with TypeScript and ESLint.
 
 ---
 
@@ -49,3 +49,7 @@
 | 28 | [`web_admin_auth`](./web_admin_auth/TASK_LIST.md) | `TASK-01` | Login Screen UI & Login API Integration (Email + OTP) | [`TASK_01_IMPLEMENTATION_GUIDE.md`](./web_admin_auth/TASK_01_IMPLEMENTATION_GUIDE.md) | 2026-11-14 | Next.js Build + TypeScript + ESLint |
 | 29 | [`web_admin_auth`](./web_admin_auth/TASK_LIST.md) | `TASK-02` | User List UI & Directory API Integration | [`TASK_02_IMPLEMENTATION_GUIDE.md`](./web_admin_auth/TASK_02_IMPLEMENTATION_GUIDE.md) | 2026-11-16 | Next.js Build + Vitest + TypeScript + ESLint |
 | 30 | [`web_admin_auth`](./web_admin_auth/TASK_LIST.md) | `TASK-03` | View User UI & Account Moderation Integration | [`TASK_03_IMPLEMENTATION_GUIDE.md`](./web_admin_auth/TASK_03_IMPLEMENTATION_GUIDE.md) | 2026-11-16 | Next.js Build + Vitest + TypeScript + ESLint |
+| 31 | [`feature_pikyrider_auth`](./feature_pikyrider_auth/TASK_LIST.md) | `TASK-01` | Mobile Email Authentication Flow (Sign-in / Sign-up) | [`TASK_01_IMPLEMENTATION_GUIDE.md`](./feature_pikyrider_auth/TASK_01_IMPLEMENTATION_GUIDE.md) | 2026-11-17 | TypeScript + ESLint |
+| 32 | [`feature_pikyrider_auth`](./feature_pikyrider_auth/TASK_LIST.md) | `TASK-02` | OTP Code Verification Screen (Sign-in / Sign-up) | [`TASK_02_IMPLEMENTATION_GUIDE.md`](./feature_pikyrider_auth/TASK_02_IMPLEMENTATION_GUIDE.md) | 2026-11-17 | TypeScript + ESLint |
+| 33 | [`feature_pikyrider_auth`](./feature_pikyrider_auth/TASK_LIST.md) | `TASK-03` | Rider Profile Onboarding Screen (Sign-up) | [`TASK_03_IMPLEMENTATION_GUIDE.md`](./feature_pikyrider_auth/TASK_03_IMPLEMENTATION_GUIDE.md) | 2026-11-17 | TypeScript + ESLint |
+| 34 | [`feature_pikyrider_auth`](./feature_pikyrider_auth/TASK_LIST.md) | `TASK-04` | Session Storage, Refresh & Logout Engine | [`TASK_04_IMPLEMENTATION_GUIDE.md`](./feature_pikyrider_auth/TASK_04_IMPLEMENTATION_GUIDE.md) | 2026-11-17 | TypeScript + ESLint |

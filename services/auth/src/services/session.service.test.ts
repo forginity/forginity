@@ -39,6 +39,7 @@ describe("SessionService Unit Tests", () => {
       phone: null,
       name: "Alex Rider",
       passwordHash: null,
+      username: "alexrider",
       firstName: "Alex",
       lastName: "Rider",
       gender: "male",

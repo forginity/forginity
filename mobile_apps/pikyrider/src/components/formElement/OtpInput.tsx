@@ -1,10 +1,9 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import {
   View,
   Text,
   TextInput,
   NativeSyntheticEvent,
-  TextInputKeyPressEventData,
   Pressable,
 } from "react-native";
 import { AlertCircle } from "lucide-react-native";
@@ -16,6 +15,7 @@ export interface OtpInputProps {
   className?: string;
   error?: string;
   hasError?: boolean;
+  autoFocus?: boolean;
 }
 
 export const OtpInput: React.FC<OtpInputProps> = ({
@@ -25,8 +25,18 @@ export const OtpInput: React.FC<OtpInputProps> = ({
   className = "",
   error,
   hasError = false,
+  autoFocus = true,
 }) => {
-  const inputRefs = useRef<Array<TextInput | null>>([]);
+  const inputRefs = useRef<any[]>([]);
+
+  useEffect(() => {
+    if (autoFocus) {
+      const timer = setTimeout(() => {
+        inputRefs.current[0]?.focus();
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [autoFocus]);
 
   const digits = Array.from({ length }).map((_, i) => value[i] || "");
   const isErroneous = Boolean(error) || hasError;
@@ -54,7 +64,7 @@ export const OtpInput: React.FC<OtpInputProps> = ({
   };
 
   const handleKeyPress = (
-    e: NativeSyntheticEvent<TextInputKeyPressEventData>,
+    e: NativeSyntheticEvent<{ key: string }>,
     index: number
   ) => {
     if (e.nativeEvent.key === "Backspace") {

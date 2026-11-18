@@ -16,6 +16,7 @@ describe("Onboarding Route (POST /api/auth/onboarding)", () => {
     phone: null,
     name: null,
     passwordHash: null,
+    username: null,
     firstName: null,
     lastName: null,
     gender: null,

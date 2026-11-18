@@ -29,6 +29,7 @@ export function validateRequest(validators: RequestValidators) {
       if (error instanceof ZodError) {
         res.status(400).json({
           error: "Validation Error",
+          code: "VALIDATION_ERROR",
           issues: error.issues.map((issue) => ({
             field: issue.path.join("."),
             message: issue.message,
