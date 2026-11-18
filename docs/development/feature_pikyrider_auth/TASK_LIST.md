@@ -10,11 +10,11 @@
   - 6-digit OTP code verification screen with timer countdown and resend trigger.
   - Mandatory Rider Profile Onboarding screen (First Name, Last Name, Gender, Country).
   - Session persistence in hardware-backed storage (`Expo SecureStore`), silent background token refresh, and explicit logout.
-  - Profile and Emergency Contact management screen.
   - Google Social Sign-In / Sign-Up federation.
+  - Profile and Emergency Contact management screen.
   - Phased build, typecheck, and automated test suites.
 - **Tech Stack:** React Native, Expo, TypeScript, `expo-secure-store`, Zod, `@react-native-google-signin/google-signin` / Expo AuthSession, Jest/Vitest.
-- **Component Status:** `IN_PROGRESS` (1/9 tasks completed; target deadline: **Next Sunday, 2026-11-22**).
+- **Component Status:** `IN_PROGRESS` (4/9 tasks completed; target deadline: **Next Sunday, 2026-11-22**).
 - **Central Implementation Record:** [`../IMPLEMENTATION_RECORD.md`](../IMPLEMENTATION_RECORD.md)
 - **Overall Progress:** [`../PROGRESS.md`](../PROGRESS.md)
 
@@ -33,9 +33,9 @@
 | `TASK-02` | OTP Code Verification Screen (Sign-in / Sign-up) | 6-digit numeric input with auto-focus, countdown timer, `POST /api/auth/email/verify` verification | [`TASK_02_IMPLEMENTATION_GUIDE.md`](./TASK_02_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
 | `TASK-03` | Rider Profile Onboarding Screen (Sign-up) | First Name, Last Name, Gender, ISO Country code picker, `POST /api/auth/onboarding` submission | [`TASK_03_IMPLEMENTATION_GUIDE.md`](./TASK_03_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
 | `TASK-04` | Session Storage, Refresh & Logout Engine | `Expo SecureStore` token storage, silent background refresh, cold-start hydration, and `POST /api/auth/logout` | [`TASK_04_IMPLEMENTATION_GUIDE.md`](./TASK_04_IMPLEMENTATION_GUIDE.md) | `COMPLETED` |
-| `TASK-05` | Rider Profile & Settings Management Screen | Profile screen at `/profile`, update personal metadata via `PUT /api/users/me`, linked emergency contacts | [`TASK_05_IMPLEMENTATION_GUIDE.md`](./TASK_05_IMPLEMENTATION_GUIDE.md) | `PENDING` |
-| `TASK-06` | Phase 1 Mobile Build & Verification Test Suite | Unit tests for auth state machine, navigation guards, token storage mocking, and Expo typecheck | [`TASK_06_IMPLEMENTATION_GUIDE.md`](./TASK_06_IMPLEMENTATION_GUIDE.md) | `PENDING` |
-| `TASK-07` | Google Social Authentication (Sign-in / Sign-up) | Native 1-tap Google Sign-In button, ID token retrieval, `POST /api/auth/google` session exchange | [`TASK_07_IMPLEMENTATION_GUIDE.md`](./TASK_07_IMPLEMENTATION_GUIDE.md) | `PENDING` |
+| `TASK-05` | Google Social Authentication (Sign-in / Sign-up) | Native 1-tap Google Sign-In button, ID token retrieval, `POST /api/auth/google` session exchange | [`TASK_05_IMPLEMENTATION_GUIDE.md`](./TASK_05_IMPLEMENTATION_GUIDE.md) | `PENDING` |
+| `TASK-06` | Rider Profile & Settings Management Screen | Profile screen at `/profile`, update personal metadata via `PUT /api/users/me`, linked emergency contacts | [`TASK_06_IMPLEMENTATION_GUIDE.md`](./TASK_06_IMPLEMENTATION_GUIDE.md) | `PENDING` |
+| `TASK-07` | Phase 1 Mobile Build & Verification Test Suite | Unit tests for auth state machine, navigation guards, token storage mocking, and Expo typecheck | [`TASK_07_IMPLEMENTATION_GUIDE.md`](./TASK_07_IMPLEMENTATION_GUIDE.md) | `PENDING` |
 | `TASK-08` | Phase 2 Mobile Build & Parity Test Suite | End-to-end regression tests verifying Google Auth and Email OTP parity, EAS local build validation | [`TASK_08_IMPLEMENTATION_GUIDE.md`](./TASK_08_IMPLEMENTATION_GUIDE.md) | `PENDING` |
 | `TASK-09` | Hardening, Error Handling & Offline State Management | Network disconnect banner, graceful retry handling, token expiration interceptor recovery | [`TASK_09_IMPLEMENTATION_GUIDE.md`](./TASK_09_IMPLEMENTATION_GUIDE.md) | `PENDING` |
 
@@ -75,26 +75,26 @@
 - **API Contract Source of Truth:** [`services/auth/README.md`](../../services/auth/README.md#group-f-session-lifecycle--token-management) (`POST /api/auth/session/refresh` & `POST /api/auth/session/revoke`) and [`Section 6 (Mobile Integration Guidelines)`](../../services/auth/README.md#6-client-integration--mobile-best-practices-pikyrider--expo)
 - **Guide:** [`TASK_04_IMPLEMENTATION_GUIDE.md`](./TASK_04_IMPLEMENTATION_GUIDE.md)
 
-### `TASK-05`: Rider Profile & Settings Management Screen
-- **Description:** Build user profile screen allowing riders to view their account info, update display name, gender, country, and avatar URL via `PUT /api/users/me`.
-  Manage emergency contacts (add, edit, remove emergency phone contacts) via `/api/users/me/emergency-contacts`.
-- **API Contract Source of Truth:** [`services/auth/README.md`](../../services/auth/README.md#group-g-user-self-service--lifecycle) (`GET/PUT /api/users/me`) and [`Group H: Emergency Contacts`](../../services/auth/README.md#group-h-emergency-contacts-rider-safety)
-- **Guide:** [`TASK_05_IMPLEMENTATION_GUIDE.md`](./TASK_05_IMPLEMENTATION_GUIDE.md)
-
-### `TASK-06`: Phase 1 Mobile Build & Verification Test Suite
-- **Description:** Execute comprehensive automated test verification for Phase 1:
-  - Unit tests for auth state slice, token storage mock, and Zod validator schemas.
-  - Verify protected route navigation redirects when unauthenticated.
-  - Typecheck mobile codebase (`tsc --noEmit`).
-- **Guide:** [`TASK_06_IMPLEMENTATION_GUIDE.md`](./TASK_06_IMPLEMENTATION_GUIDE.md)
-
-### `TASK-07`: Google Social Authentication (Sign-in / Sign-up)
-- **Description:** Integrate native Google Sign-In SDK for 1-tap authentication:
+### `TASK-05`: Google Social Authentication (Sign-in / Sign-up)
+- **Description:** Integrate Google Sign-In for 1-tap authentication:
   - Request user Google ID token.
   - Send ID token to `POST /api/auth/google` in `services/auth`.
   - Handle automatic avatar extraction from Google profile picture (`claims.picture`).
   - Seamlessly route to Home canvas if onboarded, or prompt Onboarding if first-time user.
 - **API Contract Source of Truth:** [`services/auth/README.md`](../../services/auth/README.md#group-d-google-oauth-20--social-sso) (`POST /api/auth/google`)
+- **Guide:** [`TASK_05_IMPLEMENTATION_GUIDE.md`](./TASK_05_IMPLEMENTATION_GUIDE.md)
+
+### `TASK-06`: Rider Profile & Settings Management Screen
+- **Description:** Build user profile screen allowing riders to view their account info, update display name, gender, country, and avatar URL via `PUT /api/users/me`.
+  Manage emergency contacts (add, edit, remove emergency phone contacts) via `/api/users/me/emergency-contacts`.
+- **API Contract Source of Truth:** [`services/auth/README.md`](../../services/auth/README.md#group-g-user-self-service--lifecycle) (`GET/PUT /api/users/me`) and [`Group H: Emergency Contacts`](../../services/auth/README.md#group-h-emergency-contacts-rider-safety)
+- **Guide:** [`TASK_06_IMPLEMENTATION_GUIDE.md`](./TASK_06_IMPLEMENTATION_GUIDE.md)
+
+### `TASK-07`: Phase 1 Mobile Build & Verification Test Suite
+- **Description:** Execute comprehensive automated test verification for Phase 1:
+  - Unit tests for auth state slice, token storage mock, and Zod validator schemas.
+  - Verify protected route navigation redirects when unauthenticated.
+  - Typecheck mobile codebase (`tsc --noEmit`).
 - **Guide:** [`TASK_07_IMPLEMENTATION_GUIDE.md`](./TASK_07_IMPLEMENTATION_GUIDE.md)
 
 ### `TASK-08`: Phase 2 Mobile Build & Parity Test Suite
