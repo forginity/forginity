@@ -15,6 +15,7 @@ describe("UserService Unit Tests (Self-Service Profile & Lifecycle)", () => {
     email: "rider@forginity.com",
     phone: "+14155552671",
     name: "Alex Rider",
+    username: "alexrider",
     passwordHash: null,
     firstName: "Alex",
     lastName: "Rider",

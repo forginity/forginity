@@ -5,6 +5,8 @@ import type {
   InitiateEmailAuthResponse,
   VerifyEmailAuthPayload,
   VerifyEmailAuthResponse,
+  GoogleAuthPayload,
+  GoogleAuthResponse,
   OnboardingPayload,
   OnboardingResponse,
   CheckUsernameResponse,
@@ -12,6 +14,7 @@ import type {
   RevokeSessionResponse,
   SessionMeResponse,
   AuthApiErrorResponse,
+  UserProfileSummary,
 } from "../types/auth-api.types";
 
 export class AuthApiError extends Error {
@@ -27,6 +30,35 @@ export class AuthApiError extends Error {
     this.remainingAttempts = remainingAttempts;
   }
 }
+
+const isGoogleMockEnabled = (): boolean =>
+  process.env.EXPO_PUBLIC_ENABLE_GOOGLE_MOCK === "true";
+
+const createMockUser = (
+  isOnboarded = false,
+  overrides: Partial<UserProfileSummary> = {}
+): UserProfileSummary => ({
+  id: "mock-google-user-id",
+  email: "alex.rider@gmail.com",
+  name: "Alex Rider",
+  firstName: "Alex",
+  lastName: "Rider",
+  username: isOnboarded ? "alexrider" : "alex_7281",
+  gender: isOnboarded ? "male" : null,
+  country: isOnboarded ? "US" : null,
+  avatarUrl:
+    "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&h=200&q=80",
+  authProvider: "google",
+  isVerified: true,
+  isEmailVerified: true,
+  isPhoneVerified: false,
+  isOnboarded,
+  userType: "user",
+  status: "active",
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+  ...overrides,
+});
 
 class AuthApiService {
   private getBaseUrl(): string {
@@ -188,6 +220,76 @@ class AuthApiService {
     }
   }
 
+  async authenticateGoogle(
+    payload: GoogleAuthPayload
+  ): Promise<GoogleAuthResponse> {
+    if (payload.idToken === "mock.google.id.token" || isGoogleMockEnabled()) {
+      const isReturning =
+        process.env.EXPO_PUBLIC_GOOGLE_MOCK_RETURNING === "true";
+
+      if (isReturning) {
+        return {
+          success: true,
+          isNewUser: false,
+          isOnboarded: true,
+          user: createMockUser(true),
+          session: {
+            accessToken: "mock.access.token",
+            refreshToken: "mock.refresh.token",
+            expiresIn: 3600,
+          },
+        };
+      }
+
+      return {
+        success: true,
+        isNewUser: true,
+        isOnboarded: false,
+        user: createMockUser(false),
+        onboardingToken: "mock.onboarding.token",
+      };
+    }
+
+    const url = `${this.getBaseUrl()}/api/auth/google`;
+
+    try {
+      const response = await this.fetchWithTimeout(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          idToken: payload.idToken.trim(),
+          ...(payload.productId ? { productId: payload.productId } : {}),
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        const errorData = data as AuthApiErrorResponse;
+        throw new AuthApiError(
+          errorData.error || "Google authentication failed.",
+          response.status,
+          errorData.code
+        );
+      }
+
+      return data as GoogleAuthResponse;
+    } catch (err: any) {
+      if (err instanceof AuthApiError) {
+        throw err;
+      }
+      throw new AuthApiError(
+        err?.message ||
+          `Unable to authenticate with Google at ${this.getBaseUrl()}. Please check your connection.`,
+        500,
+        "NETWORK_ERROR"
+      );
+    }
+  }
+
   async checkUsernameAvailability(
     username: string
   ): Promise<CheckUsernameResponse> {
@@ -237,8 +339,31 @@ class AuthApiService {
     payload: OnboardingPayload,
     onboardingToken: string
   ): Promise<OnboardingResponse> {
-    const url = `${this.getBaseUrl()}/api/auth/onboarding`;
     const normalizedUsername = payload.username?.trim().toLowerCase();
+
+    if (
+      onboardingToken.startsWith("mock.") ||
+      (isGoogleMockEnabled() && onboardingToken === "mock.onboarding.token")
+    ) {
+      return {
+        success: true,
+        user: createMockUser(true, {
+          firstName: payload.firstName.trim(),
+          lastName: payload.lastName.trim(),
+          name: `${payload.firstName.trim()} ${payload.lastName.trim()}`,
+          username: normalizedUsername || "alexrider",
+          gender: payload.gender,
+          country: payload.country.trim().toUpperCase(),
+        }),
+        session: {
+          accessToken: "mock.access.token",
+          refreshToken: "mock.refresh.token",
+          expiresIn: 3600,
+        },
+      };
+    }
+
+    const url = `${this.getBaseUrl()}/api/auth/onboarding`;
 
     try {
       const response = await this.fetchWithTimeout(url, {
@@ -287,6 +412,17 @@ class AuthApiService {
    * Authoritative Source: services/auth/README.md -> Group F (POST /api/auth/session/refresh)
    */
   async refreshSession(refreshToken: string): Promise<RefreshSessionResponse> {
+    if (refreshToken.startsWith("mock.")) {
+      return {
+        success: true,
+        session: {
+          accessToken: "mock.access.token",
+          refreshToken: "mock.refresh.token",
+          expiresIn: 3600,
+        },
+      };
+    }
+
     const url = `${this.getBaseUrl()}/api/auth/session/refresh`;
 
     try {
@@ -333,6 +469,16 @@ class AuthApiService {
     refreshToken?: string,
     accessToken?: string
   ): Promise<RevokeSessionResponse> {
+    if (
+      (refreshToken && refreshToken.startsWith("mock.")) ||
+      (accessToken && accessToken.startsWith("mock."))
+    ) {
+      return {
+        success: true,
+        message: "Session successfully revoked.",
+      };
+    }
+
     const url = `${this.getBaseUrl()}/api/auth/session/revoke`;
 
     try {
@@ -381,6 +527,20 @@ class AuthApiService {
    * Authoritative Source: services/auth/README.md -> Group F (GET /api/auth/session/me)
    */
   async getCurrentSession(accessToken: string): Promise<SessionMeResponse> {
+    if (accessToken.startsWith("mock.")) {
+      return {
+        success: true,
+        user: createMockUser(true),
+        session: {
+          userId: "mock-google-user-id",
+          currentProductId: null,
+          currentSection: null,
+          deviceType: "mobile",
+          expiresAt: new Date(Date.now() + 3600 * 1000).toISOString(),
+        },
+      };
+    }
+
     const url = `${this.getBaseUrl()}/api/auth/session/me`;
 
     try {

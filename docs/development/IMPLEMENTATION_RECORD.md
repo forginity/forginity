@@ -7,11 +7,11 @@
 
 ## 1. LAST UPDATE
 
-- **Timestamp:** `2026-11-17 22:10`
+- **Timestamp:** `2026-11-19 20:30`
 - **Component / Service:** `mobile_apps/pikyrider` / `feature_pikyrider_auth`
-- **Task:** `TASK-04: Session Storage, Refresh & Logout Engine`
+- **Task:** `TASK-05: Google Social Authentication (Sign-in / Sign-up)`
 - **Summary:**
-  Built complete mobile session lifecycle engine adhering strictly to `services/auth/README.md` (Group F & Section 6). Created `session-storage.service.ts` using `expo-secure-store` for hardware-backed token persistence with web/test fallbacks. Implemented `refreshSession` (`POST /api/auth/session/refresh`), `revokeSession` (`POST /api/auth/session/revoke`), and `getCurrentSession` (`GET /api/auth/session/me`) in `auth-api.service.ts`. Created `session-manager.service.ts` handling cold-start silent session hydration before splash screen dismiss, automated token rotation in non-cookie mobile environments, and remote session revocation on sign-out. Updated `otp.tsx` and `country.tsx` to persist tokens, and connected "Sign out" CTA in `(app)/index.tsx`. Verified cleanly with TypeScript and ESLint.
+  Implemented native and web Google OAuth 2.0 / OIDC authentication flow in `mobile_apps/pikyrider`. Configured `expo-auth-session` and `expo-crypto` integration exchanging Google ID tokens with `services/auth` `POST /api/auth/google`. Added `authenticateGoogle` in `auth-api.service.ts` with discriminated union response types. Added `useGoogleAuthPrompt` hook in `google-auth.service.ts` with configuration discovery and mock fallback. Updated `(onboarding)/welcome.tsx` to handle both returning rider sessions and first-time onboarding routing with profile pre-fill. Verified cleanly with TypeScript and ESLint.
 
 ---
 
@@ -53,3 +53,4 @@
 | 32 | [`feature_pikyrider_auth`](./feature_pikyrider_auth/TASK_LIST.md) | `TASK-02` | OTP Code Verification Screen (Sign-in / Sign-up) | [`TASK_02_IMPLEMENTATION_GUIDE.md`](./feature_pikyrider_auth/TASK_02_IMPLEMENTATION_GUIDE.md) | 2026-11-17 | TypeScript + ESLint |
 | 33 | [`feature_pikyrider_auth`](./feature_pikyrider_auth/TASK_LIST.md) | `TASK-03` | Rider Profile Onboarding Screen (Sign-up) | [`TASK_03_IMPLEMENTATION_GUIDE.md`](./feature_pikyrider_auth/TASK_03_IMPLEMENTATION_GUIDE.md) | 2026-11-17 | TypeScript + ESLint |
 | 34 | [`feature_pikyrider_auth`](./feature_pikyrider_auth/TASK_LIST.md) | `TASK-04` | Session Storage, Refresh & Logout Engine | [`TASK_04_IMPLEMENTATION_GUIDE.md`](./feature_pikyrider_auth/TASK_04_IMPLEMENTATION_GUIDE.md) | 2026-11-17 | TypeScript + ESLint |
+| 35 | [`feature_pikyrider_auth`](./feature_pikyrider_auth/TASK_LIST.md) | `TASK-05` | Google Social Authentication (Sign-in / Sign-up) | [`TASK_05_IMPLEMENTATION_GUIDE.md`](./feature_pikyrider_auth/TASK_05_IMPLEMENTATION_GUIDE.md) | 2026-11-19 | TypeScript + ESLint |

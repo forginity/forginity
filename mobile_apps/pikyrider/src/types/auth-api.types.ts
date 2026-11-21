@@ -71,6 +71,27 @@ export interface OnboardingPayload {
   country: string;
 }
 
+export interface GoogleAuthPayload {
+  idToken: string;
+  productId?: string;
+}
+
+export type GoogleAuthResponse =
+  | {
+      success: true;
+      isNewUser: false;
+      isOnboarded: true;
+      user: UserProfileSummary;
+      session: SessionData;
+    }
+  | {
+      success: true;
+      isNewUser: boolean;
+      isOnboarded: false;
+      user: UserProfileSummary;
+      onboardingToken: string;
+    };
+
 export interface CheckUsernameResponse {
   success: boolean;
   available: boolean;

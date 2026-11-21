@@ -36,6 +36,48 @@ export function normalizeGenderForUi(val?: string | null): UiGenderOption | null
   return null;
 }
 
+export function generateSuggestedUsername(
+  nameOrEmail?: string | null
+): string {
+  const raw = (nameOrEmail || "rider")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "")
+    .slice(0, 15);
+  const base = raw.length >= 3 ? raw : "rider";
+  const suffix = Math.floor(1000 + Math.random() * 9000);
+  return `${base}_${suffix}`;
+}
+
+export function detectDefaultCountryCode(): string | null {
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
+    if (tz.includes("Kolkata") || tz.includes("Calcutta")) return "in";
+    if (
+      tz.includes("New_York") ||
+      tz.includes("Los_Angeles") ||
+      tz.includes("Chicago") ||
+      tz.includes("Denver")
+    )
+      return "us";
+    if (
+      tz.includes("Toronto") ||
+      tz.includes("Vancouver") ||
+      tz.includes("Montreal")
+    )
+      return "ca";
+    if (tz.includes("Paris")) return "fr";
+    if (tz.includes("Tokyo")) return "jp";
+    if (tz.includes("Zurich")) return "ch";
+    if (tz.includes("Vienna")) return "at";
+    if (tz.includes("Auckland")) return "nz";
+    if (tz.includes("Oslo")) return "no";
+    if (tz.includes("Rome")) return "it";
+  } catch {
+    // fallback gracefully
+  }
+  return null;
+}
+
 export interface HydratedUserDraft {
   profile: OnboardingProfileDraft;
   gender: UiGenderOption;
@@ -70,10 +112,18 @@ export function resolveHydratedUserState(
     incomingUser.lastName ||
     (nameParts.length > 1 ? nameParts.slice(1).join(" ") : "") ||
     fallbackProfile.lastName;
-  const userName = incomingUser.username ?? fallbackProfile.userName;
-  const isUsernameVerified = incomingUser.username
-    ? true
-    : fallbackProfile.isUsernameVerified;
+
+  const existingUsername = incomingUser.username ?? fallbackProfile.userName;
+  const userName =
+    existingUsername ||
+    generateSuggestedUsername(
+      firstName || incomingUser.name || incomingUser.email?.split("@")[0]
+    );
+
+  const isUsernameVerified = Boolean(userName);
+
+  const resolvedCountryCode =
+    incomingUser.country || fallbackCountryCode || detectDefaultCountryCode();
 
   return {
     profile: {
@@ -83,6 +133,6 @@ export function resolveHydratedUserState(
       isUsernameVerified,
     },
     gender: normalizeGenderForUi(incomingUser.gender) ?? fallbackGender,
-    countryCode: incomingUser.country || fallbackCountryCode,
+    countryCode: resolvedCountryCode,
   };
 }

@@ -87,11 +87,19 @@ export class GoogleAuthService {
       )
     }
 
-    // 2. Query user by Google subject ID
+    // 2. Extract profile details with graceful fallbacks
+    const nameParts = claims.name ? claims.name.trim().split(/\s+/) : []
+    const derivedFirstName = claims.given_name || nameParts[0] || "Rider"
+    const derivedLastName =
+      claims.family_name ||
+      (nameParts.length > 1 ? nameParts.slice(1).join(" ") : "Member")
+    const fullName = claims.name || `${derivedFirstName} ${derivedLastName}`.trim()
+
+    // 3. Query user by Google subject ID
     let user = await this.userRepo.findUserByGoogleId(claims.sub)
     let isNewUser = false
 
-    // 3. Fallback: Query by email for deterministic account linking
+    // 4. Fallback: Query by email for deterministic account linking
     if (!user) {
       const existingUserByEmail = await this.userRepo.findUserByEmail(claims.email)
       if (existingUserByEmail) {
@@ -99,23 +107,23 @@ export class GoogleAuthService {
           googleId: claims.sub,
           isEmailVerified: true,
           isVerified: true,
-          ...(existingUserByEmail.name ? {} : claims.name ? { name: claims.name } : {}),
-          ...(existingUserByEmail.firstName ? {} : claims.given_name ? { firstName: claims.given_name } : {}),
-          ...(existingUserByEmail.lastName ? {} : claims.family_name ? { lastName: claims.family_name } : {}),
+          ...(existingUserByEmail.name ? {} : { name: fullName }),
+          ...(existingUserByEmail.firstName ? {} : { firstName: derivedFirstName }),
+          ...(existingUserByEmail.lastName ? {} : { lastName: derivedLastName }),
           ...(existingUserByEmail.avatarUrl ? {} : claims.picture ? { avatarUrl: claims.picture } : {}),
         })
         user = updated || existingUserByEmail
       }
     }
 
-    // 4. Create new user account if neither Google ID nor email matched
+    // 5. Create new user account if neither Google ID nor email matched
     if (!user) {
       isNewUser = true
       user = await this.userRepo.createUser({
         email: claims.email,
-        name: claims.name,
-        firstName: claims.given_name,
-        lastName: claims.family_name,
+        name: fullName,
+        firstName: derivedFirstName,
+        lastName: derivedLastName,
         avatarUrl: claims.picture,
         googleId: claims.sub,
         authProvider: "google",
@@ -196,13 +204,47 @@ export class GoogleAuthService {
       email: user.email!,
     })
 
+    const suggestedUsername =
+      user.username ||
+      (await this.generateUniqueUsernameSuggestion(
+        user.firstName || user.name || user.email?.split("@")[0]
+      ))
+
     return {
       success: true,
       isNewUser,
       isOnboarded: false,
-      user: sanitizeUser(user),
+      user: {
+        ...sanitizeUser(user),
+        username: suggestedUsername,
+      },
       onboardingToken,
     }
+  }
+
+  /**
+   * Generates a unique rider handle suggestion from name or email hint.
+   * Format: [clean_base]_[random_4_digits], e.g. "vikas_4812"
+   * Verifies against user repository to prevent collisions.
+   */
+  async generateUniqueUsernameSuggestion(baseHint?: string | null): Promise<string> {
+    const rawBase = (baseHint || "rider")
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, "")
+      .slice(0, 15)
+    const base = rawBase.length >= 3 ? rawBase : "rider"
+
+    for (let i = 0; i < 5; i++) {
+      const suffix = Math.floor(1000 + Math.random() * 9000)
+      const candidate = `${base}_${suffix}`
+      const existing = await this.userRepo.findUserByUsername(candidate)
+      if (!existing) {
+        return candidate
+      }
+    }
+
+    const fallbackHex = crypto.randomBytes(2).toString("hex")
+    return `${base}_${fallbackHex}`
   }
 }
 

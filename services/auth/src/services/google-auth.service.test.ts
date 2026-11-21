@@ -47,6 +47,15 @@ describe("GoogleAuthService Unit Tests", () => {
         }
         return null
       },
+      async findUserByUsername(username: string) {
+        const normalized = username.toLowerCase().trim()
+        for (const user of mockUsers.values()) {
+          if (user.username?.toLowerCase().trim() === normalized) {
+            return user
+          }
+        }
+        return null
+      },
       async createUser(input: any) {
         const id = `550e8400-e29b-41d4-a716-${Math.random().toString(16).slice(2, 14).padEnd(12, "0")}`
         const user: User = {
@@ -209,6 +218,8 @@ describe("GoogleAuthService Unit Tests", () => {
     expect(result.user.name).toBe("Brand New")
     expect(result.user.firstName).toBe("Brand")
     expect(result.user.lastName).toBe("New")
+    expect(result.user.username).toBeDefined()
+    expect(result.user.username).toMatch(/^brand_[0-9a-z]+$/)
     expect(result.user.avatarUrl).toBe("https://lh3.googleusercontent.com/avatar-new")
     expect(result.user.googleId).toBe("google-sub-brand-new")
     expect(result.user.authProvider).toBe("google")

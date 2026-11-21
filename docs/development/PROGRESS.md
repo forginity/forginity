@@ -6,7 +6,7 @@ This section represents the high-level progress across the entire Forginity mono
 
 | Total Tasks | Completed | Pending | Progress (%) |
 | :--- | :--- | :--- | :--- |
-| 68 | 34 | 34 | 50% |
+| 68 | 35 | 33 | 51% |
 
 ---
 
@@ -24,7 +24,7 @@ This section tracks the macro development components ordered by implementation p
 | **3** | [`web_admin_product_crud`](./web_admin_product_crud) | 7 | 7 | 0 | Completed on 2026-11-04. All 7 tasks verified (SDK foundation, endpoints, catalog table, create/edit, delete, maintenance, versions). RBAC deferred to V2 Vision. | `COMPLETED` | 2026-11-04 | 100% |
 | **4** | [`service_auth`](./service_auth) | 10 | 10 | 0 | Completed on 2026-11-13. All 10 tasks verified (Scaffold, Schemas, Reusable OTP, Email Auth, Sessions, Onboarding, Google OAuth, Profile/Emergency Contacts, Lifecycle/Soft Delete, Admin User Management & RBAC). Full service complete and ready for integration. | `COMPLETED` | 2026-11-13 | 100% |
 | **5** | [`web_admin_auth`](./web_admin_auth) | 3 | 3 | 0 | Completed on 2026-11-16. All 3 tasks verified (Login screen Email+OTP, User directory list data table, View user detail inspection drawer & moderation actions). | `COMPLETED` | 2026-11-16 | 100% |
-| **6** | [`feature_pikyrider_auth`](./feature_pikyrider_auth) | 9 | 4 | 5 | High priority mobile client integration. Email auth, OTP verify, onboarding, session & logout, Google SSO, profile management, build & testing, EAS build parity, and offline fallback. | `IN_PROGRESS` | 2026-11-22 | 44% |
+| **6** | [`feature_pikyrider_auth`](./feature_pikyrider_auth) | 9 | 5 | 4 | High priority mobile client integration. Email auth, OTP verify, onboarding, session & logout, Google SSO, profile management, build & testing, EAS build parity, and offline fallback. | `IN_PROGRESS` | 2026-11-22 | 56% |
 | **7** | [`infra_redis_layer`](./infra_redis_layer) | 4 | 0 | 4 | Central Redis in-memory session revocation blacklist, rate limiting counters, and Socket.IO Pub/Sub mesh. | `PENDING` | `TBD` | 0% |
 | **8** | [`testing_e2e_playwright`](./testing_e2e_playwright) | 4 | 0 | 4 | End-to-end automated cross-platform test suite (desktop web & mobile phone viewports) covering complete authentication and user flows. | `PENDING` | `TBD` | 0% |
 | **9** | [`feature_pikyrider_solo`](./feature_pikyrider_solo) | 5 | 0 | 5 | Offline map caching, turn-by-turn TTS voice guidance, 500m deviation detection, emergency POIs, and solo ride logging. | `PENDING` | 2027-01-15 | 0% |

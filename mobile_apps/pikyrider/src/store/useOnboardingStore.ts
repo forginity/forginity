@@ -10,7 +10,7 @@ import { CountryItem } from "@/components/formElement/CountryListItem";
 import type { UserProfileSummary } from "../types/auth-api.types";
 
 export type AuthFlow = "signup" | "signin";
-export type AuthMethod = "email" | "phone";
+export type AuthMethod = "email" | "phone" | "google";
 
 export { CountryItem };
 
